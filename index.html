@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IRIS UHK – Vstupní checklist</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div>
+        <div class="eyebrow">Institucionální bezpečnost</div>
+        <h1>IRIS UHK – vstupní checklist</h1>
+        <p class="subtitle">
+          Předběžné vyhodnocení rizikovosti mezinárodní aktivity a založení případu do evidence.
+        </p>
+      </div>
+      <div class="topbar-badge">MVP</div>
+    </header>
+
+    <main class="layout">
+      <section class="card">
+        <div class="card-header">
+          <h2>Vyplnění podání</h2>
+          <p>Vyplňte základní údaje o zamýšlené aktivitě a partnerovi.</p>
+        </div>
+
+        <form id="intakeForm" class="form-grid">
+          <div class="form-group">
+            <label for="applicant_name">Jméno žadatele *</label>
+            <input type="text" id="applicant_name" name="applicant_name" required />
+          </div>
+
+          <div class="form-group">
+            <label for="applicant_email">E-mail žadatele *</label>
+            <input type="email" id="applicant_email" name="applicant_email" required />
+          </div>
+
+          <div class="form-group">
+            <label for="applicant_unit">Součást / fakulta / útvar *</label>
+            <input type="text" id="applicant_unit" name="applicant_unit" required />
+          </div>
+
+          <div class="form-group">
+            <label for="cooperation_type">Typ spolupráce *</label>
+            <select id="cooperation_type" name="cooperation_type" required>
+              <option value="">Vyberte</option>
+              <option value="výzkumná spolupráce">Výzkumná spolupráce</option>
+              <option value="vzdělávací spolupráce">Vzdělávací spolupráce</option>
+              <option value="memorandum / MoU">Memorandum / MoU</option>
+              <option value="mobilita / hostování">Mobilita / hostování</option>
+              <option value="dar / sponzoring">Dar / sponzoring</option>
+              <option value="sdílení dat / know-how">Sdílení dat / know-how</option>
+              <option value="jiné">Jiné</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="cooperation_stage">Fáze spolupráce *</label>
+            <select id="cooperation_stage" name="cooperation_stage" required>
+              <option value="">Vyberte</option>
+              <option value="prvotní úvaha">Prvotní úvaha</option>
+              <option value="předběžné jednání">Předběžné jednání</option>
+              <option value="příprava MoU">Příprava MoU</option>
+              <option value="příprava smlouvy">Příprava smlouvy</option>
+              <option value="realizace">Realizace</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="partner_name">Název partnera *</label>
+            <input type="text" id="partner_name" name="partner_name" required />
+          </div>
+
+          <div class="form-group">
+            <label for="partner_country">Země partnera *</label>
+            <input type="text" id="partner_country" name="partner_country" required />
+          </div>
+
+          <div class="form-group full-width">
+            <label for="partner_website">Web partnera</label>
+            <input type="url" id="partner_website" name="partner_website" placeholder="https://..." />
+          </div>
+
+          <div class="form-group full-width">
+            <label for="intent_description">Popis záměru *</label>
+            <textarea
+              id="intent_description"
+              name="intent_description"
+              rows="5"
+              required
+              placeholder="Stručně popište zamýšlenou aktivitu, její účel a přínos pro UHK."
+            ></textarea>
+          </div>
+
+          <fieldset class="fieldset full-width">
+            <legend>Rizikové indikátory</legend>
+
+            <div class="checkbox-grid">
+              <label class="checkbox-card">
+                <input type="checkbox" name="external_funding" />
+                <span>Externí financování</span>
+              </label>
+
+              <label class="checkbox-card">
+                <input type="checkbox" name="access_to_uhk_systems" />
+                <span>Přístup do systémů UHK</span>
+              </label>
+
+              <label class="checkbox-card">
+                <input type="checkbox" name="sharing_data_knowhow" />
+                <span>Sdílení dat / know-how</span>
+              </label>
+
+              <label class="checkbox-card">
+                <input type="checkbox" name="sensitive_outputs" />
+                <span>Citlivé výstupy / citlivá oblast</span>
+              </label>
+
+              <label class="checkbox-card">
+                <input type="checkbox" name="transfer_outside_eu" />
+                <span>Přenos mimo EU</span>
+              </label>
+
+              <label class="checkbox-card">
+                <input type="checkbox" name="training_or_technical_assistance" />
+                <span>Technická pomoc / školení</span>
+              </label>
+
+              <label class="checkbox-card">
+                <input type="checkbox" name="involves_doctoral_students_or_infrastructure" />
+                <span>Zapojení infrastruktury / doktorandů</span>
+              </label>
+            </div>
+          </fieldset>
+
+          <div class="actions full-width">
+            <button type="submit" id="submitButton" class="btn-primary">
+              Odeslat checklist
+            </button>
+            <button type="button" id="fillDemoButton" class="btn-secondary">
+              Vyplnit ukázková data
+            </button>
+            <button type="reset" class="btn-secondary">
+              Vymazat
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <aside class="sidebar">
+        <section class="card">
+          <div class="card-header">
+            <h2>Předběžné info</h2>
+          </div>
+          <div class="info-list">
+            <div class="info-item">
+              <span class="info-label">Workflow</span>
+              <span class="info-value">Checklist → Case → Posouzení</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Lhůta</span>
+              <span class="info-value">výchozí 10 pracovních dní</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Ukládání</span>
+              <span class="info-value">Google Sheets + Apps Script</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="card result-card" id="resultCard">
+          <div class="card-header">
+            <h2>Výsledek odeslání</h2>
+          </div>
+          <div id="statusMessage" class="status-message status-neutral">
+            Formulář ještě nebyl odeslán.
+          </div>
+
+          <div id="resultDetails" class="result-details hidden">
+            <div class="result-row">
+              <span>Case ID</span>
+              <strong id="caseIdValue">—</strong>
+            </div>
+            <div class="result-row">
+              <span>Intake ID</span>
+              <strong id="intakeIdValue">—</strong>
+            </div>
+            <div class="result-row">
+              <span>Předběžný výsledek</span>
+              <strong id="resultValue">—</strong>
+            </div>
+            <div class="result-row">
+              <span>Skóre</span>
+              <strong id="scoreValue">—</strong>
+            </div>
+          </div>
+        </section>
+      </aside>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
