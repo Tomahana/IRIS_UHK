@@ -13,8 +13,13 @@
       <p class="eyebrow">Institucionální bezpečnost</p>
       <h1>IRIS UHK</h1>
       <p class="subtitle login-lead">
-        Nejprve si vyžádejte přístup (založí se účet v systému), poté se přihlaste a vyplňte checklist.
+        <strong>První vstup:</strong> žádost o přístup s vlastním heslem → účet typu <em>žadatel (User)</em>. Role správce přiřadí pouze IRIS Manager v tabulce Users.
       </p>
+      <ol class="first-entry-steps">
+        <li><span>1</span> Žádost o přístup + heslo</li>
+        <li><span>2</span> Přihlášení žadatele</li>
+        <li><span>3</span> Checklist a sledování stavu / termínů</li>
+      </ol>
 
       <div class="login-tabs" role="tablist">
         <button type="button" class="login-tab active" data-tab="register" id="tabRegister">Žádost o přístup</button>
@@ -39,7 +44,7 @@
           <label for="registerPassword2">Potvrzení hesla *</label>
           <input type="password" id="registerPassword2" name="registerPassword2" required minlength="8" autocomplete="new-password" />
         </div>
-        <p class="field-hint">Minimálně 8 znaků. Účet vznikne ihned; stejné údaje použijete u přihlášení žadatele.</p>
+        <p class="field-hint">Minimálně 8 znaků. Účet vznikne jako <strong>User</strong> ihned; stejné údaje použijete u přihlášení žadatele.</p>
         <button type="submit" class="btn-primary login-submit" id="registerSubmit">Odeslat žádost o přístup</button>
         <p id="registerMessage" class="login-error hidden" role="alert"></p>
       </form>
@@ -176,7 +181,7 @@
             <p>Pouze případy pod vaším přihlášeným e-mailem.</p>
           </div>
           <div class="table-wrap">
-            <table class="cases-table" aria-label="Moje podání">
+            <table class="cases-table cases-table-user" aria-label="Moje podání">
               <thead>
                 <tr>
                   <th>Case ID</th>
@@ -184,8 +189,10 @@
                   <th>Název</th>
                   <th>Partner</th>
                   <th>Stav</th>
-                  <th>Priorita</th>
-                  <th>Riziko</th>
+                  <th>Termín (lhůta)</th>
+                  <th>Další postup</th>
+                  <th>Vyjádření IRIS</th>
+                  <th>Analýza</th>
                 </tr>
               </thead>
               <tbody id="userCasesTableBody"></tbody>
@@ -214,7 +221,7 @@
             <p>Checklist → Case → Posouzení</p>
           </div>
           <div class="info-list">
-            <div class="info-item"><span class="info-label">Lhůta</span><span class="info-value">výchozí 10 pracovních dní</span></div>
+            <div class="info-item"><span class="info-label">Lhůty</span><span class="info-value">u každého případu v tabulce; dle metodiky IRIS</span></div>
           </div>
         </section>
       </aside>
@@ -238,18 +245,20 @@
           <input type="search" id="searchCases" placeholder="Hledat (název, partner, žadatel…)" aria-label="Hledat v případech" />
           <select id="filterStatus" aria-label="Filtrovat podle stavu">
             <option value="">Všechny stavy</option>
-            <option value="Nový">Nový</option>
-            <option value="V posouzení">V posouzení</option>
-            <option value="Probíhá DD">Probíhá DD</option>
-            <option value="Uzavřeno bez výhrad">Uzavřeno bez výhrad</option>
-            <option value="Uzavřeno s podmínkami">Uzavřeno s podmínkami</option>
-            <option value="Nedoporučeno">Nedoporučeno</option>
+            <option value="new">Nový</option>
+            <option value="under_review">V posouzení</option>
+            <option value="dd_in_progress">Probíhá DD</option>
+            <option value="case_handling">Řeší se</option>
+            <option value="analysis_in_progress">Probíhá analýza</option>
+            <option value="closed">Uzavřeno</option>
+            <option value="waiting_internal_opinion">Čeká na interní stanovisko</option>
+            <option value="ready_for_decision">Připraveno k rozhodnutí</option>
           </select>
           <select id="filterPriority" aria-label="Filtrovat podle priority">
             <option value="">Všechny priority</option>
-            <option value="Nízká">Nízká</option>
-            <option value="Střední">Střední</option>
-            <option value="Vysoká">Vysoká</option>
+            <option value="nízká">Nízká</option>
+            <option value="střední">Střední</option>
+            <option value="vysoká">Vysoká</option>
           </select>
           <button type="button" class="btn-secondary" id="refreshCasesButton">Obnovit</button>
         </div>
@@ -258,6 +267,7 @@
             <thead>
               <tr>
                 <th>Case ID</th>
+                <th>Termín</th>
                 <th>Vytvořeno</th>
                 <th>Název</th>
                 <th>Partner</th>
@@ -265,10 +275,58 @@
                 <th>Stav</th>
                 <th>Priorita</th>
                 <th>Riziko</th>
+                <th></th>
               </tr>
             </thead>
             <tbody id="casesTableBody"></tbody>
           </table>
+        </div>
+
+        <div id="managerCasePanel" class="manager-case-panel hidden" aria-hidden="true">
+          <h3 class="manager-case-panel-title" id="managerCasePanelTitle">Úprava případu</h3>
+          <p class="field-hint" id="managerCasePanelSubtitle"></p>
+          <input type="hidden" id="managerEditCaseId" value="" />
+
+          <div class="manager-case-grid">
+            <div class="form-group full-width">
+              <label for="managerCaseStatus">Stav případu</label>
+              <select id="managerCaseStatus">
+                <option value="new">Nový</option>
+                <option value="under_review">V posouzení</option>
+                <option value="dd_in_progress">Probíhá DD</option>
+                <option value="case_handling">Řeší se</option>
+                <option value="analysis_in_progress">Probíhá analýza</option>
+                <option value="waiting_internal_opinion">Čeká na interní stanovisko</option>
+                <option value="ready_for_decision">Připraveno k rozhodnutí</option>
+                <option value="closed">Uzavřeno</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="managerCaseDue">Termín / lhůta (další milník)</label>
+              <input type="datetime-local" id="managerCaseDue" />
+            </div>
+            <div class="form-group full-width">
+              <label for="managerCaseNextStep">Další postup pro žadatele (co a kdy očekávat)</label>
+              <textarea id="managerCaseNextStep" rows="3" placeholder="Dle metodiky IRIS – stručně lhůty a krok."></textarea>
+            </div>
+            <div class="form-group full-width">
+              <label for="managerCaseStatement">Vyjádření IRIS k případu</label>
+              <textarea id="managerCaseStatement" rows="4" placeholder="Shrnutí pro žadatele, odkaz na metodiku."></textarea>
+            </div>
+            <div class="form-group full-width">
+              <label for="managerCaseAnalysisUrl">Odkaz na zprávu / analýzu (Drive, SharePoint…)</label>
+              <input type="url" id="managerCaseAnalysisUrl" placeholder="https://…" />
+            </div>
+            <div class="form-group full-width">
+              <label for="managerCaseFile">Nebo nahrát soubor (PDF; vyžaduje složku Drive ve skriptu)</label>
+              <input type="file" id="managerCaseFile" accept=".pdf,application/pdf" />
+            </div>
+          </div>
+          <div class="manager-case-actions">
+            <button type="button" class="btn-primary" id="managerCaseSave">Uložit změny</button>
+            <button type="button" class="btn-secondary" id="managerCaseCancel">Zavřít</button>
+          </div>
+          <p id="managerCaseFormMessage" class="manager-case-form-msg hidden" role="status"></p>
         </div>
       </section>
     </div>
