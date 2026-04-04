@@ -114,6 +114,89 @@ body {
   border-radius: 12px;
 }
 
+.first-entry-steps {
+  margin: 0 0 20px;
+  padding-left: 22px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.first-entry-steps li {
+  margin-bottom: 6px;
+}
+
+.first-entry-steps span {
+  display: inline-block;
+  min-width: 1.25em;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.manager-case-panel {
+  margin: 24px 24px 28px;
+  padding: 22px 24px 24px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--surface-soft);
+}
+
+.manager-case-panel.hidden {
+  display: none;
+}
+
+.manager-case-panel-title {
+  margin: 0 0 8px;
+  font-size: 20px;
+}
+
+.manager-case-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.manager-case-grid .full-width {
+  grid-column: 1 / -1;
+}
+
+.manager-case-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+
+.manager-case-form-msg {
+  margin: 14px 0 0;
+  font-weight: 700;
+}
+
+.btn-compact {
+  padding: 8px 12px;
+  font-size: 13px;
+}
+
+.cases-table tr.row-overdue td {
+  background: var(--warning-bg);
+}
+
+.manager-status--success {
+  background: var(--success-bg);
+  color: var(--success-text);
+}
+
+@media (max-width: 720px) {
+  .manager-case-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .manager-case-panel {
+    margin: 16px;
+  }
+}
+
 .topbar {
   display: flex;
   justify-content: space-between;
@@ -474,6 +557,10 @@ button {
   width: 100%;
   border-collapse: collapse;
   min-width: 720px;
+}
+
+.cases-table-user {
+  min-width: 1040px;
 }
 
 .cases-table th,
