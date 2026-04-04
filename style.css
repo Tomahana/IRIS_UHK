@@ -46,6 +46,61 @@ body {
   padding: 24px;
 }
 
+.login-brand {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px 24px;
+  margin: 0 0 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.login-brand-uhk {
+  display: inline-block;
+  line-height: 0;
+}
+
+.login-brand-uhk:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+.login-brand-hor {
+  max-height: 56px;
+  width: auto;
+  height: auto;
+  display: block;
+}
+
+.login-brand-eu {
+  max-height: 52px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
+.topbar-main {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  min-width: 0;
+  flex: 1;
+}
+
+.topbar-titles {
+  min-width: 0;
+}
+
+.topbar-logo-mark {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+}
+
 .login-card {
   width: 100%;
   max-width: 440px;
@@ -664,6 +719,15 @@ button {
 
   .topbar {
     flex-direction: column;
+  }
+
+  .login-brand {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .login-brand-eu {
+    max-height: 44px;
   }
 
   .topbar-actions {
