@@ -41,6 +41,7 @@ const statTotal = document.getElementById('statTotal');
 const statOpen = document.getElementById('statOpen');
 const statClosed = document.getElementById('statClosed');
 const statOverdue = document.getElementById('statOverdue');
+const statDueSoon = document.getElementById('statDueSoon');
 
 const searchCases = document.getElementById('searchCases');
 const filterStatus = document.getElementById('filterStatus');
@@ -442,9 +443,38 @@ function isCaseOpen(status) {
 }
 
 function isCaseOverdue(item) {
+  if (item.due_overdue_flag === true) return true;
   if (!item.due_date || !isCaseOpen(item.status)) return false;
   const due = new Date(item.due_date);
   return !Number.isNaN(due.getTime()) && due.getTime() < Date.now();
+}
+
+function isCaseDueSoon(item) {
+  if (item.due_soon === true) return true;
+  const d = item.days_until_due;
+  if (d === null || d === undefined || !isCaseOpen(item.status)) return false;
+  return d >= 0 && d <= 3;
+}
+
+function dueDateCellHtml(item) {
+  const base = formatDateOnly(item.due_date);
+  const d = item.days_until_due;
+  if (d === null || d === undefined || Number.isNaN(d)) {
+    return escapeHtml(base);
+  }
+  let badge = '';
+  if (isCaseOpen(item.status)) {
+    if (d < 0) {
+      badge = ` <span class="due-badge due-badge-overdue">po termínu</span>`;
+    } else if (item.due_soon) {
+      if (d === 0) {
+        badge = ` <span class="due-badge due-badge-soon">dnes</span>`;
+      } else {
+        badge = ` <span class="due-badge due-badge-soon">za ${d} d.</span>`;
+      }
+    }
+  }
+  return `${escapeHtml(base)}${badge}`;
 }
 
 function cellPreview(text, maxLen) {
@@ -492,6 +522,9 @@ function renderDashboard(summary) {
   statOpen.textContent = summary.open_cases ?? 0;
   statClosed.textContent = summary.closed_cases ?? 0;
   statOverdue.textContent = summary.overdue_cases ?? 0;
+  if (statDueSoon) {
+    statDueSoon.textContent = summary.due_soon_cases ?? 0;
+  }
 }
 
 function renderManagerCases(items) {
@@ -502,12 +535,13 @@ function renderManagerCases(items) {
 
   casesTableBody.innerHTML = items
     .map((item) => {
-      const overdueCls = isCaseOverdue(item) ? 'row-overdue' : '';
-      const dueStr = formatDateOnly(item.due_date);
+      let rowCls = '';
+      if (isCaseOverdue(item)) rowCls = 'row-overdue';
+      else if (isCaseDueSoon(item)) rowCls = 'row-due-soon';
       return `
-    <tr class="${overdueCls}">
+    <tr class="${rowCls}">
       <td>${escapeHtml(item.case_id)}</td>
-      <td>${escapeHtml(dueStr)}</td>
+      <td>${dueDateCellHtml(item)}</td>
       <td>${escapeHtml(formatDate(item.created_at))}</td>
       <td>${escapeHtml(item.title)}</td>
       <td>${escapeHtml(item.partner_name)}</td>
@@ -529,17 +563,19 @@ function renderUserCases(items) {
 
   userCasesTableBody.innerHTML = items
     .map((item) => {
-      const overdueCls = isCaseOverdue(item) ? 'row-overdue' : '';
+      let rowCls = '';
+      if (isCaseOverdue(item)) rowCls = 'row-overdue';
+      else if (isCaseDueSoon(item)) rowCls = 'row-due-soon';
       const nextText = nextStepForUser(item);
       const stmt = cellPreview(item.iris_statement, 120);
       return `
-    <tr class="${overdueCls}">
+    <tr class="${rowCls}">
       <td>${escapeHtml(item.case_id)}</td>
       <td>${escapeHtml(formatDate(item.created_at))}</td>
       <td>${escapeHtml(item.title)}</td>
       <td>${escapeHtml(item.partner_name)}</td>
       <td>${escapeHtml(caseStatusLabel(item.status))}</td>
-      <td>${escapeHtml(formatDateOnly(item.due_date))}</td>
+      <td>${dueDateCellHtml(item)}</td>
       <td title="${escapeAttr(nextText)}">${cellPreview(nextText, 80)}</td>
       <td title="${escapeAttr(String(item.iris_statement || ''))}">${stmt}</td>
       <td>${analysisLinkCell(analysisUrlForItem(item))}</td>
