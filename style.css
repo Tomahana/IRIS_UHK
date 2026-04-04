@@ -1,23 +1,41 @@
+/* Typografie a barevnost v návaznosti na www.uhk.cz (Comenia Sans, černé akcenty, světlé pozadí). */
+@font-face {
+  font-family: "Comenia Sans";
+  src: url("https://www.uhk.cz/fonts/comenia-sans/comenia-sans.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Comenia Sans";
+  src: url("https://www.uhk.cz/fonts/comenia-sans/comenia-sans-bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
-  --bg: #f4f7fb;
+  --bg: #f5f5f5;
   --surface: #ffffff;
-  --surface-soft: #f8fafc;
-  --border: #d9e2ec;
-  --border-strong: #c3d0dd;
-  --text: #16324f;
-  --muted: #5f7187;
-  --primary: #1f5b92;
-  --primary-hover: #184a76;
+  --surface-soft: #fafafa;
+  --border: #e1e4e7;
+  --border-strong: #c8c8c8;
+  --text: #323232;
+  --muted: #646464;
+  --primary: #000000;
+  --primary-hover: #333333;
   --success-bg: #edf8f0;
-  --success-text: #216e39;
+  --success-text: #027706;
   --warning-bg: #fff7e8;
   --warning-text: #8a5a00;
   --danger-bg: #fdeeee;
   --danger-text: #8a1f1f;
-  --neutral-bg: #eef3f8;
-  --neutral-text: #35516d;
-  --shadow: 0 10px 30px rgba(22, 50, 79, 0.08);
-  --radius: 16px;
+  --neutral-bg: #f0f0f0;
+  --neutral-text: #323232;
+  --shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  --radius: 12px;
+  --uhk-line: #e1e4e7;
 }
 
 * {
@@ -26,9 +44,10 @@
 
 body {
   margin: 0;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Comenia Sans", Arial, Helvetica, sans-serif;
   background: var(--bg);
   color: var(--text);
+  line-height: 1.5;
 }
 
 .app-shell {
@@ -44,17 +63,18 @@ body {
   align-items: center;
   justify-content: center;
   padding: 24px;
+  background: linear-gradient(180deg, #fafafa 0%, #ececec 100%);
 }
 
 .login-brand {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   gap: 16px 24px;
   margin: 0 0 20px;
   padding-bottom: 20px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--uhk-line);
 }
 
 .login-brand-uhk {
@@ -68,17 +88,12 @@ body {
   border-radius: 4px;
 }
 
-.login-brand-hor {
-  max-height: 56px;
+.login-brand-main {
+  max-height: 72px;
+  max-width: 100%;
   width: auto;
   height: auto;
   display: block;
-}
-
-.login-brand-eu {
-  max-height: 52px;
-  width: auto;
-  height: auto;
   object-fit: contain;
 }
 
@@ -94,16 +109,29 @@ body {
   min-width: 0;
 }
 
+.topbar-logo-link {
+  flex-shrink: 0;
+  line-height: 0;
+  border-radius: 8px;
+}
+
+.topbar-logo-link:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 4px;
+}
+
 .topbar-logo-mark {
   flex-shrink: 0;
-  width: 48px;
-  height: 48px;
+  width: 52px;
+  height: 52px;
   object-fit: contain;
+  border-radius: 8px;
+  display: block;
 }
 
 .login-card {
   width: 100%;
-  max-width: 440px;
+  max-width: 520px;
   padding: 28px 28px 32px;
 }
 
@@ -257,7 +285,11 @@ body {
   justify-content: space-between;
   align-items: flex-start;
   gap: 16px;
-  margin-bottom: 24px;
+  margin: -24px -24px 24px;
+  padding: 20px 24px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--uhk-line);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04);
 }
 
 .topbar-actions {
@@ -272,7 +304,7 @@ body {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: var(--primary);
+  color: var(--text);
   margin-bottom: 8px;
 }
 
@@ -394,7 +426,8 @@ input.input-readonly {
 input:focus,
 textarea:focus,
 select:focus {
-  outline: 2px solid rgba(31, 91, 146, 0.15);
+  outline: 2px solid rgba(0, 0, 0, 0.12);
+  outline-offset: 0;
   border-color: var(--primary);
 }
 
@@ -719,15 +752,13 @@ button {
 
   .topbar {
     flex-direction: column;
+    margin: -16px -16px 20px;
+    padding: 16px;
   }
 
   .login-brand {
     flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .login-brand-eu {
-    max-height: 44px;
+    align-items: center;
   }
 
   .topbar-actions {
