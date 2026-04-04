@@ -63,6 +63,7 @@ body {
 
 .login-tabs {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   margin-bottom: 20px;
 }
@@ -104,6 +105,13 @@ body {
   font-size: 14px;
   font-weight: 700;
   color: var(--danger-text);
+}
+
+.login-success {
+  color: var(--success-text) !important;
+  background: var(--success-bg);
+  padding: 12px 14px;
+  border-radius: 12px;
 }
 
 .topbar {
