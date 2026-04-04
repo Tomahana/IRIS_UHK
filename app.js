@@ -13,6 +13,8 @@
  * 3) POST { action: 'register', name, email, password } – založí řádek v Users (žadatel).
  *
  * 4) POST intake: server ověří, že applicant_email patří aktivnímu řádku Users (role user).
+ *
+ * 5) POST { action: 'update_case', manager_key, case_id, manager_email, status?, … } – úprava případu (správce).
  */
 
 const API_URL =
@@ -65,6 +67,55 @@ const tabManager = document.getElementById('tabManager');
 const registerForm = document.getElementById('registerForm');
 const registerSubmit = document.getElementById('registerSubmit');
 const registerMessage = document.getElementById('registerMessage');
+
+const managerCasePanel = document.getElementById('managerCasePanel');
+const managerCasePanelTitle = document.getElementById('managerCasePanelTitle');
+const managerCasePanelSubtitle = document.getElementById('managerCasePanelSubtitle');
+const managerEditCaseId = document.getElementById('managerEditCaseId');
+const managerCaseStatus = document.getElementById('managerCaseStatus');
+const managerCaseDue = document.getElementById('managerCaseDue');
+const managerCaseNextStep = document.getElementById('managerCaseNextStep');
+const managerCaseStatement = document.getElementById('managerCaseStatement');
+const managerCaseAnalysisUrl = document.getElementById('managerCaseAnalysisUrl');
+const managerCaseFile = document.getElementById('managerCaseFile');
+const managerCaseSave = document.getElementById('managerCaseSave');
+const managerCaseCancel = document.getElementById('managerCaseCancel');
+const managerCaseFormMessage = document.getElementById('managerCaseFormMessage');
+
+/** @type {Array<Record<string, unknown>>} */
+let managerCasesCache = [];
+
+const CASE_STATUS_LABELS = {
+  new: 'Nový',
+  under_review: 'V posouzení',
+  dd_in_progress: 'Probíhá DD',
+  case_handling: 'Řeší se',
+  analysis_in_progress: 'Probíhá analýza',
+  closed: 'Uzavřeno',
+  waiting_internal_opinion: 'Čeká na interní stanovisko',
+  ready_for_decision: 'Připraveno k rozhodnutí',
+};
+
+const STATUS_FALLBACK_NEXT = {
+  new: 'Případ je v evidenci; IRIS stanoví další krok v obvyklé lhůtě (viz metodika).',
+  under_review: 'Probíhá posouzení; vyčkejte na vyjádření nebo termín v řádku výše.',
+  dd_in_progress: 'Probíhá due diligence / rozšířená prověrka dle metodiky.',
+  case_handling: 'Případ se aktivně řeší na straně IRIS / prorektorátu.',
+  analysis_in_progress: 'Probíhá analýza; po dokončení obdržíte odkaz nebo vyjádření.',
+  closed: 'Případ je uzavřen; případné podklady najdete u odkazu na analýzu.',
+  waiting_internal_opinion: 'Čeká se na interní stanovisko součásti.',
+  ready_for_decision: 'Případ je připraven k rozhodnutí; sledujte termín a vyjádření.',
+};
+
+const OPEN_CASE_STATUSES = [
+  'new',
+  'under_review',
+  'dd_in_progress',
+  'case_handling',
+  'analysis_in_progress',
+  'waiting_internal_opinion',
+  'ready_for_decision',
+];
 
 function getSession() {
   try {
@@ -354,6 +405,75 @@ function formatDate(value) {
   }).format(date);
 }
 
+function formatDateOnly(value) {
+  if (!value) return '—';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return String(value);
+  return new Intl.DateTimeFormat('cs-CZ', { dateStyle: 'long' }).format(date);
+}
+
+function toDatetimeLocalValue(value) {
+  if (!value) return '';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
+function caseStatusLabel(status) {
+  const k = String(status || '').trim();
+  return CASE_STATUS_LABELS[k] || k || '—';
+}
+
+function nextStepForUser(item) {
+  const custom = String(item.next_step_note || '').trim();
+  if (custom) return custom;
+  const st = String(item.status || '').trim();
+  return STATUS_FALLBACK_NEXT[st] || 'Sledujte stav případu a e-mailové upozornění od IRIS.';
+}
+
+function analysisUrlForItem(item) {
+  const u = String(item.analysis_document_url || item.final_statement_link || '').trim();
+  return /^https:\/\//i.test(u) ? u : '';
+}
+
+function isCaseOpen(status) {
+  return OPEN_CASE_STATUSES.includes(String(status || '').trim());
+}
+
+function isCaseOverdue(item) {
+  if (!item.due_date || !isCaseOpen(item.status)) return false;
+  const due = new Date(item.due_date);
+  return !Number.isNaN(due.getTime()) && due.getTime() < Date.now();
+}
+
+function cellPreview(text, maxLen) {
+  const s = String(text || '').replace(/\s+/g, ' ').trim();
+  if (!s) return '—';
+  if (s.length <= maxLen) return escapeHtml(s);
+  return `${escapeHtml(s.slice(0, maxLen))}…`;
+}
+
+function analysisLinkCell(url) {
+  const u = String(url || '').trim();
+  if (!/^https:\/\//i.test(u)) return '—';
+  const safe = u.replace(/"/g, '%22');
+  return `<a href="${safe}" target="_blank" rel="noopener noreferrer">otevřít</a>`;
+}
+
+function readFileAsBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = String(reader.result || '');
+      const i = result.indexOf(',');
+      resolve(i >= 0 ? result.slice(i + 1) : result);
+    };
+    reader.onerror = () => reject(new Error('Soubor se nepodařilo načíst.'));
+    reader.readAsDataURL(file);
+  });
+}
+
 function escapeHtml(value) {
   return String(value || '')
     .replaceAll('&', '&amp;')
@@ -361,6 +481,10 @@ function escapeHtml(value) {
     .replaceAll('>', '&gt;')
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#039;');
+}
+
+function escapeAttr(value) {
+  return escapeHtml(value).replaceAll('\n', ' ');
 }
 
 function renderDashboard(summary) {
@@ -372,46 +496,55 @@ function renderDashboard(summary) {
 
 function renderManagerCases(items) {
   if (!items || !items.length) {
-    casesTableBody.innerHTML = `<tr><td colspan="8" class="empty-row">Nebyly nalezeny žádné případy.</td></tr>`;
+    casesTableBody.innerHTML = `<tr><td colspan="10" class="empty-row">Nebyly nalezeny žádné případy.</td></tr>`;
     return;
   }
 
   casesTableBody.innerHTML = items
-    .map(
-      (item) => `
-    <tr>
+    .map((item) => {
+      const overdueCls = isCaseOverdue(item) ? 'row-overdue' : '';
+      const dueStr = formatDateOnly(item.due_date);
+      return `
+    <tr class="${overdueCls}">
       <td>${escapeHtml(item.case_id)}</td>
+      <td>${escapeHtml(dueStr)}</td>
       <td>${escapeHtml(formatDate(item.created_at))}</td>
       <td>${escapeHtml(item.title)}</td>
       <td>${escapeHtml(item.partner_name)}</td>
       <td>${escapeHtml(item.applicant_name)}</td>
-      <td>${escapeHtml(item.status)}</td>
+      <td>${escapeHtml(caseStatusLabel(item.status))}</td>
       <td>${escapeHtml(item.priority)}</td>
       <td>${escapeHtml(item.risk_level)}</td>
-    </tr>`
-    )
+      <td><button type="button" class="btn-secondary btn-compact" data-manage-case="${escapeHtml(item.case_id)}">Spravovat</button></td>
+    </tr>`;
+    })
     .join('');
 }
 
 function renderUserCases(items) {
   if (!items || !items.length) {
-    userCasesTableBody.innerHTML = `<tr><td colspan="7" class="empty-row">Zatím nemáte žádné podání.</td></tr>`;
+    userCasesTableBody.innerHTML = `<tr><td colspan="9" class="empty-row">Zatím nemáte žádné podání.</td></tr>`;
     return;
   }
 
   userCasesTableBody.innerHTML = items
-    .map(
-      (item) => `
-    <tr>
+    .map((item) => {
+      const overdueCls = isCaseOverdue(item) ? 'row-overdue' : '';
+      const nextText = nextStepForUser(item);
+      const stmt = cellPreview(item.iris_statement, 120);
+      return `
+    <tr class="${overdueCls}">
       <td>${escapeHtml(item.case_id)}</td>
       <td>${escapeHtml(formatDate(item.created_at))}</td>
       <td>${escapeHtml(item.title)}</td>
       <td>${escapeHtml(item.partner_name)}</td>
-      <td>${escapeHtml(item.status)}</td>
-      <td>${escapeHtml(item.priority)}</td>
-      <td>${escapeHtml(item.risk_level)}</td>
-    </tr>`
-    )
+      <td>${escapeHtml(caseStatusLabel(item.status))}</td>
+      <td>${escapeHtml(formatDateOnly(item.due_date))}</td>
+      <td title="${escapeAttr(nextText)}">${cellPreview(nextText, 80)}</td>
+      <td title="${escapeAttr(String(item.iris_statement || ''))}">${stmt}</td>
+      <td>${analysisLinkCell(analysisUrlForItem(item))}</td>
+    </tr>`;
+    })
     .join('');
 }
 
@@ -457,7 +590,7 @@ function buildCasesParams() {
 }
 
 async function loadManagerCases() {
-  casesTableBody.innerHTML = `<tr><td colspan="8" class="empty-row">Načítání případů…</td></tr>`;
+  casesTableBody.innerHTML = `<tr><td colspan="10" class="empty-row">Načítání případů…</td></tr>`;
 
   const response = await fetch(`${API_URL}?${buildCasesParams().toString()}`);
   const data = await response.json();
@@ -466,11 +599,12 @@ async function loadManagerCases() {
     throw new Error(data.message || 'Nepodařilo se načíst případy.');
   }
 
-  renderManagerCases(data.items || []);
+  managerCasesCache = data.items || [];
+  renderManagerCases(managerCasesCache);
 }
 
 async function loadUserCases() {
-  userCasesTableBody.innerHTML = `<tr><td colspan="7" class="empty-row">Načítání…</td></tr>`;
+  userCasesTableBody.innerHTML = `<tr><td colspan="9" class="empty-row">Načítání…</td></tr>`;
 
   const params = buildCasesParams();
   const response = await fetch(`${API_URL}?${params.toString()}`);
@@ -488,6 +622,7 @@ function setManagerStatus(message, isError = false) {
   managerStatusMessage.textContent = message || '';
   managerStatusMessage.classList.toggle('hidden', !message);
   managerStatusMessage.classList.toggle('manager-status--error', Boolean(isError));
+  managerStatusMessage.classList.toggle('manager-status--success', Boolean(message) && !isError);
 }
 
 async function refreshForRole() {
@@ -507,7 +642,7 @@ async function refreshForRole() {
     if (session.role === 'manager') {
       setManagerStatus(error.message || 'Nepodařilo se načíst přehled.', true);
     } else {
-      userCasesTableBody.innerHTML = `<tr><td colspan="7" class="empty-row">${escapeHtml(
+      userCasesTableBody.innerHTML = `<tr><td colspan="9" class="empty-row">${escapeHtml(
         error.message || 'Nepodařilo se načíst podání.'
       )}</td></tr>`;
     }
@@ -602,6 +737,126 @@ let searchTimeout;
 searchCases.addEventListener('input', () => {
   clearTimeout(searchTimeout);
   searchTimeout = setTimeout(loadManagerCases, 300);
+});
+
+function closeManagerCasePanel() {
+  if (!managerCasePanel) return;
+  managerCasePanel.classList.add('hidden');
+  managerCasePanel.setAttribute('aria-hidden', 'true');
+  managerEditCaseId.value = '';
+  if (managerCaseFile) managerCaseFile.value = '';
+  if (managerCaseFormMessage) {
+    managerCaseFormMessage.classList.add('hidden');
+    managerCaseFormMessage.textContent = '';
+    managerCaseFormMessage.classList.remove('login-success');
+  }
+}
+
+function openManagerCasePanel(caseId) {
+  const item = managerCasesCache.find((c) => String(c.case_id) === String(caseId));
+  if (!item || !managerCasePanel) return;
+
+  managerEditCaseId.value = String(item.case_id);
+  managerCasePanelTitle.textContent = `Úprava případu: ${item.case_id}`;
+  managerCasePanelSubtitle.textContent = [item.title, item.applicant_name].filter(Boolean).join(' · ');
+
+  const st = String(item.status || 'new');
+  managerCaseStatus.value = [...managerCaseStatus.options].some((o) => o.value === st) ? st : 'new';
+
+  managerCaseDue.value = toDatetimeLocalValue(item.due_date);
+  managerCaseNextStep.value = String(item.next_step_note || '');
+  managerCaseStatement.value = String(item.iris_statement || '');
+  managerCaseAnalysisUrl.value = analysisUrlForItem(item) || '';
+  managerCaseFile.value = '';
+  managerCaseFormMessage.classList.add('hidden');
+
+  managerCasePanel.classList.remove('hidden');
+  managerCasePanel.setAttribute('aria-hidden', 'false');
+  managerCasePanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+casesTableBody.addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-manage-case]');
+  if (!btn) return;
+  openManagerCasePanel(btn.getAttribute('data-manage-case'));
+});
+
+managerCaseCancel.addEventListener('click', () => closeManagerCasePanel());
+
+managerCaseSave.addEventListener('click', async () => {
+  const session = getSession();
+  if (!session || session.role !== 'manager') return;
+
+  const caseId = managerEditCaseId.value.trim();
+  if (!caseId) return;
+
+  managerCaseFormMessage.classList.add('hidden');
+
+  const payload = {
+    action: 'update_case',
+    case_id: caseId,
+    manager_email: session.email,
+    status: managerCaseStatus.value,
+    iris_statement: managerCaseStatement.value,
+    next_step_note: managerCaseNextStep.value,
+  };
+
+  if (session.managerKey) {
+    payload.manager_key = session.managerKey;
+  }
+
+  const dueVal = managerCaseDue.value;
+  if (dueVal) {
+    payload.due_date = new Date(dueVal).toISOString();
+  }
+
+  const urlVal = managerCaseAnalysisUrl.value.trim();
+  if (urlVal) {
+    payload.analysis_document_url = urlVal;
+  }
+
+  const file = managerCaseFile.files && managerCaseFile.files[0];
+  if (file) {
+    if (file.size > 5.5 * 1024 * 1024) {
+      managerCaseFormMessage.textContent = 'Soubor je příliš velký (max. cca 5 MB). Vložte odkaz ručně.';
+      managerCaseFormMessage.classList.remove('hidden');
+      return;
+    }
+    try {
+      payload.analysis_file_base64 = await readFileAsBase64(file);
+      payload.analysis_file_name = file.name;
+      payload.analysis_file_mime = file.type || 'application/pdf';
+    } catch (err) {
+      managerCaseFormMessage.textContent = err.message || 'Chyba při čtení souboru.';
+      managerCaseFormMessage.classList.remove('hidden');
+      return;
+    }
+  }
+
+  managerCaseSave.disabled = true;
+  try {
+    const response = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload),
+    });
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok || !data.ok) {
+      throw new Error(data.message || 'Uložení se nezdařilo.');
+    }
+
+    await loadManagerCases();
+    await loadDashboard();
+    closeManagerCasePanel();
+    setManagerStatus(data.message || 'Případ byl uložen.', false);
+  } catch (err) {
+    managerCaseFormMessage.textContent = err.message || 'Chyba.';
+    managerCaseFormMessage.classList.remove('hidden');
+    managerCaseFormMessage.classList.remove('login-success');
+  } finally {
+    managerCaseSave.disabled = false;
+  }
 });
 
 (function init() {
