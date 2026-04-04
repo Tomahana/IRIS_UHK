@@ -1,0 +1,26 @@
+IRIS UHK – návrh struktury Google Drive pro přílohy
+==================================================
+
+Kořenová složka (váš odkaz):
+  https://drive.google.com/drive/folders/1VQyJWN4Pay4RjCuBnLzuVav6jeceG9hz
+  ID pro skriptovou vlastnost IRIS_CASE_FILES_FOLDER_ID:
+  1VQyJWN4Pay4RjCuBnLzuVav6jeceG9hz
+
+Doporučená hierarchie (vytváří ji automaticky Apps Script při nahrání souboru):
+
+  IRIS_UHK_Přílohy/                    ← kořen (váše složka)
+  ├── rok_2026/
+  │   ├── CASE-2026-001/
+  │   │   └── napr._zprava.pdf
+  │   ├── CASE-2026-002/
+  │   └── ...
+  ├── rok_2027/
+  │   └── ...
+  └── _sablony/                        ← volitelně ručně (vzory dokumentů)
+
+Rok se bere z Case ID (CASE-RRRR-číslo). Soubory jsou vždy v podsložce případu,
+aby šlo snadno archivovat a sdílet podle metodiky.
+
+Práva: skript ukládá soubor s odkazem „kdokoli s odkazem – čtení“; kořenová
+složka by měla být vlastněná účtem služby / IRIS a sdílena jen oprávněným
+osobám dle interních pravidel UHK.
