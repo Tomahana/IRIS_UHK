@@ -235,11 +235,12 @@
           <p>Základní dashboard a seznam případů napříč organizací.</p>
         </div>
         <p id="managerStatusMessage" class="manager-status hidden" role="status"></p>
-        <div class="dashboard-grid">
+        <div class="dashboard-grid dashboard-grid-5">
           <div class="stat-card"><span>Celkem</span><strong id="statTotal">0</strong></div>
           <div class="stat-card"><span>Otevřené</span><strong id="statOpen">0</strong></div>
+          <div class="stat-card stat-card-warn"><span>Blíží se termín</span><strong id="statDueSoon">0</strong></div>
           <div class="stat-card"><span>Uzavřené</span><strong id="statClosed">0</strong></div>
-          <div class="stat-card"><span>Po termínu</span><strong id="statOverdue">0</strong></div>
+          <div class="stat-card stat-card-danger"><span>Po termínu</span><strong id="statOverdue">0</strong></div>
         </div>
         <div class="table-toolbar">
           <input type="search" id="searchCases" placeholder="Hledat (název, partner, žadatel…)" aria-label="Hledat v případech" />
