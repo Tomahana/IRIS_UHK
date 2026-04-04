@@ -6,10 +6,11 @@
  * 1) POST JSON: { "action": "login", "email": "...", "password": "...", "role": "user" | "manager" }
  *    → { "ok": true, "role": "user"|"manager", "email": "..." } nebo { "ok": false, "message": "..." }
  *
- * 2) GET  ?action=cases&...  – pro role=user vždy posílejte také applicant_email=<přihlášený email>
- *    (server musí filtrovat; klientem to nelze spolehlivě zajistit).
+ * 2) GET  ?action=cases&applicant_email=…  = jen případy žadatele (bez manager_key).
+ *    GET  ?action=cases&manager_key=…      = plný seznam (Script Property IRIS_MANAGER_KEY).
+ *    GET  ?action=dashboard&manager_key=…  = metriky jen pro správce.
  *
- * 3) POST intake: doporučeno přidat applicant_email ze session a na serveru ověřit shodu s účtem.
+ * 3) POST intake: server ověří, že applicant_email patří aktivnímu řádku Users (role user).
  */
 
 const API_URL =
@@ -17,8 +18,9 @@ const API_URL =
 
 const SESSION_KEY = 'iris_uhk_session';
 
-/** Dočasné řešení, dokud Apps Script neimplementuje login: prázdné = vypnuto. */
+/** Dočasné řešení: prázdné = vypnuto. Pokud máte v Apps Scriptu IRIS_MANAGER_KEY, nastavte stejnou hodnotu do MANAGER_STATIC_KEY, aby fungovalo PIN přihlášení správce. */
 const MANAGER_FALLBACK_CODE = '';
+const MANAGER_STATIC_KEY = '';
 
 const form = document.getElementById('intakeForm');
 const submitButton = document.getElementById('submitButton');
@@ -168,7 +170,7 @@ managerLoginForm.addEventListener('submit', async (e) => {
   const password = document.getElementById('loginManagerPassword').value;
 
   if (MANAGER_FALLBACK_CODE && password === MANAGER_FALLBACK_CODE) {
-    setSession({ email, role: 'manager' });
+    setSession({ email, role: 'manager', managerKey: MANAGER_STATIC_KEY || '' });
     showApp(getSession());
     await refreshForRole();
     return;
@@ -177,7 +179,11 @@ managerLoginForm.addEventListener('submit', async (e) => {
   try {
     const { response, data } = await apiLogin(email, password, 'manager');
     if (response.ok && data.ok && (data.role === 'manager' || data.role === 'iris_manager')) {
-      setSession({ email: data.email || email, role: 'manager' });
+      setSession({
+        email: data.email || email,
+        role: 'manager',
+        managerKey: data.manager_key || '',
+      });
       showApp(getSession());
       await refreshForRole();
       return;
@@ -340,7 +346,12 @@ function renderUserCases(items) {
 }
 
 async function loadDashboard() {
-  const response = await fetch(`${API_URL}?action=dashboard`);
+  const session = getSession();
+  const q = new URLSearchParams({ action: 'dashboard' });
+  if (session && session.role === 'manager' && session.managerKey) {
+    q.set('manager_key', session.managerKey);
+  }
+  const response = await fetch(`${API_URL}?${q.toString()}`);
   const data = await response.json();
 
   if (!response.ok || !data.ok) {
@@ -357,6 +368,10 @@ function buildCasesParams() {
 
   if (session && session.role === 'user') {
     params.set('applicant_email', session.email);
+  }
+
+  if (session && session.role === 'manager' && session.managerKey) {
+    params.set('manager_key', session.managerKey);
   }
 
   if (searchCases && searchCases.value.trim()) {
