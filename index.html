@@ -7,9 +7,32 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <!-- Loga UHK: Tomahana/UHK_grants (img) -->
   <!-- Přihlášení: před zobrazením aplikace -->
   <div id="loginScreen" class="login-screen">
     <div class="login-card card">
+      <div class="login-brand" aria-label="Univerzita Hradec Králové">
+        <a
+          href="https://www.uhk.cz"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="login-brand-uhk"
+        >
+          <img
+            src="https://raw.githubusercontent.com/Tomahana/UHK_grants/02c2fcff0c373607bbcaa3d33870b8145919cf9b/img/uhk-hor-b.png"
+            alt="Univerzita Hradec Králové"
+            class="login-brand-hor"
+            decoding="async"
+          />
+        </a>
+        <img
+          src="https://raw.githubusercontent.com/Tomahana/UHK_grants/02c2fcff0c373607bbcaa3d33870b8145919cf9b/img/logo-eu-msmt.png"
+          alt="Evropská unie a Ministerstvo školství, mládeže a tělovýchovy"
+          class="login-brand-eu"
+          loading="lazy"
+          decoding="async"
+        />
+      </div>
       <p class="eyebrow">Institucionální bezpečnost</p>
       <h1>IRIS UHK</h1>
       <p class="subtitle login-lead">
@@ -80,10 +103,18 @@
 
   <div id="appRoot" class="app-shell hidden">
     <header class="topbar">
-      <div>
-        <p class="eyebrow">Institucionální bezpečnost</p>
-        <h1>IRIS UHK – vstupní checklist</h1>
-        <p class="subtitle">Předběžné vyhodnocení rizikovosti mezinárodní aktivity a založení případu do evidence.</p>
+      <div class="topbar-main">
+        <img
+          src="https://raw.githubusercontent.com/Tomahana/UHK_grants/02c2fcff0c373607bbcaa3d33870b8145919cf9b/img/uhk-abb-b.png"
+          alt=""
+          class="topbar-logo-mark"
+          decoding="async"
+        />
+        <div class="topbar-titles">
+          <p class="eyebrow">Institucionální bezpečnost</p>
+          <h1>IRIS UHK – vstupní checklist</h1>
+          <p class="subtitle">Předběžné vyhodnocení rizikovosti mezinárodní aktivity a založení případu do evidence.</p>
+        </div>
       </div>
       <div class="topbar-actions">
         <span id="sessionBadge" class="topbar-badge"></span>
