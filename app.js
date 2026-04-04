@@ -11,6 +11,17 @@ const intakeIdValue = document.getElementById('intakeIdValue');
 const resultValue = document.getElementById('resultValue');
 const scoreValue = document.getElementById('scoreValue');
 
+const statTotal = document.getElementById('statTotal');
+const statOpen = document.getElementById('statOpen');
+const statClosed = document.getElementById('statClosed');
+const statOverdue = document.getElementById('statOverdue');
+
+const searchCases = document.getElementById('searchCases');
+const filterStatus = document.getElementById('filterStatus');
+const filterPriority = document.getElementById('filterPriority');
+const refreshCasesButton = document.getElementById('refreshCasesButton');
+const casesTableBody = document.getElementById('casesTableBody');
+
 function setStatus(message, type = 'neutral') {
   statusMessage.textContent = message;
   statusMessage.className = `status-message status-${type}`;
@@ -61,7 +72,7 @@ function validateFormData(data) {
     ['cooperation_type', 'Typ spolupráce'],
     ['cooperation_stage', 'Fáze spolupráce'],
     ['partner_name', 'Název partnera'],
-    ['partner_country', 'Země partnera'],
+    ['partner_country', 'Země partnera / zapojené země'],
     ['intent_description', 'Popis záměru']
   ];
 
@@ -69,6 +80,109 @@ function validateFormData(data) {
     if (!String(data[key] || '').trim()) {
       throw new Error(`Vyplňte pole: ${label}`);
     }
+  }
+}
+
+function formatDate(value) {
+  if (!value) return '—';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return String(value);
+
+  return new Intl.DateTimeFormat('cs-CZ', {
+    dateStyle: 'short',
+    timeStyle: 'short'
+  }).format(date);
+}
+
+function escapeHtml(value) {
+  return String(value || '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
+}
+
+function renderDashboard(summary) {
+  statTotal.textContent = summary.total ?? 0;
+  statOpen.textContent = summary.open_cases ?? 0;
+  statClosed.textContent = summary.closed_cases ?? 0;
+  statOverdue.textContent = summary.overdue_cases ?? 0;
+}
+
+function renderCases(items) {
+  if (!items || !items.length) {
+    casesTableBody.innerHTML = `
+      <tr>
+        <td colspan="8" class="empty-row">Nebyly nalezeny žádné případy.</td>
+      </tr>
+    `;
+    return;
+  }
+
+  casesTableBody.innerHTML = items.map(item => `
+    <tr>
+      <td>${escapeHtml(item.case_id)}</td>
+      <td>${escapeHtml(formatDate(item.created_at))}</td>
+      <td>${escapeHtml(item.title)}</td>
+      <td>${escapeHtml(item.partner_name)}</td>
+      <td>${escapeHtml(item.applicant_name)}</td>
+      <td><span class="badge">${escapeHtml(item.status)}</span></td>
+      <td>${escapeHtml(item.priority)}</td>
+      <td>${escapeHtml(item.risk_level)}</td>
+    </tr>
+  `).join('');
+}
+
+async function loadDashboard() {
+  const response = await fetch(`${API_URL}?action=dashboard`);
+  const data = await response.json();
+
+  if (!response.ok || !data.ok) {
+    throw new Error(data.message || 'Nepodařilo se načíst dashboard.');
+  }
+
+  renderDashboard(data.summary || {});
+}
+
+async function loadCases() {
+  casesTableBody.innerHTML = `
+    <tr>
+      <td colspan="8" class="empty-row">Načítání případů…</td>
+    </tr>
+  `;
+
+  const params = new URLSearchParams();
+  params.set('action', 'cases');
+
+  if (searchCases.value.trim()) {
+    params.set('search', searchCases.value.trim());
+  }
+
+  if (filterStatus.value) {
+    params.set('status', filterStatus.value);
+  }
+
+  if (filterPriority.value) {
+    params.set('priority', filterPriority.value);
+  }
+
+  const response = await fetch(`${API_URL}?${params.toString()}`);
+  const data = await response.json();
+
+  if (!response.ok || !data.ok) {
+    throw new Error(data.message || 'Nepodařilo se načíst případy.');
+  }
+
+  renderCases(data.items || []);
+}
+
+async function refreshOverview() {
+  try {
+    await loadDashboard();
+    await loadCases();
+  } catch (error) {
+    setStatus(error.message || 'Nepodařilo se načíst přehled případů.', 'error');
   }
 }
 
@@ -99,6 +213,7 @@ async function submitForm(event) {
     }
 
     showResult(data);
+    await refreshOverview();
 
     if (
       typeof data.preliminary_risk_score === 'number' &&
@@ -124,7 +239,7 @@ function fillDemoData() {
   form.cooperation_type.value = 'výzkumná spolupráce';
   form.cooperation_stage.value = 'příprava MoU';
   form.partner_name.value = 'Example Institute';
-  form.partner_country.value = 'Čína';
+  form.partner_country.value = 'Čína, Německo';
   form.partner_website.value = 'https://example.org';
   form.intent_description.value = 'Pilotní navázání výzkumné spolupráce v oblasti AI.';
 
@@ -141,3 +256,15 @@ function fillDemoData() {
 
 form.addEventListener('submit', submitForm);
 fillDemoButton.addEventListener('click', fillDemoData);
+
+refreshCasesButton.addEventListener('click', refreshOverview);
+filterStatus.addEventListener('change', loadCases);
+filterPriority.addEventListener('change', loadCases);
+
+let searchTimeout;
+searchCases.addEventListener('input', () => {
+  clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(loadCases, 300);
+});
+
+refreshOverview();
