@@ -12,14 +12,39 @@
     <div class="login-card card">
       <p class="eyebrow">Institucionální bezpečnost</p>
       <h1>IRIS UHK</h1>
-      <p class="subtitle login-lead">Přihlaste se jako žadatel nebo jako IRIS Manager / prorektorát.</p>
+      <p class="subtitle login-lead">
+        Nejprve si vyžádejte přístup (založí se účet v systému), poté se přihlaste a vyplňte checklist.
+      </p>
 
       <div class="login-tabs" role="tablist">
-        <button type="button" class="login-tab active" data-tab="user" id="tabUser">Žadatel</button>
+        <button type="button" class="login-tab active" data-tab="register" id="tabRegister">Žádost o přístup</button>
+        <button type="button" class="login-tab" data-tab="user" id="tabUser">Přihlášení žadatele</button>
         <button type="button" class="login-tab" data-tab="manager" id="tabManager">IRIS Manager</button>
       </div>
 
-      <form id="userLoginForm" class="login-form active" autocomplete="username">
+      <form id="registerForm" class="login-form active" autocomplete="off">
+        <div class="form-group">
+          <label for="registerName">Jméno a příjmení *</label>
+          <input type="text" id="registerName" name="registerName" required minlength="2" placeholder="např. Jan Novák" />
+        </div>
+        <div class="form-group">
+          <label for="registerEmail">E-mail (pracovní @uhk.cz) *</label>
+          <input type="email" id="registerEmail" name="registerEmail" required placeholder="jmeno@uhk.cz" autocomplete="email" />
+        </div>
+        <div class="form-group">
+          <label for="registerPassword">Heslo *</label>
+          <input type="password" id="registerPassword" name="registerPassword" required minlength="8" autocomplete="new-password" />
+        </div>
+        <div class="form-group">
+          <label for="registerPassword2">Potvrzení hesla *</label>
+          <input type="password" id="registerPassword2" name="registerPassword2" required minlength="8" autocomplete="new-password" />
+        </div>
+        <p class="field-hint">Minimálně 8 znaků. Účet vznikne ihned; stejné údaje použijete u přihlášení žadatele.</p>
+        <button type="submit" class="btn-primary login-submit" id="registerSubmit">Odeslat žádost o přístup</button>
+        <p id="registerMessage" class="login-error hidden" role="alert"></p>
+      </form>
+
+      <form id="userLoginForm" class="login-form hidden" autocomplete="username">
         <div class="form-group">
           <label for="loginUserEmail">E-mail (stejný jako u podání)</label>
           <input type="email" id="loginUserEmail" name="loginUserEmail" required placeholder="jmeno@uhk.cz" />
@@ -28,7 +53,7 @@
           <label for="loginUserPassword">Heslo</label>
           <input type="password" id="loginUserPassword" name="loginUserPassword" required autocomplete="current-password" />
         </div>
-        <p class="field-hint">Heslo vám přidělí správce IRIS po registraci žádosti o přístup.</p>
+        <p class="field-hint">Použijte e-mail a heslo z žádosti o přístup.</p>
         <button type="submit" class="btn-primary login-submit">Přihlásit se</button>
         <p id="userLoginError" class="login-error hidden" role="alert"></p>
       </form>
