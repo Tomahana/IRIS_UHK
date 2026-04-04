@@ -6,27 +6,25 @@
   <title>IRIS UHK – Vstupní checklist</title>
   <link rel="icon" href="https://www.uhk.cz/img/favicon.ico" />
   <link rel="preconnect" href="https://www.uhk.cz" crossorigin />
-  <link rel="stylesheet" href="style.css" />
+  <!-- Styl je v souboru style.css ve stejné složce — při ručním vkládání do jiného systému zkopírujte obsah obou souborů. ?v= měňte po úpravách CSS (prohlížeč jinak drží starou verzi). -->
+  <link rel="stylesheet" href="style.css?v=3" />
 </head>
 <body>
-  <!-- Loga: soubory uhk-logo.jpg a uhk-logo-small.jpg ve stejné složce jako index (viz GitHub repozitář IRIS_UHK). -->
+  <!-- Loga: uhk-logo.jpg a uhk-logo-small.jpg ve stejné složce jako index (viz GitHub IRIS_UHK). -->
   <!-- Přihlášení: před zobrazením aplikace -->
   <div id="loginScreen" class="login-screen">
     <div class="login-card card">
       <div class="login-brand" aria-label="Univerzita Hradec Králové">
-        <a
-          href="https://www.uhk.cz/"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="login-brand-uhk"
-        >
+        <div class="login-brand-frame">
           <img
             src="uhk-logo.jpg"
             alt="Univerzita Hradec Králové"
             class="login-brand-main"
+            width="260"
+            height="48"
             decoding="async"
           />
-        </a>
+        </div>
       </div>
       <p class="eyebrow">Institucionální bezpečnost</p>
       <h1>IRIS UHK</h1>
@@ -99,20 +97,14 @@
   <div id="appRoot" class="app-shell hidden">
     <header class="topbar">
       <div class="topbar-main">
-        <a
-          href="https://www.uhk.cz/"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="topbar-logo-link"
-          aria-label="Univerzita Hradec Králové"
-        >
-          <img
-            src="uhk-logo-small.jpg"
-            alt=""
-            class="topbar-logo-mark"
-            decoding="async"
-          />
-        </a>
+        <img
+          src="uhk-logo-small.jpg"
+          alt=""
+          class="topbar-logo-mark"
+          width="52"
+          height="52"
+          decoding="async"
+        />
         <div class="topbar-titles">
           <p class="eyebrow">Institucionální bezpečnost</p>
           <h1>IRIS UHK – vstupní checklist</h1>
