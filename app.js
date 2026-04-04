@@ -10,7 +10,9 @@
  *    GET  ?action=cases&manager_key=…      = plný seznam (Script Property IRIS_MANAGER_KEY).
  *    GET  ?action=dashboard&manager_key=…  = metriky jen pro správce.
  *
- * 3) POST intake: server ověří, že applicant_email patří aktivnímu řádku Users (role user).
+ * 3) POST { action: 'register', name, email, password } – založí řádek v Users (žadatel).
+ *
+ * 4) POST intake: server ověří, že applicant_email patří aktivnímu řádku Users (role user).
  */
 
 const API_URL =
@@ -57,8 +59,12 @@ const userLoginForm = document.getElementById('userLoginForm');
 const managerLoginForm = document.getElementById('managerLoginForm');
 const userLoginError = document.getElementById('userLoginError');
 const managerLoginError = document.getElementById('managerLoginError');
+const tabRegister = document.getElementById('tabRegister');
 const tabUser = document.getElementById('tabUser');
 const tabManager = document.getElementById('tabManager');
+const registerForm = document.getElementById('registerForm');
+const registerSubmit = document.getElementById('registerSubmit');
+const registerMessage = document.getElementById('registerMessage');
 
 function getSession() {
   try {
@@ -111,19 +117,83 @@ function showApp(session) {
 }
 
 function setTab(tab) {
-  const isUser = tab === 'user';
-  tabUser.classList.toggle('active', isUser);
-  tabManager.classList.toggle('active', !isUser);
-  userLoginForm.classList.toggle('hidden', !isUser);
-  userLoginForm.classList.toggle('active', isUser);
-  managerLoginForm.classList.toggle('hidden', isUser);
-  managerLoginForm.classList.toggle('active', !isUser);
+  tabRegister.classList.toggle('active', tab === 'register');
+  tabUser.classList.toggle('active', tab === 'user');
+  tabManager.classList.toggle('active', tab === 'manager');
+
+  registerForm.classList.toggle('hidden', tab !== 'register');
+  registerForm.classList.toggle('active', tab === 'register');
+
+  userLoginForm.classList.toggle('hidden', tab !== 'user');
+  userLoginForm.classList.toggle('active', tab === 'user');
+
+  managerLoginForm.classList.toggle('hidden', tab !== 'manager');
+  managerLoginForm.classList.toggle('active', tab === 'manager');
+
   userLoginError.classList.add('hidden');
   managerLoginError.classList.add('hidden');
+  registerMessage.classList.add('hidden');
+  registerMessage.classList.remove('login-success');
 }
 
+tabRegister.addEventListener('click', () => setTab('register'));
 tabUser.addEventListener('click', () => setTab('user'));
 tabManager.addEventListener('click', () => setTab('manager'));
+
+registerForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  registerMessage.classList.add('hidden');
+  registerMessage.classList.remove('login-success');
+
+  const name = document.getElementById('registerName').value.trim();
+  const email = document.getElementById('registerEmail').value.trim();
+  const password = document.getElementById('registerPassword').value;
+  const password2 = document.getElementById('registerPassword2').value;
+
+  if (password !== password2) {
+    registerMessage.textContent = 'Hesla se neshodují.';
+    registerMessage.classList.remove('hidden');
+    return;
+  }
+  if (password.length < 8) {
+    registerMessage.textContent = 'Heslo musí mít alespoň 8 znaků.';
+    registerMessage.classList.remove('hidden');
+    return;
+  }
+
+  registerSubmit.disabled = true;
+  try {
+    const response = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({
+        action: 'register',
+        name,
+        email,
+        password,
+      }),
+    });
+    const data = await response.json().catch(() => ({}));
+
+    if (response.ok && data.ok) {
+      registerMessage.textContent =
+        data.message ||
+        'Účet byl založen. Přepněte na „Přihlášení žadatele“ a přihlaste se stejným e-mailem a heslem.';
+      registerMessage.classList.remove('hidden');
+      registerMessage.classList.add('login-success');
+      document.getElementById('loginUserEmail').value = email;
+      registerForm.reset();
+      return;
+    }
+    registerMessage.textContent = data.message || 'Registrace se nezdařila.';
+    registerMessage.classList.remove('hidden');
+  } catch {
+    registerMessage.textContent = 'Chyba spojení. Zkuste to znovu nebo kontaktujte správce IRIS.';
+    registerMessage.classList.remove('hidden');
+  } finally {
+    registerSubmit.disabled = false;
+  }
+});
 
 async function apiLogin(email, password, role) {
   const response = await fetch(API_URL, {
