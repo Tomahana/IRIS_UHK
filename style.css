@@ -450,4 +450,9 @@ button {
     grid-template-columns: 1fr;
   }
 }
+  .main-column {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
 }
