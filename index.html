@@ -7,271 +7,246 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="app-shell">
+  <!-- Přihlášení: před zobrazením aplikace -->
+  <div id="loginScreen" class="login-screen">
+    <div class="login-card card">
+      <p class="eyebrow">Institucionální bezpečnost</p>
+      <h1>IRIS UHK</h1>
+      <p class="subtitle login-lead">Přihlaste se jako žadatel nebo jako IRIS Manager / prorektorát.</p>
+
+      <div class="login-tabs" role="tablist">
+        <button type="button" class="login-tab active" data-tab="user" id="tabUser">Žadatel</button>
+        <button type="button" class="login-tab" data-tab="manager" id="tabManager">IRIS Manager</button>
+      </div>
+
+      <form id="userLoginForm" class="login-form active" autocomplete="username">
+        <div class="form-group">
+          <label for="loginUserEmail">E-mail (stejný jako u podání)</label>
+          <input type="email" id="loginUserEmail" name="loginUserEmail" required placeholder="jmeno@uhk.cz" />
+        </div>
+        <div class="form-group">
+          <label for="loginUserPassword">Heslo</label>
+          <input type="password" id="loginUserPassword" name="loginUserPassword" required autocomplete="current-password" />
+        </div>
+        <p class="field-hint">Heslo vám přidělí správce IRIS po registraci žádosti o přístup.</p>
+        <button type="submit" class="btn-primary login-submit">Přihlásit se</button>
+        <p id="userLoginError" class="login-error hidden" role="alert"></p>
+      </form>
+
+      <form id="managerLoginForm" class="login-form hidden" autocomplete="username">
+        <div class="form-group">
+          <label for="loginManagerEmail">E-mail (účet správce)</label>
+          <input type="email" id="loginManagerEmail" name="loginManagerEmail" required placeholder="iris.manager@uhk.cz" />
+        </div>
+        <div class="form-group">
+          <label for="loginManagerPassword">Heslo</label>
+          <input type="password" id="loginManagerPassword" name="loginManagerPassword" required autocomplete="current-password" />
+        </div>
+        <button type="submit" class="btn-primary login-submit">Přihlásit se jako správce</button>
+        <p id="managerLoginError" class="login-error hidden" role="alert"></p>
+      </form>
+    </div>
+  </div>
+
+  <div id="appRoot" class="app-shell hidden">
     <header class="topbar">
       <div>
-        <div class="eyebrow">Institucionální bezpečnost</div>
+        <p class="eyebrow">Institucionální bezpečnost</p>
         <h1>IRIS UHK – vstupní checklist</h1>
-        <p class="subtitle">
-          Předběžné vyhodnocení rizikovosti mezinárodní aktivity a založení případu do evidence.
-        </p>
+        <p class="subtitle">Předběžné vyhodnocení rizikovosti mezinárodní aktivity a založení případu do evidence.</p>
       </div>
-      <div class="topbar-badge">MVP</div>
+      <div class="topbar-actions">
+        <span id="sessionBadge" class="topbar-badge"></span>
+        <button type="button" id="logoutButton" class="btn-secondary">Odhlásit se</button>
+      </div>
     </header>
 
-    <main class="layout">
+    <!-- ŽADATEL: checklist + jen vlastní podání -->
+    <div id="layoutUser" class="layout hidden">
       <div class="main-column">
         <section class="card">
           <div class="card-header">
             <h2>Vyplnění podání</h2>
             <p>Vyplňte základní údaje o zamýšlené aktivitě a partnerovi.</p>
           </div>
-
-          <form id="intakeForm" class="form-grid">
-            <div class="form-group">
-              <label for="applicant_name">Jméno žadatele *</label>
-              <input type="text" id="applicant_name" name="applicant_name" required />
-            </div>
-
-            <div class="form-group">
-              <label for="applicant_email">E-mail žadatele *</label>
-              <input type="email" id="applicant_email" name="applicant_email" required />
-            </div>
-
-            <div class="form-group">
-              <label for="applicant_unit">Součást / fakulta / útvar *</label>
-              <input type="text" id="applicant_unit" name="applicant_unit" required />
-            </div>
-
-            <div class="form-group">
-              <label for="cooperation_type">Typ spolupráce *</label>
-              <select id="cooperation_type" name="cooperation_type" required>
-                <option value="">Vyberte</option>
-                <option value="výzkumná spolupráce">Výzkumná spolupráce</option>
-                <option value="vzdělávací spolupráce">Vzdělávací spolupráce</option>
-                <option value="memorandum / MoU">Memorandum / MoU</option>
-                <option value="mobilita / hostování">Mobilita / hostování</option>
-                <option value="dar / sponzoring">Dar / sponzoring</option>
-                <option value="sdílení dat / know-how">Sdílení dat / know-how</option>
-                <option value="jiné">Jiné</option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label for="cooperation_stage">Fáze spolupráce *</label>
-              <select id="cooperation_stage" name="cooperation_stage" required>
-                <option value="">Vyberte</option>
-                <option value="prvotní úvaha">Prvotní úvaha</option>
-                <option value="předběžné jednání">Předběžné jednání</option>
-                <option value="příprava MoU">Příprava MoU</option>
-                <option value="příprava smlouvy">Příprava smlouvy</option>
-                <option value="realizace">Realizace</option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label for="partner_name">Název partnera *</label>
-              <input type="text" id="partner_name" name="partner_name" required />
-            </div>
-
-            <div class="form-group">
-              <label for="partner_country">Země partnera / zapojené země *</label>
-              <input
-                type="text"
-                id="partner_country"
-                name="partner_country"
-                required
-                placeholder="Např. Německo, Čína"
-              />
-              <small class="field-hint">Při více zemích je oddělte čárkou, středníkem nebo lomítkem.</small>
-            </div>
-
-            <div class="form-group full-width">
-              <label for="partner_website">Web partnera</label>
-              <input type="url" id="partner_website" name="partner_website" placeholder="https://..." />
-            </div>
-
-            <div class="form-group full-width">
-              <label for="intent_description">Popis záměru *</label>
-              <textarea
-                id="intent_description"
-                name="intent_description"
-                rows="5"
-                required
-                placeholder="Stručně popište zamýšlenou aktivitu, její účel a přínos pro UHK."
-              ></textarea>
-            </div>
-
-            <fieldset class="fieldset full-width">
-              <legend>Rizikové indikátory</legend>
-
-              <div class="checkbox-grid">
-                <label class="checkbox-card">
-                  <input type="checkbox" name="external_funding" />
-                  <span>Externí financování</span>
-                </label>
-
-                <label class="checkbox-card">
-                  <input type="checkbox" name="access_to_uhk_systems" />
-                  <span>Přístup do systémů UHK</span>
-                </label>
-
-                <label class="checkbox-card">
-                  <input type="checkbox" name="sharing_data_knowhow" />
-                  <span>Sdílení dat / know-how</span>
-                </label>
-
-                <label class="checkbox-card">
-                  <input type="checkbox" name="sensitive_outputs" />
-                  <span>Citlivé výstupy / citlivá oblast</span>
-                </label>
-
-                <label class="checkbox-card">
-                  <input type="checkbox" name="transfer_outside_eu" />
-                  <span>Přenos mimo EU</span>
-                </label>
-
-                <label class="checkbox-card">
-                  <input type="checkbox" name="training_or_technical_assistance" />
-                  <span>Technická pomoc / školení</span>
-                </label>
-
-                <label class="checkbox-card">
-                  <input type="checkbox" name="involves_doctoral_students_or_infrastructure" />
-                  <span>Zapojení infrastruktury / doktorandů</span>
-                </label>
+          <form id="intakeForm">
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="applicant_name">Jméno žadatele *</label>
+                <input type="text" id="applicant_name" name="applicant_name" required />
               </div>
-            </fieldset>
-
-            <div class="actions full-width">
-              <button type="submit" id="submitButton" class="btn-primary">
-                Odeslat checklist
-              </button>
-              <button type="button" id="fillDemoButton" class="btn-secondary">
-                Vyplnit ukázková data
-              </button>
-              <button type="reset" class="btn-secondary">
-                Vymazat
-              </button>
+              <div class="form-group">
+                <label for="applicant_email">E-mail žadatele *</label>
+                <input type="email" id="applicant_email" name="applicant_email" required readonly class="input-readonly" title="E-mail je vázán na přihlášení" />
+              </div>
+              <div class="form-group">
+                <label for="applicant_unit">Součást / fakulta / útvar *</label>
+                <input type="text" id="applicant_unit" name="applicant_unit" required />
+              </div>
+              <div class="form-group">
+                <label for="cooperation_type">Typ spolupráce *</label>
+                <select id="cooperation_type" name="cooperation_type" required>
+                  <option value="">Vyberte</option>
+                  <option value="výzkumná spolupráce">Výzkumná spolupráce</option>
+                  <option value="vzdělávací spolupráce">Vzdělávací spolupráce</option>
+                  <option value="memorandum / MoU">Memorandum / MoU</option>
+                  <option value="mobilita / hostování">Mobilita / hostování</option>
+                  <option value="dar / sponzoring">Dar / sponzoring</option>
+                  <option value="sdílení dat / know-how">Sdílení dat / know-how</option>
+                  <option value="jiné">Jiné</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="cooperation_stage">Fáze spolupráce *</label>
+                <select id="cooperation_stage" name="cooperation_stage" required>
+                  <option value="">Vyberte</option>
+                  <option value="prvotní úvaha">Prvotní úvaha</option>
+                  <option value="předběžné jednání">Předběžné jednání</option>
+                  <option value="příprava MoU">Příprava MoU</option>
+                  <option value="příprava smlouvy">Příprava smlouvy</option>
+                  <option value="realizace">Realizace</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="partner_name">Název partnera *</label>
+                <input type="text" id="partner_name" name="partner_name" required />
+              </div>
+              <div class="form-group">
+                <label for="partner_country">Země partnera / zapojené země *</label>
+                <input type="text" id="partner_country" name="partner_country" required placeholder="např. Čína; Německo" />
+                <span class="field-hint">Při více zemích je oddělte čárkou, středníkem nebo lomítkem.</span>
+              </div>
+              <div class="form-group">
+                <label for="partner_website">Web partnera</label>
+                <input type="url" id="partner_website" name="partner_website" placeholder="https://…" />
+              </div>
+              <div class="form-group full-width">
+                <label for="intent_description">Popis záměru *</label>
+                <textarea id="intent_description" name="intent_description" required></textarea>
+              </div>
+              <fieldset class="fieldset full-width">
+                <legend>Rizikové indikátory</legend>
+                <div class="checkbox-grid">
+                  <label class="checkbox-card"><input type="checkbox" name="external_funding" /> Externí financování</label>
+                  <label class="checkbox-card"><input type="checkbox" name="access_to_uhk_systems" /> Přístup do systémů UHK</label>
+                  <label class="checkbox-card"><input type="checkbox" name="sharing_data_knowhow" /> Sdílení dat / know-how</label>
+                  <label class="checkbox-card"><input type="checkbox" name="sensitive_outputs" /> Citlivé výstupy / citlivá oblast</label>
+                  <label class="checkbox-card"><input type="checkbox" name="transfer_outside_eu" /> Přenos mimo EU</label>
+                  <label class="checkbox-card"><input type="checkbox" name="training_or_technical_assistance" /> Technická pomoc / školení</label>
+                  <label class="checkbox-card"><input type="checkbox" name="involves_doctoral_students_or_infrastructure" /> Zapojení infrastruktury / doktorandů</label>
+                </div>
+              </fieldset>
+            </div>
+            <div class="actions form-actions">
+              <button type="submit" class="btn-primary" id="submitButton">Odeslat checklist</button>
+              <button type="button" class="btn-secondary" id="fillDemoButton">Vyplnit ukázková data</button>
+              <button type="reset" class="btn-secondary">Vymazat</button>
             </div>
           </form>
         </section>
 
         <section class="card">
           <div class="card-header">
-            <h2>Přehled případů</h2>
-            <p>Základní dashboard a seznam posledních případů.</p>
+            <h2>Moje podání</h2>
+            <p>Pouze případy pod vaším přihlášeným e-mailem.</p>
           </div>
-
-          <div class="dashboard-grid">
-            <div class="stat-card">
-              <span>Celkem</span>
-              <strong id="statTotal">0</strong>
-            </div>
-            <div class="stat-card">
-              <span>Otevřené</span>
-              <strong id="statOpen">0</strong>
-            </div>
-            <div class="stat-card">
-              <span>Uzavřené</span>
-              <strong id="statClosed">0</strong>
-            </div>
-            <div class="stat-card">
-              <span>Po termínu</span>
-              <strong id="statOverdue">0</strong>
-            </div>
-          </div>
-
-          <div class="table-toolbar">
-            <input type="text" id="searchCases" placeholder="Hledat podle case ID, názvu, partnera nebo žadatele" />
-            <select id="filterStatus">
-              <option value="">Všechny stavy</option>
-              <option value="new">Nový</option>
-              <option value="under_review">V posouzení</option>
-              <option value="dd_in_progress">Probíhá DD</option>
-              <option value="closed_no_issue">Uzavřeno bez výhrad</option>
-              <option value="closed_with_conditions">Uzavřeno s podmínkami</option>
-              <option value="closed_not_recommended">Nedoporučeno</option>
-            </select>
-            <select id="filterPriority">
-              <option value="">Všechny priority</option>
-              <option value="nízká">Nízká</option>
-              <option value="střední">Střední</option>
-              <option value="vysoká">Vysoká</option>
-            </select>
-            <button type="button" id="refreshCasesButton" class="btn-secondary">Obnovit</button>
-          </div>
-
           <div class="table-wrap">
-            <table class="cases-table">
+            <table class="cases-table" aria-label="Moje podání">
               <thead>
                 <tr>
                   <th>Case ID</th>
                   <th>Vytvořeno</th>
                   <th>Název</th>
                   <th>Partner</th>
-                  <th>Žadatel</th>
                   <th>Stav</th>
                   <th>Priorita</th>
                   <th>Riziko</th>
                 </tr>
               </thead>
-              <tbody id="casesTableBody">
-                <tr>
-                  <td colspan="8" class="empty-row">Načítání případů…</td>
-                </tr>
-              </tbody>
+              <tbody id="userCasesTableBody"></tbody>
             </table>
           </div>
         </section>
       </div>
 
       <aside class="sidebar">
-        <section class="card">
-          <div class="card-header">
-            <h2>Předběžné info</h2>
-          </div>
-          <div class="info-list">
-            <div class="info-item">
-              <span class="info-label">Workflow</span>
-              <span class="info-value">Checklist → Case → Posouzení</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">Lhůta</span>
-              <span class="info-value">výchozí 10 pracovních dní</span>
-            </div>
-          </div>
-        </section>
-
-        <section class="card result-card" id="resultCard">
+        <section class="card result-card">
           <div class="card-header">
             <h2>Výsledek odeslání</h2>
+            <p>Okamžitá zpětná vazba po odeslání checklistu.</p>
           </div>
-          <div id="statusMessage" class="status-message status-neutral">
-            Formulář ještě nebyl odeslán.
-          </div>
-
+          <p id="statusMessage" class="status-message status-neutral">Formulář ještě nebyl odeslán.</p>
           <div id="resultDetails" class="result-details hidden">
-            <div class="result-row">
-              <span>Case ID</span>
-              <strong id="caseIdValue">—</strong>
-            </div>
-            <div class="result-row">
-              <span>Intake ID</span>
-              <strong id="intakeIdValue">—</strong>
-            </div>
-            <div class="result-row">
-              <span>Předběžný výsledek</span>
-              <strong id="resultValue">—</strong>
-            </div>
-            <div class="result-row">
-              <span>Skóre</span>
-              <strong id="scoreValue">—</strong>
-            </div>
+            <div class="result-row"><span class="info-label">Case ID</span><span class="info-value" id="caseIdValue">—</span></div>
+            <div class="result-row"><span class="info-label">Intake ID</span><span class="info-value" id="intakeIdValue">—</span></div>
+            <div class="result-row"><span class="info-label">Předběžný výsledek</span><span class="info-value" id="resultValue">—</span></div>
+            <div class="result-row"><span class="info-label">Skóre</span><span class="info-value" id="scoreValue">—</span></div>
+          </div>
+        </section>
+        <section class="card">
+          <div class="card-header">
+            <h2>Workflow</h2>
+            <p>Checklist → Case → Posouzení</p>
+          </div>
+          <div class="info-list">
+            <div class="info-item"><span class="info-label">Lhůta</span><span class="info-value">výchozí 10 pracovních dní</span></div>
           </div>
         </section>
       </aside>
-    </main>
+    </div>
+
+    <!-- IRIS MANAGER: celý dashboard + všechna podání -->
+    <div id="layoutManager" class="manager-layout hidden">
+      <section class="card">
+        <div class="card-header">
+          <h2>Přehled případů</h2>
+          <p>Základní dashboard a seznam případů napříč organizací.</p>
+        </div>
+        <p id="managerStatusMessage" class="manager-status hidden" role="status"></p>
+        <div class="dashboard-grid">
+          <div class="stat-card"><span>Celkem</span><strong id="statTotal">0</strong></div>
+          <div class="stat-card"><span>Otevřené</span><strong id="statOpen">0</strong></div>
+          <div class="stat-card"><span>Uzavřené</span><strong id="statClosed">0</strong></div>
+          <div class="stat-card"><span>Po termínu</span><strong id="statOverdue">0</strong></div>
+        </div>
+        <div class="table-toolbar">
+          <input type="search" id="searchCases" placeholder="Hledat (název, partner, žadatel…)" aria-label="Hledat v případech" />
+          <select id="filterStatus" aria-label="Filtrovat podle stavu">
+            <option value="">Všechny stavy</option>
+            <option value="Nový">Nový</option>
+            <option value="V posouzení">V posouzení</option>
+            <option value="Probíhá DD">Probíhá DD</option>
+            <option value="Uzavřeno bez výhrad">Uzavřeno bez výhrad</option>
+            <option value="Uzavřeno s podmínkami">Uzavřeno s podmínkami</option>
+            <option value="Nedoporučeno">Nedoporučeno</option>
+          </select>
+          <select id="filterPriority" aria-label="Filtrovat podle priority">
+            <option value="">Všechny priority</option>
+            <option value="Nízká">Nízká</option>
+            <option value="Střední">Střední</option>
+            <option value="Vysoká">Vysoká</option>
+          </select>
+          <button type="button" class="btn-secondary" id="refreshCasesButton">Obnovit</button>
+        </div>
+        <div class="table-wrap">
+          <table class="cases-table" aria-label="Všechny případy">
+            <thead>
+              <tr>
+                <th>Case ID</th>
+                <th>Vytvořeno</th>
+                <th>Název</th>
+                <th>Partner</th>
+                <th>Žadatel</th>
+                <th>Stav</th>
+                <th>Priorita</th>
+                <th>Riziko</th>
+              </tr>
+            </thead>
+            <tbody id="casesTableBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
   </div>
 
   <script src="app.js"></script>
