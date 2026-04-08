@@ -4,7 +4,8 @@
  * Očekávané rozšíření Google Apps Script (stejný deploy URL jako dosud):
  *
  * 1) POST JSON: { "action": "login", "email": "...", "password": "...", "role": "user" | "manager" }
- *    → { "ok": true, "role": "user"|"manager", "email": "..." } nebo { "ok": false, "message": "..." }
+ *    → { "ok": true, "role": "user"|"manager", "email": "...", "manager_key"?, "is_admin"? }
+ *    (is_admin: true jen pokud sloupec role v Users = admin – zobrazí se interní stránka Prověrky.)
  *
  * 2) GET  ?action=cases&applicant_email=…  = jen případy žadatele (bez manager_key).
  *    GET  ?action=cases&manager_key=…      = plný seznam (Script Property IRIS_MANAGER_KEY).
@@ -280,6 +281,52 @@ const STRINGS = {
     'manager.analysisFieldsetHint':
       'Struktura odpovídá běžným prověrkám a analytickým zprávám IRIS UHK (předmět, rozsah, závěr, doporučení, plán obnovy).',
     'manager.reminderRegion': 'Připomenutí pro správce IRIS',
+    'session.adminSuffix': 'Admin',
+    'admin.subNavAria': 'Navigace správce',
+    'admin.navIris': 'Přehled IRIS',
+    'admin.navVetting': 'Prověrky osob (OSINT / DD)',
+    'admin.vettingTitle': 'Prověrky osob – základy OSINT a Due diligence',
+    'admin.vettingLead':
+      'Interní metodický podklad pro administrátory IRIS. Doplňuje obecný rámec institucionální bezpečnosti; nenahrazuje právní posouzení ani interní směrnice Ústavu.',
+    'admin.vettingBodyHtml': `<div class="vetting-block">
+<h3>1. Účel a rámec</h3>
+<p>Stránka shrnuje <strong>základní kroky</strong> při prověřování fyzických osob v kontextu mezinárodní spolupráce, náboru, hostování nebo rizikových partnerství. Slouží jako orientační checklist pro koordinaci s právním a HR oddělením.</p>
+<ul>
+<li>Prověrka musí být <strong>proporcionální</strong> k riziku a účelu (typ spolupráce, přístup k datům, citlivost oboru).</li>
+<li>Výsledky OSINT / DD jsou <strong>pracovní podklad</strong>; konečné rozhodnutí zůstává u příslušných orgánů Ústavu dle platných předpisů a směrnic.</li>
+</ul>
+
+<h3>2. OSINT – otevřené zdroje (základní postup)</h3>
+<p><strong>OSINT</strong> (Open Source Intelligence) znamená práci pouze s legálně dostupnými veřejnými informacemi – bez obcházení ochrany účtů, bez „falešných identit“ a bez zásahu do soukromí nad rámec oprávněného účelu zpracování.</p>
+<ol class="vetting-ol">
+<li><strong>Identifikace subjektu:</strong> plné jméno, varianty zápisu, instituce, funkce, časové období působení, geografie.</li>
+<li><strong>Verifikace identity:</strong> konzistence údajů napříč nezávislými zdroji (institucionální profily, publikace, rejstříky, tiskové zprávy).</li>
+<li><strong>Digitální stopa:</strong> veřejné profily, odborná činnost, účast na projektech – s důrazem na věrohodnost zdroje a datum informace.</li>
+<li><strong>Reputace a kontroverze:</strong> záznamy v médiích, soudních databázích (tam, kde jsou veřejné), sankční a bezpečnostní seznamy používané v rámci metodiky IRIS / compliance.</li>
+<li><strong>Geopolitický a sektorový kontext:</strong> země původu, vazby na citlivé subjekty nebo sektory dle metodiky instituce.</li>
+</ol>
+
+<h3>3. Due diligence u osob (zkrácený rámec)</h3>
+<p><strong>Due diligence</strong> zde chápeme jako strukturované ověření informací před závazkem (spolupráce, smlouva, návštěva, přístup k infrastruktuře).</p>
+<ul>
+<li><strong>Rozsah:</strong> stanovit podle matice rizik IRIS (nízké / střední / vysoké) – hloubka šetření musí odpovídat kategorii.</li>
+<li><strong>Minimální balíček:</strong> identita, afilace, odborná kredibilita, seznamy sankcí / PEP (dle interních postupů), konflikt zájmů, předchozí incidenty ve veřejně dostupných zdrojích.</li>
+<li><strong>Dokumentace zjištění:</strong> co bylo ověřeno, kdy, odkud (URL, název registru, datum stavu stránky), kdo provedl šetření.</li>
+<li><strong>Nejasnosti a mezery:</strong> explicitně uvést; eskalovat na vedoucího IRIS nebo právní oddělení – neinterpretovat mlčením jako souhlas.</li>
+</ul>
+
+<h3>4. Etika, ochrana údajů a bezpečnost</h3>
+<ul>
+<li>Zpracovávejte jen údaje nezbytné pro účel prověrky; dodržujte GDPR a vnitřní politiku Ústavu.</li>
+<li>Neshromažďujte citlivé údaje z neoficiálních „úniků“ dat; nevyužívejte nelegální zdroje.</li>
+<li>Pracujte na pracovních zařízeních a účtech Ústavu; výsledky ukládejte dle klasifikace a přístupových pravidel.</li>
+</ul>
+
+<h3>5. Vazba na případy IRIS</h3>
+<p>U konkrétních partnerů a projektů navazujte na <strong>evidenci případů</strong> (Cases) a analytické zprávy – prověrka osoby může být součástí širšího posouzení rizik spolupráce.</p>
+
+<p class="vetting-disclaimer"><strong>Upozornění:</strong> Tento text je metodickým úvodem. Konkrétní postupy, nástroje a šablony doplňte podle aktuálních interních instrukcí UHK a platné legislativy.</p>
+</div>`,
   },
   en: {
     'page.title': 'IRIS UHK – Intake checklist',
@@ -534,6 +581,52 @@ const STRINGS = {
     'manager.analysisFieldsetHint':
       'Structure aligns with typical IRIS UHK reviews and analytical reports (subject, scope, conclusion, recommendations, renewal plan).',
     'manager.reminderRegion': 'Reminder for IRIS managers',
+    'session.adminSuffix': 'Admin',
+    'admin.subNavAria': 'Manager navigation',
+    'admin.navIris': 'IRIS overview',
+    'admin.navVetting': 'Personnel vetting (OSINT / DD)',
+    'admin.vettingTitle': 'Personnel vetting – OSINT and due diligence basics',
+    'admin.vettingLead':
+      'Internal methodology note for IRIS administrators. Complements institutional security; it is not legal advice or a substitute for university policies.',
+    'admin.vettingBodyHtml': `<div class="vetting-block">
+<h3>1. Purpose and scope</h3>
+<p>This page outlines <strong>basic steps</strong> for vetting individuals in the context of international cooperation, recruitment, hosting, or higher-risk partnerships. It supports coordination with legal and HR units.</p>
+<ul>
+<li>Vetting must be <strong>proportionate</strong> to risk and purpose (type of cooperation, data access, field sensitivity).</li>
+<li>OSINT / DD outputs are a <strong>working input</strong>; final decisions remain with the competent university bodies under applicable rules.</li>
+</ul>
+
+<h3>2. OSINT – open sources (core workflow)</h3>
+<p><strong>OSINT</strong> means using only lawfully available public information – no bypassing account protections, no deceptive identities, and no intrusion beyond the legitimate purpose of processing.</p>
+<ol class="vetting-ol">
+<li><strong>Subject identification:</strong> full name, spelling variants, affiliation, role, time period, geography.</li>
+<li><strong>Identity verification:</strong> consistency across independent sources (institutional profiles, publications, registers, press).</li>
+<li><strong>Digital footprint:</strong> public profiles, professional activity, project involvement – note source credibility and information date.</li>
+<li><strong>Reputation and controversy:</strong> media, public court records where applicable, sanctions and security lists used in IRIS / compliance methodology.</li>
+<li><strong>Geopolitical and sector context:</strong> country links, exposure to sensitive sectors per institutional methodology.</li>
+</ol>
+
+<h3>3. Due diligence on individuals (short framework)</h3>
+<p><strong>Due diligence</strong> here means structured verification before a commitment (cooperation, contract, visit, infrastructure access).</p>
+<ul>
+<li><strong>Scope:</strong> align with the IRIS risk matrix (low / medium / high) – depth must match the category.</li>
+<li><strong>Minimum package:</strong> identity, affiliation, professional credibility, sanctions / PEP checks (per internal procedure), conflicts of interest, prior issues in public sources.</li>
+<li><strong>Documentation:</strong> what was verified, when, from where (URL, register name, capture date), who performed the review.</li>
+<li><strong>Gaps:</strong> state them explicitly; escalate to IRIS lead or legal – silence is not approval.</li>
+</ul>
+
+<h3>4. Ethics, data protection, and security</h3>
+<ul>
+<li>Process only data necessary for the purpose; comply with GDPR and university policy.</li>
+<li>Do not collect sensitive data from unofficial leaks; do not use illegal sources.</li>
+<li>Use institutional devices and accounts; store results according to classification and access rules.</li>
+</ul>
+
+<h3>5. Link to IRIS cases</h3>
+<p>For specific partners and projects, tie findings to the <strong>case register</strong> (Cases) and analytical reports – person vetting may be part of a wider cooperation risk assessment.</p>
+
+<p class="vetting-disclaimer"><strong>Notice:</strong> This is an introductory methodology text. Add concrete procedures, tools, and templates per current UHK internal instructions and applicable law.</p>
+</div>`,
   },
 };
 
@@ -583,6 +676,8 @@ function applyStaticI18n() {
 /** Dočasné řešení: prázdné = vypnuto. Pokud máte v Apps Scriptu IRIS_MANAGER_KEY, nastavte stejnou hodnotu do MANAGER_STATIC_KEY, aby fungovalo PIN přihlášení správce. */
 const MANAGER_FALLBACK_CODE = '';
 const MANAGER_STATIC_KEY = '';
+/** U PIN přihlášení: zda zobrazit admin sekci Prověrky (bez ověření z listu Users). */
+const MANAGER_PIN_AS_ADMIN = false;
 
 const form = document.getElementById('intakeForm');
 const submitButton = document.getElementById('submitButton');
@@ -613,6 +708,11 @@ const loginScreen = document.getElementById('loginScreen');
 const appRoot = document.getElementById('appRoot');
 const layoutUser = document.getElementById('layoutUser');
 const layoutManager = document.getElementById('layoutManager');
+const managerSubNav = document.getElementById('managerSubNav');
+const navManagerDashboard = document.getElementById('navManagerDashboard');
+const navManagerVetting = document.getElementById('navManagerVetting');
+const managerViewDashboard = document.getElementById('managerViewDashboard');
+const managerViewVetting = document.getElementById('managerViewVetting');
 const sessionBadge = document.getElementById('sessionBadge');
 const logoutButton = document.getElementById('logoutButton');
 const managerStatusMessage = document.getElementById('managerStatusMessage');
@@ -690,13 +790,46 @@ function isManagerTesterSession(session) {
   return Boolean(session && session.role === 'manager' && session.viewAs === 'tester');
 }
 
+function isSessionAdmin(session) {
+  return Boolean(session && session.role === 'manager' && session.isAdmin === true);
+}
+
+function showManagerView(which) {
+  const dashboard = which !== 'vetting';
+  if (managerViewDashboard) {
+    managerViewDashboard.classList.toggle('hidden', !dashboard);
+  }
+  if (managerViewVetting) {
+    managerViewVetting.classList.toggle('hidden', dashboard);
+  }
+  if (navManagerDashboard) {
+    navManagerDashboard.classList.toggle('is-active', dashboard);
+  }
+  if (navManagerVetting) {
+    navManagerVetting.classList.toggle('is-active', !dashboard);
+  }
+  if (!dashboard) {
+    closeManagerCasePanel();
+  }
+}
+
+function updateManagerSubNav(session) {
+  if (!managerSubNav) return;
+  const show = isSessionAdmin(session) && !isManagerTesterSession(session);
+  managerSubNav.classList.toggle('hidden', !show);
+  if (!show) {
+    showManagerView('dashboard');
+  }
+}
+
 function formatSessionBadge(session) {
   if (!session) return '';
   if (isManagerTesterSession(session)) {
     return `${t('session.manager')} · ${session.email} · ${t('session.testerSuffix')}`;
   }
   if (session.role === 'manager') {
-    return `${t('session.manager')} · ${session.email}`;
+    const adm = session.isAdmin ? ` · ${t('session.adminSuffix')}` : '';
+    return `${t('session.manager')} · ${session.email}${adm}`;
   }
   return `${t('session.applicant')} · ${session.email}`;
 }
@@ -724,6 +857,7 @@ function enterTesterMode() {
     email: session.email,
     role: 'manager',
     managerKey: session.managerKey || '',
+    isAdmin: session.isAdmin === true,
     viewAs: 'tester',
     testerApplicantEmail: session.testerApplicantEmail || session.email,
   });
@@ -738,6 +872,7 @@ function exitTesterMode() {
     email: session.email,
     role: 'manager',
     managerKey: session.managerKey || '',
+    isAdmin: session.isAdmin === true,
   });
   showApp(getSession());
   refreshForRole().catch(() => {});
@@ -776,6 +911,7 @@ function showApp(session) {
   appRoot.classList.remove('hidden');
   sessionBadge.textContent = formatSessionBadge(session);
   updateTesterModeButtons(session);
+  updateManagerSubNav(session);
 
   if (testerModeBanner) {
     testerModeBanner.classList.toggle('hidden', !isManagerTesterSession(session));
@@ -927,7 +1063,12 @@ managerLoginForm.addEventListener('submit', async (e) => {
   const password = document.getElementById('loginManagerPassword').value;
 
   if (MANAGER_FALLBACK_CODE && password === MANAGER_FALLBACK_CODE) {
-    setSession({ email, role: 'manager', managerKey: MANAGER_STATIC_KEY || '' });
+    setSession({
+      email,
+      role: 'manager',
+      managerKey: MANAGER_STATIC_KEY || '',
+      isAdmin: MANAGER_PIN_AS_ADMIN === true,
+    });
     showApp(getSession());
     await refreshForRole();
     return;
@@ -946,6 +1087,7 @@ managerLoginForm.addEventListener('submit', async (e) => {
         email: data.email || email,
         role: 'manager',
         managerKey: mk,
+        isAdmin: data.is_admin === true,
       });
       showApp(getSession());
       await refreshForRole();
@@ -1632,6 +1774,21 @@ if (userCasesSearch) {
   });
 }
 
+if (navManagerDashboard) {
+  navManagerDashboard.addEventListener('click', (ev) => {
+    ev.preventDefault();
+    showManagerView('dashboard');
+  });
+}
+if (navManagerVetting) {
+  navManagerVetting.addEventListener('click', (ev) => {
+    ev.preventDefault();
+    const s = getSession();
+    if (!isSessionAdmin(s) || isManagerTesterSession(s)) return;
+    showManagerView('vetting');
+  });
+}
+
 function closeManagerCasePanel() {
   if (!managerCasePanel) return;
   managerCasePanel.classList.add('hidden');
@@ -1841,6 +1998,7 @@ function setLang(lang) {
   if (session) {
     sessionBadge.textContent = formatSessionBadge(session);
     updateTesterModeButtons(session);
+    updateManagerSubNav(session);
     refreshForRole().catch(() => {});
   }
   const sessBanner = getSession();
