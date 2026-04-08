@@ -188,9 +188,9 @@ const STRINGS = {
     'manager.enterTesterMode': 'Režim žadatele (test)',
     'manager.exitTesterMode': 'Zpět na správce',
     'manager.testerBanner':
-      'Testovací režim: checklist se odešle jako zkušební podání (vyžaduje nastavený IRIS_MANAGER_KEY a platný klíč po přihlášení). E-mail žadatele lze upravit (např. separátní testovací účet @uhk.cz).',
+      'Testovací režim: checklist se odešle jako zkušební podání. Klíč správce se po prvním přihlášení v Apps Scriptu vytvoří automaticky; pokud chyba přetrvává, odhlaste se a přihlaste znovu jako IRIS Manager. E-mail žadatele lze upravit (např. testovací účet @uhk.cz).',
     'err.testIntakeNoKey':
-      'Nelze odeslat testovací podání: chybí manager_key. Odhlaste se a přihlaste znovu jako IRIS Manager, nebo zkontrolujte IRIS_MANAGER_KEY v Apps Scriptu.',
+      'Nelze odeslat testovací podání: v relaci chybí manager_key. Nasaděte aktuální Apps Script, odhlaste se a přihlaste znovu jako IRIS Manager (nebo u PIN režimu vyplňte MANAGER_STATIC_KEY stejně jako IRIS_MANAGER_KEY ve skriptu).',
     'err.passwordMismatch': 'Hesla se neshodují.',
     'err.passwordShort': 'Heslo musí mít alespoň 8 znaků.',
     'reg.successDefault':
@@ -202,6 +202,8 @@ const STRINGS = {
     'login.mgrFailPin': 'Neplatné heslo nebo chyba serveru.',
     'login.mgrFailSetup':
       'Přihlášení správce se nezdařilo. V app.js nastavte MANAGER_FALLBACK_CODE (dočasně) nebo doplňte login v Apps Scriptu.',
+    'login.mgrKeyMissing':
+      'Server nevrátil manager_key (zastaralá verze Apps Scriptu nebo chyba odpovědi). Aktualizujte nasazený skript a přihlaste se znovu jako správce.',
     'err.userOnlySubmit': 'Checklist mohou odesílat pouze přihlášení žadatelé.',
     'validate.applicant_name': 'Jméno žadatele',
     'validate.applicant_email': 'E-mail žadatele',
@@ -431,9 +433,9 @@ const STRINGS = {
     'manager.enterTesterMode': 'Applicant mode (test)',
     'manager.exitTesterMode': 'Back to manager dashboard',
     'manager.testerBanner':
-      'Test mode: the checklist is submitted as a test intake (requires IRIS_MANAGER_KEY and a valid key from manager sign-in). You can edit the applicant e-mail (e.g. a separate test @uhk.cz account).',
+      'Test mode: the checklist is submitted as a test intake. The manager key is created automatically on first manager sign-in in Apps Script; if errors persist, sign out and sign in again as IRIS Manager. You can edit the applicant e-mail (e.g. a test @uhk.cz account).',
     'err.testIntakeNoKey':
-      'Cannot submit test intake: manager_key missing. Sign out and sign in again as IRIS Manager, or check IRIS_MANAGER_KEY in Apps Script.',
+      'Cannot submit test intake: manager_key missing from the session. Deploy the latest Apps Script, sign out and sign in again as IRIS Manager (or with PIN mode set MANAGER_STATIC_KEY to match IRIS_MANAGER_KEY in the script).',
     'err.passwordMismatch': 'Passwords do not match.',
     'err.passwordShort': 'Password must be at least 8 characters.',
     'reg.successDefault':
@@ -445,6 +447,8 @@ const STRINGS = {
     'login.mgrFailPin': 'Invalid password or server error.',
     'login.mgrFailSetup':
       'Manager sign-in failed. Set MANAGER_FALLBACK_CODE in app.js (temporary) or implement login in Apps Script.',
+    'login.mgrKeyMissing':
+      'Server did not return manager_key (outdated Apps Script or bad response). Deploy the updated script and sign in again as manager.',
     'err.userOnlySubmit': 'Only signed-in applicants can submit the checklist.',
     'validate.applicant_name': 'Applicant name',
     'validate.applicant_email': 'Applicant e-mail',
@@ -908,10 +912,16 @@ managerLoginForm.addEventListener('submit', async (e) => {
   try {
     const { response, data } = await apiLogin(email, password, 'manager');
     if (response.ok && data.ok && (data.role === 'manager' || data.role === 'iris_manager')) {
+      const mk = String(data.manager_key || '').trim();
+      if (!mk) {
+        managerLoginError.textContent = t('login.mgrKeyMissing');
+        managerLoginError.classList.remove('hidden');
+        return;
+      }
       setSession({
         email: data.email || email,
         role: 'manager',
-        managerKey: data.manager_key || '',
+        managerKey: mk,
       });
       showApp(getSession());
       await refreshForRole();
