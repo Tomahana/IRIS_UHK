@@ -92,6 +92,7 @@ const STRINGS = {
     'user.resultDesc': 'Okamžitá zpětná vazba po odeslání checklistu.',
     'user.statusNone': 'Formulář ještě nebyl odeslán.',
     'user.lblCaseId': 'Case ID',
+    'user.lblRecordUid': 'Jednoznačné referenční ID',
     'user.lblIntakeId': 'Intake ID',
     'user.lblPrelim': 'Předběžný výsledek',
     'user.lblScore': 'Skóre',
@@ -100,6 +101,7 @@ const STRINGS = {
     'user.workflowDeadlines': 'Lhůty',
     'user.workflowDeadlinesVal': 'u každého případu v tabulce; dle metodiky IRIS',
     'tbl.caseId': 'Case ID',
+    'tbl.refUid': 'Referenční ID',
     'tbl.created': 'Vytvořeno',
     'tbl.name': 'Název',
     'tbl.partner': 'Partner',
@@ -138,7 +140,7 @@ const STRINGS = {
     'manager.statOverdue': 'Po termínu',
     'manager.statAnalysisOverdue': 'Další analýza: po termínu',
     'manager.statAnalysisSoon': 'Další analýza: blíží se',
-    'manager.searchPh': 'Hledat (název, partner, žadatel…)',
+    'manager.searchPh': 'Hledat (referenční ID, Case ID, název…)',
     'manager.searchAria': 'Hledat v případech',
     'filter.allStatus': 'Všechny stavy',
     'filter.allPri': 'Všechny priority',
@@ -230,9 +232,16 @@ const STRINGS = {
     'cases.loadFail': 'Nepodařilo se načíst případy.',
     'cases.userLoadFail': 'Nepodařilo se načíst vaše podání.',
     'user.requestRefHint':
-      'Toto je váš referenční kód žádosti. Uložte si ho pro komunikaci s IRIS a pro sledování stavu v tabulce „Moje podání“.',
-    'user.copyRequestRef': 'Zkopírovat kód žádosti',
-    'user.copied': 'Kód byl zkopírován do schránky.',
+      'Toto jednoznačné ID (UUID) najdete v aplikaci v „Moje podání“ – zadejte ho do vyhledávání. Case ID může být u starších záznamů zdvojené; referenční ID je vždy unikátní.',
+    'user.copyRequestRef': 'Zkopírovat referenční ID',
+    'user.downloadRefTxt': 'Stáhnout .txt',
+    'user.refDownloadTitle': 'IRIS UHK – potvrzení podání',
+    'user.refDownloadUidLabel': 'Jednoznačné referenční ID (vyhledání v aplikaci → Moje podání):',
+    'user.refDownloadHint':
+      'Do pole „Hledat“ v sekci Moje podání vložte celé referenční ID – zobrazí se přesně jeden záznam.',
+    'user.casesSearchPh': 'Hledat (referenční ID, Case ID, název…)',
+    'user.casesSearchAria': 'Hledat v mých podáních',
+    'user.copied': 'Referenční ID bylo zkopírováno do schránky.',
     'user.copyFail': 'Kopírování se nezdařilo. Vyberte a zkopírujte kód ručně (Ctrl+C).',
     'manager.reminder.body':
       'Metodika IRIS předpokládá pravidelnou aktualizaci rizikové analýzy (obnova / follow-up při změně okolností). Analytické zprávy doplňujte strukturovaně (předmět, rozsah, závěr, doporučení, plán obnovy).',
@@ -337,6 +346,7 @@ const STRINGS = {
     'user.resultDesc': 'Immediate feedback after submitting the checklist.',
     'user.statusNone': 'The form has not been submitted yet.',
     'user.lblCaseId': 'Case ID',
+    'user.lblRecordUid': 'Unique reference ID',
     'user.lblIntakeId': 'Intake ID',
     'user.lblPrelim': 'Preliminary outcome',
     'user.lblScore': 'Score',
@@ -345,6 +355,7 @@ const STRINGS = {
     'user.workflowDeadlines': 'Deadlines',
     'user.workflowDeadlinesVal': 'per case in the table; per IRIS methodology',
     'tbl.caseId': 'Case ID',
+    'tbl.refUid': 'Reference ID',
     'tbl.created': 'Created',
     'tbl.name': 'Title',
     'tbl.partner': 'Partner',
@@ -383,7 +394,7 @@ const STRINGS = {
     'manager.statOverdue': 'Overdue',
     'manager.statAnalysisOverdue': 'Next analysis: overdue',
     'manager.statAnalysisSoon': 'Next analysis: due soon',
-    'manager.searchPh': 'Search (title, partner, applicant…)',
+    'manager.searchPh': 'Search (reference ID, case ID, title…)',
     'manager.searchAria': 'Search cases',
     'filter.allStatus': 'All statuses',
     'filter.allPri': 'All priorities',
@@ -475,9 +486,16 @@ const STRINGS = {
     'cases.loadFail': 'Could not load cases.',
     'cases.userLoadFail': 'Could not load your submissions.',
     'user.requestRefHint':
-      'This is your request reference code. Keep it for communication with IRIS and for tracking status under “My submissions”.',
-    'user.copyRequestRef': 'Copy request code',
-    'user.copied': 'Code copied to clipboard.',
+      'This unique ID (UUID) appears under “My submissions” — paste it into the search field. Case ID may be duplicated on older rows; the reference ID is always unique.',
+    'user.copyRequestRef': 'Copy reference ID',
+    'user.downloadRefTxt': 'Download .txt',
+    'user.refDownloadTitle': 'IRIS UHK – submission confirmation',
+    'user.refDownloadUidLabel': 'Unique reference ID (find it in the app under My submissions):',
+    'user.refDownloadHint':
+      'Paste the full reference ID into the search box in My submissions to show exactly one record.',
+    'user.casesSearchPh': 'Search (reference ID, case ID, title…)',
+    'user.casesSearchAria': 'Search my submissions',
+    'user.copied': 'Reference ID copied to clipboard.',
     'user.copyFail': 'Copy failed. Select and copy the code manually (Ctrl+C).',
     'manager.reminder.body':
       'IRIS methodology expects periodic updates to the risk analysis (renewal / follow-up when circumstances change). Complete analytical reports using the standard structure (subject, scope, conclusion, recommendations, renewal plan).',
@@ -574,6 +592,7 @@ const statusMessage = document.getElementById('statusMessage');
 const resultDetails = document.getElementById('resultDetails');
 const caseIdValue = document.getElementById('caseIdValue');
 const intakeIdValue = document.getElementById('intakeIdValue');
+const recordUidValue = document.getElementById('recordUidValue');
 const resultValue = document.getElementById('resultValue');
 const scoreValue = document.getElementById('scoreValue');
 
@@ -626,7 +645,12 @@ const managerCaseFormMessage = document.getElementById('managerCaseFormMessage')
 const requestRefBlock = document.getElementById('requestRefBlock');
 const requestRefCode = document.getElementById('requestRefCode');
 const copyRequestRefBtn = document.getElementById('copyRequestRefBtn');
+const downloadRefTxtBtn = document.getElementById('downloadRefTxtBtn');
 const copyRequestRefFeedback = document.getElementById('copyRequestRefFeedback');
+const userCasesSearch = document.getElementById('userCasesSearch');
+
+/** Poslední úspěšná odpověď po odeslání checklistu (stažení .txt). */
+let lastSubmitResponse = null;
 
 const managerReminderBanner = document.getElementById('managerReminderBanner');
 const statAnalysisOverdue = document.getElementById('statAnalysisOverdue');
@@ -952,14 +976,48 @@ function setStatus(message, type = 'neutral') {
   statusMessage.className = `status-message status-${type}`;
 }
 
+function downloadSubmissionRefTxt(data) {
+  if (!data) return;
+  const uid = String(data.record_uid || '').trim();
+  const lines = [
+    t('user.refDownloadTitle'),
+    '',
+    t('user.refDownloadUidLabel'),
+    uid || t('common.emDash'),
+    '',
+    t('user.refDownloadHint'),
+    '',
+    '—',
+    `${t('user.lblCaseId')}: ${data.case_id || t('common.emDash')}`,
+    `${t('user.lblIntakeId')}: ${data.intake_id || t('common.emDash')}`,
+    `${t('user.lblPrelim')}: ${data.preliminary_result ?? t('common.emDash')}`,
+    `${t('user.lblScore')}: ${data.preliminary_risk_score ?? t('common.emDash')}`,
+  ];
+  const blob = new Blob([lines.join('\n')], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const safe = uid ? uid.replace(/[^0-9a-f-]/gi, '').slice(0, 13) : 'podani';
+  a.href = url;
+  a.download = `IRIS-UHK-reference-${safe}.txt`;
+  a.rel = 'noopener';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
 function showResult(data) {
+  lastSubmitResponse = data && data.ok ? data : null;
   const dash = t('common.emDash');
+  if (recordUidValue) {
+    recordUidValue.textContent = data.record_uid || dash;
+  }
   caseIdValue.textContent = data.case_id || dash;
   intakeIdValue.textContent = data.intake_id || dash;
   resultValue.textContent = data.preliminary_result || dash;
   scoreValue.textContent = data.preliminary_risk_score ?? dash;
   resultDetails.classList.remove('hidden');
-  const refCode = String(data.case_id || data.intake_id || '').trim();
+  const refCode = String(data.record_uid || data.case_id || data.intake_id || '').trim();
   if (requestRefBlock && requestRefCode && refCode) {
     requestRefCode.textContent = refCode;
     requestRefBlock.classList.remove('hidden');
@@ -973,7 +1031,9 @@ function showResult(data) {
 }
 
 function hideResult() {
+  lastSubmitResponse = null;
   resultDetails.classList.add('hidden');
+  if (recordUidValue) recordUidValue.textContent = t('common.emDash');
   if (requestRefBlock) requestRefBlock.classList.add('hidden');
   if (copyRequestRefFeedback) {
     copyRequestRefFeedback.classList.add('hidden');
@@ -1260,7 +1320,7 @@ function renderDashboard(summary) {
 
 function renderManagerCases(items) {
   if (!items || !items.length) {
-    casesTableBody.innerHTML = `<tr><td colspan="10" class="empty-row">${escapeHtml(t('manager.empty'))}</td></tr>`;
+    casesTableBody.innerHTML = `<tr><td colspan="11" class="empty-row">${escapeHtml(t('manager.empty'))}</td></tr>`;
     return;
   }
 
@@ -1270,9 +1330,12 @@ function renderManagerCases(items) {
       let rowCls = '';
       if (isCaseOverdue(item)) rowCls = 'row-overdue';
       else if (isCaseDueSoon(item)) rowCls = 'row-due-soon';
+      const ruid = String(item.record_uid || '').trim();
+      const ruidAttr = ruid ? escapeAttr(ruid) : '';
       return `
     <tr class="${rowCls}">
       <td>${escapeHtml(item.case_id)}</td>
+      <td class="cell-record-uid"><code translate="no" title="${ruidAttr}">${escapeHtml(ruid || t('common.emDash'))}</code></td>
       <td>${dueDateCellHtml(item)}</td>
       <td>${escapeHtml(formatDate(item.created_at))}</td>
       <td>${escapeHtml(item.title)}</td>
@@ -1281,7 +1344,7 @@ function renderManagerCases(items) {
       <td>${escapeHtml(caseStatusLabel(item.status))}</td>
       <td>${escapeHtml(item.priority)}</td>
       <td>${escapeHtml(item.risk_level)}</td>
-      <td><button type="button" class="btn-secondary btn-compact" data-manage-case="${escapeHtml(item.case_id)}">${manageLabel}</button></td>
+      <td><button type="button" class="btn-secondary btn-compact" data-manage-case="${escapeHtml(item.case_id)}" data-record-uid="${escapeAttr(ruid)}">${manageLabel}</button></td>
     </tr>`;
     })
     .join('');
@@ -1289,7 +1352,7 @@ function renderManagerCases(items) {
 
 function renderUserCases(items) {
   if (!items || !items.length) {
-    userCasesTableBody.innerHTML = `<tr><td colspan="9" class="empty-row">${escapeHtml(t('user.empty'))}</td></tr>`;
+    userCasesTableBody.innerHTML = `<tr><td colspan="10" class="empty-row">${escapeHtml(t('user.empty'))}</td></tr>`;
     return;
   }
 
@@ -1300,9 +1363,11 @@ function renderUserCases(items) {
       else if (isCaseDueSoon(item)) rowCls = 'row-due-soon';
       const nextText = nextStepForUser(item);
       const stmt = cellPreview(item.iris_statement, 120);
+      const ruid = String(item.record_uid || '').trim();
       return `
     <tr class="${rowCls}">
       <td>${escapeHtml(item.case_id)}</td>
+      <td class="cell-record-uid"><code translate="no" title="${escapeAttr(ruid)}">${escapeHtml(ruid || t('common.emDash'))}</code></td>
       <td>${escapeHtml(formatDate(item.created_at))}</td>
       <td>${escapeHtml(item.title)}</td>
       <td>${escapeHtml(item.partner_name)}</td>
@@ -1351,7 +1416,10 @@ function buildCasesParams() {
     params.set('manager_key', session.managerKey);
   }
 
-  if (searchCases && searchCases.value.trim()) {
+  const userLike = session && (session.role === 'user' || isManagerTesterSession(session));
+  if (userLike && userCasesSearch && userCasesSearch.value.trim()) {
+    params.set('search', userCasesSearch.value.trim());
+  } else if (searchCases && searchCases.value.trim()) {
     params.set('search', searchCases.value.trim());
   }
   if (filterStatus && filterStatus.value) {
@@ -1364,7 +1432,7 @@ function buildCasesParams() {
 }
 
 async function loadManagerCases() {
-  casesTableBody.innerHTML = `<tr><td colspan="10" class="empty-row">${escapeHtml(t('manager.loadingCases'))}</td></tr>`;
+  casesTableBody.innerHTML = `<tr><td colspan="11" class="empty-row">${escapeHtml(t('manager.loadingCases'))}</td></tr>`;
 
   const response = await fetch(`${API_URL}?${buildCasesParams().toString()}`);
   const data = await response.json();
@@ -1378,7 +1446,7 @@ async function loadManagerCases() {
 }
 
 async function loadUserCases() {
-  userCasesTableBody.innerHTML = `<tr><td colspan="9" class="empty-row">${escapeHtml(t('user.loadingRow'))}</td></tr>`;
+  userCasesTableBody.innerHTML = `<tr><td colspan="10" class="empty-row">${escapeHtml(t('user.loadingRow'))}</td></tr>`;
 
   const params = buildCasesParams();
   const response = await fetch(`${API_URL}?${params.toString()}`);
@@ -1420,7 +1488,7 @@ async function refreshForRole() {
     if (session.role === 'manager' && !isManagerTesterSession(session)) {
       setManagerStatus(error.message || t('cases.loadFail'), true);
     } else {
-      userCasesTableBody.innerHTML = `<tr><td colspan="9" class="empty-row">${escapeHtml(
+      userCasesTableBody.innerHTML = `<tr><td colspan="10" class="empty-row">${escapeHtml(
         error.message || t('cases.userLoadFail')
       )}</td></tr>`;
     }
@@ -1549,10 +1617,20 @@ filterStatus.addEventListener('change', loadManagerCases);
 filterPriority.addEventListener('change', loadManagerCases);
 
 let searchTimeout;
-searchCases.addEventListener('input', () => {
-  clearTimeout(searchTimeout);
-  searchTimeout = setTimeout(loadManagerCases, 300);
-});
+if (searchCases) {
+  searchCases.addEventListener('input', () => {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(loadManagerCases, 300);
+  });
+}
+
+let userSearchTimeout;
+if (userCasesSearch) {
+  userCasesSearch.addEventListener('input', () => {
+    clearTimeout(userSearchTimeout);
+    userSearchTimeout = setTimeout(loadUserCases, 300);
+  });
+}
 
 function closeManagerCasePanel() {
   if (!managerCasePanel) return;
@@ -1568,13 +1646,23 @@ function closeManagerCasePanel() {
   }
 }
 
-function openManagerCasePanel(caseId) {
-  const item = managerCasesCache.find((c) => String(c.case_id) === String(caseId));
+function openManagerCasePanel(caseId, recordUid) {
+  const wantUid = String(recordUid || '').trim();
+  let item = null;
+  if (wantUid) {
+    item = managerCasesCache.find((c) => String(c.record_uid || '').trim() === wantUid);
+  }
+  if (!item) {
+    item = managerCasesCache.find((c) => String(c.case_id) === String(caseId));
+  }
   if (!item || !managerCasePanel) return;
 
   managerEditCaseId.value = String(item.case_id);
   managerCasePanelTitle.textContent = `${t('case.editPrefix')} ${item.case_id}`;
-  managerCasePanelSubtitle.textContent = [item.title, item.applicant_name].filter(Boolean).join(' · ');
+  const refLine = String(item.record_uid || '').trim()
+    ? `${t('tbl.refUid')}: ${item.record_uid}`
+    : '';
+  managerCasePanelSubtitle.textContent = [refLine, item.title, item.applicant_name].filter(Boolean).join(' · ');
 
   const st = String(item.status || 'new');
   managerCaseStatus.value = [...managerCaseStatus.options].some((o) => o.value === st) ? st : 'new';
@@ -1602,7 +1690,7 @@ function openManagerCasePanel(caseId) {
 casesTableBody.addEventListener('click', (e) => {
   const btn = e.target.closest('[data-manage-case]');
   if (!btn) return;
-  openManagerCasePanel(btn.getAttribute('data-manage-case'));
+  openManagerCasePanel(btn.getAttribute('data-manage-case'), btn.getAttribute('data-record-uid'));
 });
 
 managerCaseCancel.addEventListener('click', () => closeManagerCasePanel());
@@ -1634,6 +1722,15 @@ if (copyRequestRefBtn && requestRefCode) {
         copyRequestRefFeedback.textContent = t('user.copyFail');
         copyRequestRefFeedback.classList.remove('hidden');
       }
+    }
+  });
+}
+
+if (downloadRefTxtBtn) {
+  downloadRefTxtBtn.addEventListener('click', (ev) => {
+    ev.preventDefault();
+    if (lastSubmitResponse) {
+      downloadSubmissionRefTxt(lastSubmitResponse);
     }
   });
 }
