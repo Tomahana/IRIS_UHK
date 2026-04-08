@@ -15,6 +15,7 @@
  *   Dashboard a „plný“ seznam cases: ?manager_key=... (klient ho dostane v odpovědi na úspěšné přihlášení správce.)
  *   Testovací podání checklistu od správce: POST stejné tělo jako intake + test_intake: true + manager_key
  *   (neověřuje se list Users; vyžaduje platný klíč po přihlášení správce / vytvořený při něm.)
+ *   Smazání podání (admin): POST JSON action delete_submission + manager_key + admin_email + case_id (admin_email musí mít v Users roli admin).
  *
  * List Cases – začátek hlavičky (1. řádek) typicky:
  *   case_id | record_uid | created_at | created_by | source_intake_id | current_phase | …
@@ -90,6 +91,10 @@ function doPost(e) {
 
     if (action === 'update_case') {
       return handleUpdateCase_(data);
+    }
+
+    if (action === 'delete_submission') {
+      return handleDeleteSubmission_(data);
     }
 
     return processIntakeSubmission_(data);
@@ -361,6 +366,95 @@ function findCaseRowIndex_(sheet, caseId) {
     }
   }
   return -1;
+}
+
+/** Řádky (1-based) kde sloupec headerName odpovídá wantValue, seřazeno sestupně pro bezpečné mazání. */
+function findRowNumbersMatchingColumn_(sheet, headerName, wantValue) {
+  const lastCol = sheet.getLastColumn();
+  if (lastCol < 1) {
+    return [];
+  }
+  const headers = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
+  const col = headers.indexOf(headerName);
+  if (col === -1) {
+    return [];
+  }
+  const data = sheet.getDataRange().getValues();
+  const want = String(wantValue).trim();
+  const out = [];
+  for (let i = 1; i < data.length; i++) {
+    if (String(data[i][col] || '').trim() === want) {
+      out.push(i + 1);
+    }
+  }
+  return out.sort((a, b) => b - a);
+}
+
+function verifyAdminByEmail_(email) {
+  const row = findUserByEmail_(email);
+  if (!row || !isActive_(row.active)) {
+    throw new Error('Účet pro potvrzení admina nenalezen nebo není aktivní.');
+  }
+  const r = String(row.role || '')
+    .trim()
+    .toLowerCase();
+  if (r !== 'admin') {
+    throw new Error('Smazání podání a případu je povoleno jen účtu s rolí admin v listu Users.');
+  }
+}
+
+/**
+ * Admin: smaže řádek Cases, související Intake, Events a Notifications pro dané case_id.
+ * POST: { action: 'delete_submission', manager_key, admin_email, case_id }
+ */
+function handleDeleteSubmission_(data) {
+  assertManagerKeyFromPayload_(data);
+  validateRequiredFields_(data, ['case_id', 'admin_email']);
+  verifyAdminByEmail_(data.admin_email);
+
+  const caseId = String(data.case_id || '').trim();
+  if (!caseId) {
+    return jsonResponse_(400, { ok: false, message: 'Chybí case_id.' });
+  }
+
+  const lock = LockService.getScriptLock();
+  lock.waitLock(30000);
+  try {
+    const ss = SpreadsheetApp.openById(IRIS_CONFIG.spreadsheetId);
+    const casesSheet = ss.getSheetByName(IRIS_CONFIG.sheets.cases);
+    const intakeSheet = getIntakeSheet_(ss);
+    const eventsSheet = ss.getSheetByName(IRIS_CONFIG.sheets.events);
+    const notificationsSheet = ss.getSheetByName(IRIS_CONFIG.sheets.notifications);
+
+    if (findCaseRowIndex_(casesSheet, caseId) < 0) {
+      return jsonResponse_(404, { ok: false, message: 'Případ nenalezen.' });
+    }
+
+    const deleteMatching = function (sh, colName) {
+      if (!sh) {
+        return;
+      }
+      findRowNumbersMatchingColumn_(sh, colName, caseId).forEach(function (rn) {
+        sh.deleteRow(rn);
+      });
+    };
+
+    deleteMatching(notificationsSheet, 'case_id');
+    deleteMatching(eventsSheet, 'case_id');
+    deleteMatching(intakeSheet, 'case_id');
+    const cr = findCaseRowIndex_(casesSheet, caseId);
+    if (cr > 0) {
+      casesSheet.deleteRow(cr);
+    }
+
+    return jsonResponse_(200, {
+      ok: true,
+      message: 'Podání a případ byly odstraněny z evidence.',
+      case_id: caseId,
+    });
+  } finally {
+    lock.releaseLock();
+  }
 }
 
 function updateRowFieldsByCaseId_(sheet, caseId, updates) {
