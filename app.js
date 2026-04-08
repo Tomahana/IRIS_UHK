@@ -17,12 +17,14 @@
  *    Výjimka: test_intake: true + platný manager_key → testovací podání správce (bez Users).
  *
  * 5) POST { action: 'update_case', manager_key, case_id, manager_email, status?, … } – úprava případu (správce).
+ * 6) POST { action: 'delete_submission', manager_key, admin_email, case_id } – smazání případu/podání (jen role admin v Users).
  */
 
 const API_URL =
   'https://script.google.com/macros/s/AKfycbyN8uGoqSqqH26K7eBzTx-QmE08e-27fWJRws5QcM6Dm6dl2NEGAygFak9T7X0rzYpZ6Q/exec';
 
 const SESSION_KEY = 'iris_uhk_session';
+const INTAKE_DRAFT_PREFIX = 'iris_intake_draft_v2_';
 
 const LANG_STORAGE = 'iris_uhk_lang';
 /** @type {'cs' | 'en'} */
@@ -284,49 +286,33 @@ const STRINGS = {
     'session.adminSuffix': 'Admin',
     'admin.subNavAria': 'Navigace správce',
     'admin.navIris': 'Přehled IRIS',
-    'admin.navVetting': 'Prověrky osob (OSINT / DD)',
+    'manager.hubTitle': 'Rozcestník',
+    'manager.hubLead':
+      'Metodické check-listy pro prověřování subjektů. Přehled případů a dashboard IRIS otevřete záložkou „Přehled IRIS“.',
+    'manager.hubInstitutionsTitle': 'Check-list institucí a organizací',
+    'manager.hubInstitutionsDesc': 'Základní rámec DD a OSINT pro právnické osoby a partnery.',
+    'manager.hubPersonsTitle': 'Check-list osob',
+    'manager.hubPersonsDesc': 'Základy prověrky fyzických osob (OSINT, due diligence).',
+    'manager.navInstitutions': 'Instituce a organizace',
+    'manager.navPersons': 'Osoby',
+    'manager.instTitle': 'Check-list institucí a organizací',
+    'manager.instLead':
+      'Orientační rámec pro prověřování partnerů, institucí a právnických osob v kontextu IRIS UHK. Doplňuje vstupní checklist; nenahrazuje právní posouzení.',
+    'user.saveDraft': 'Uložit rozpracované',
+    'user.loadDraft': 'Načíst rozpracované',
+    'user.finalizeSubmit': 'Odeslat definitivně',
+    'user.draftSaved': 'Rozpracované podání uloženo v tomto prohlížeči.',
+    'user.draftLoaded': 'Načten rozpracovaný koncept.',
+    'user.draftNone': 'Není uložen žádný koncept pro tento účet.',
+    'user.draftFail': 'Koncept se nepodařilo uložit (blokované úložiště prohlížeče?).',
+    'admin.deleteSubmission': 'Smazat podání a případ',
+    'admin.deleteConfirm':
+      'Opravdu trvale smazat tento případ a související řádky (podání, události, notifikace) z tabulky? Akci nelze vrátit.',
+    'admin.deleteOk': 'Záznamy byly smazány.',
+    'admin.deleteFail': 'Smazání se nezdařilo.',
     'admin.vettingTitle': 'Prověrky osob – základy OSINT a Due diligence',
     'admin.vettingLead':
       'Interní metodický podklad pro administrátory IRIS. Doplňuje obecný rámec institucionální bezpečnosti; nenahrazuje právní posouzení ani interní směrnice Ústavu.',
-    'admin.vettingBodyHtml': `<div class="vetting-block">
-<h3>1. Účel a rámec</h3>
-<p>Stránka shrnuje <strong>základní kroky</strong> při prověřování fyzických osob v kontextu mezinárodní spolupráce, náboru, hostování nebo rizikových partnerství. Slouží jako orientační checklist pro koordinaci s právním a HR oddělením.</p>
-<ul>
-<li>Prověrka musí být <strong>proporcionální</strong> k riziku a účelu (typ spolupráce, přístup k datům, citlivost oboru).</li>
-<li>Výsledky OSINT / DD jsou <strong>pracovní podklad</strong>; konečné rozhodnutí zůstává u příslušných orgánů Ústavu dle platných předpisů a směrnic.</li>
-</ul>
-
-<h3>2. OSINT – otevřené zdroje (základní postup)</h3>
-<p><strong>OSINT</strong> (Open Source Intelligence) znamená práci pouze s legálně dostupnými veřejnými informacemi – bez obcházení ochrany účtů, bez „falešných identit“ a bez zásahu do soukromí nad rámec oprávněného účelu zpracování.</p>
-<ol class="vetting-ol">
-<li><strong>Identifikace subjektu:</strong> plné jméno, varianty zápisu, instituce, funkce, časové období působení, geografie.</li>
-<li><strong>Verifikace identity:</strong> konzistence údajů napříč nezávislými zdroji (institucionální profily, publikace, rejstříky, tiskové zprávy).</li>
-<li><strong>Digitální stopa:</strong> veřejné profily, odborná činnost, účast na projektech – s důrazem na věrohodnost zdroje a datum informace.</li>
-<li><strong>Reputace a kontroverze:</strong> záznamy v médiích, soudních databázích (tam, kde jsou veřejné), sankční a bezpečnostní seznamy používané v rámci metodiky IRIS / compliance.</li>
-<li><strong>Geopolitický a sektorový kontext:</strong> země původu, vazby na citlivé subjekty nebo sektory dle metodiky instituce.</li>
-</ol>
-
-<h3>3. Due diligence u osob (zkrácený rámec)</h3>
-<p><strong>Due diligence</strong> zde chápeme jako strukturované ověření informací před závazkem (spolupráce, smlouva, návštěva, přístup k infrastruktuře).</p>
-<ul>
-<li><strong>Rozsah:</strong> stanovit podle matice rizik IRIS (nízké / střední / vysoké) – hloubka šetření musí odpovídat kategorii.</li>
-<li><strong>Minimální balíček:</strong> identita, afilace, odborná kredibilita, seznamy sankcí / PEP (dle interních postupů), konflikt zájmů, předchozí incidenty ve veřejně dostupných zdrojích.</li>
-<li><strong>Dokumentace zjištění:</strong> co bylo ověřeno, kdy, odkud (URL, název registru, datum stavu stránky), kdo provedl šetření.</li>
-<li><strong>Nejasnosti a mezery:</strong> explicitně uvést; eskalovat na vedoucího IRIS nebo právní oddělení – neinterpretovat mlčením jako souhlas.</li>
-</ul>
-
-<h3>4. Etika, ochrana údajů a bezpečnost</h3>
-<ul>
-<li>Zpracovávejte jen údaje nezbytné pro účel prověrky; dodržujte GDPR a vnitřní politiku Ústavu.</li>
-<li>Neshromažďujte citlivé údaje z neoficiálních „úniků“ dat; nevyužívejte nelegální zdroje.</li>
-<li>Pracujte na pracovních zařízeních a účtech Ústavu; výsledky ukládejte dle klasifikace a přístupových pravidel.</li>
-</ul>
-
-<h3>5. Vazba na případy IRIS</h3>
-<p>U konkrétních partnerů a projektů navazujte na <strong>evidenci případů</strong> (Cases) a analytické zprávy – prověrka osoby může být součástí širšího posouzení rizik spolupráce.</p>
-
-<p class="vetting-disclaimer"><strong>Upozornění:</strong> Tento text je metodickým úvodem. Konkrétní postupy, nástroje a šablony doplňte podle aktuálních interních instrukcí UHK a platné legislativy.</p>
-</div>`,
   },
   en: {
     'page.title': 'IRIS UHK – Intake checklist',
@@ -584,49 +570,33 @@ const STRINGS = {
     'session.adminSuffix': 'Admin',
     'admin.subNavAria': 'Manager navigation',
     'admin.navIris': 'IRIS overview',
-    'admin.navVetting': 'Personnel vetting (OSINT / DD)',
+    'manager.hubTitle': 'Directory',
+    'manager.hubLead':
+      'Methodology checklists for vetting subjects. Open the case dashboard with “IRIS overview”.',
+    'manager.hubInstitutionsTitle': 'Institutions and organisations checklist',
+    'manager.hubInstitutionsDesc': 'Basic DD and OSINT framework for legal entities and partners.',
+    'manager.hubPersonsTitle': 'Individuals checklist',
+    'manager.hubPersonsDesc': 'Basics for vetting natural persons (OSINT, due diligence).',
+    'manager.navInstitutions': 'Institutions & organisations',
+    'manager.navPersons': 'Individuals',
+    'manager.instTitle': 'Institutions and organisations checklist',
+    'manager.instLead':
+      'Orientation framework for vetting partners and legal entities in IRIS UHK. Complements the intake checklist; not legal advice.',
+    'user.saveDraft': 'Save draft',
+    'user.loadDraft': 'Load draft',
+    'user.finalizeSubmit': 'Submit as final',
+    'user.draftSaved': 'Draft saved in this browser.',
+    'user.draftLoaded': 'Draft loaded.',
+    'user.draftNone': 'No saved draft for this account.',
+    'user.draftFail': 'Could not save draft (browser storage blocked?).',
+    'admin.deleteSubmission': 'Delete submission and case',
+    'admin.deleteConfirm':
+      'Permanently delete this case and related rows (intake, events, notifications)? This cannot be undone.',
+    'admin.deleteOk': 'Records deleted.',
+    'admin.deleteFail': 'Delete failed.',
     'admin.vettingTitle': 'Personnel vetting – OSINT and due diligence basics',
     'admin.vettingLead':
       'Internal methodology note for IRIS administrators. Complements institutional security; it is not legal advice or a substitute for university policies.',
-    'admin.vettingBodyHtml': `<div class="vetting-block">
-<h3>1. Purpose and scope</h3>
-<p>This page outlines <strong>basic steps</strong> for vetting individuals in the context of international cooperation, recruitment, hosting, or higher-risk partnerships. It supports coordination with legal and HR units.</p>
-<ul>
-<li>Vetting must be <strong>proportionate</strong> to risk and purpose (type of cooperation, data access, field sensitivity).</li>
-<li>OSINT / DD outputs are a <strong>working input</strong>; final decisions remain with the competent university bodies under applicable rules.</li>
-</ul>
-
-<h3>2. OSINT – open sources (core workflow)</h3>
-<p><strong>OSINT</strong> means using only lawfully available public information – no bypassing account protections, no deceptive identities, and no intrusion beyond the legitimate purpose of processing.</p>
-<ol class="vetting-ol">
-<li><strong>Subject identification:</strong> full name, spelling variants, affiliation, role, time period, geography.</li>
-<li><strong>Identity verification:</strong> consistency across independent sources (institutional profiles, publications, registers, press).</li>
-<li><strong>Digital footprint:</strong> public profiles, professional activity, project involvement – note source credibility and information date.</li>
-<li><strong>Reputation and controversy:</strong> media, public court records where applicable, sanctions and security lists used in IRIS / compliance methodology.</li>
-<li><strong>Geopolitical and sector context:</strong> country links, exposure to sensitive sectors per institutional methodology.</li>
-</ol>
-
-<h3>3. Due diligence on individuals (short framework)</h3>
-<p><strong>Due diligence</strong> here means structured verification before a commitment (cooperation, contract, visit, infrastructure access).</p>
-<ul>
-<li><strong>Scope:</strong> align with the IRIS risk matrix (low / medium / high) – depth must match the category.</li>
-<li><strong>Minimum package:</strong> identity, affiliation, professional credibility, sanctions / PEP checks (per internal procedure), conflicts of interest, prior issues in public sources.</li>
-<li><strong>Documentation:</strong> what was verified, when, from where (URL, register name, capture date), who performed the review.</li>
-<li><strong>Gaps:</strong> state them explicitly; escalate to IRIS lead or legal – silence is not approval.</li>
-</ul>
-
-<h3>4. Ethics, data protection, and security</h3>
-<ul>
-<li>Process only data necessary for the purpose; comply with GDPR and university policy.</li>
-<li>Do not collect sensitive data from unofficial leaks; do not use illegal sources.</li>
-<li>Use institutional devices and accounts; store results according to classification and access rules.</li>
-</ul>
-
-<h3>5. Link to IRIS cases</h3>
-<p>For specific partners and projects, tie findings to the <strong>case register</strong> (Cases) and analytical reports – person vetting may be part of a wider cooperation risk assessment.</p>
-
-<p class="vetting-disclaimer"><strong>Notice:</strong> This is an introductory methodology text. Add concrete procedures, tools, and templates per current UHK internal instructions and applicable law.</p>
-</div>`,
   },
 };
 
@@ -640,6 +610,14 @@ function t(key, vars) {
     });
   }
   return s;
+}
+
+/** Metodické stránky v index.html (data-iris-lang); přepíná se jazykem. */
+function syncMethodologyBodyLang() {
+  document.querySelectorAll('[data-iris-lang]').forEach((el) => {
+    const lang = el.getAttribute('data-iris-lang');
+    el.classList.toggle('hidden', lang !== currentLang);
+  });
 }
 
 function applyStaticI18n() {
@@ -671,6 +649,7 @@ function applyStaticI18n() {
     const key = opt.getAttribute('data-i18n-opt');
     if (key) opt.textContent = t(key);
   });
+  syncMethodologyBodyLang();
 }
 
 /** Dočasné řešení: prázdné = vypnuto. Pokud máte v Apps Scriptu IRIS_MANAGER_KEY, nastavte stejnou hodnotu do MANAGER_STATIC_KEY, aby fungovalo PIN přihlášení správce. */
@@ -681,6 +660,8 @@ const MANAGER_PIN_AS_ADMIN = false;
 
 const form = document.getElementById('intakeForm');
 const submitButton = document.getElementById('submitButton');
+const saveDraftButton = document.getElementById('saveDraftButton');
+const loadDraftButton = document.getElementById('loadDraftButton');
 const fillDemoButton = document.getElementById('fillDemoButton');
 
 const statusMessage = document.getElementById('statusMessage');
@@ -710,9 +691,14 @@ const layoutUser = document.getElementById('layoutUser');
 const layoutManager = document.getElementById('layoutManager');
 const managerSubNav = document.getElementById('managerSubNav');
 const navManagerDashboard = document.getElementById('navManagerDashboard');
-const navManagerVetting = document.getElementById('navManagerVetting');
+const navManagerInstitutions = document.getElementById('navManagerInstitutions');
+const navManagerPersons = document.getElementById('navManagerPersons');
+const managerHub = document.getElementById('managerHub');
+const hubBtnInstitutions = document.getElementById('hubBtnInstitutions');
+const hubBtnPersons = document.getElementById('hubBtnPersons');
 const managerViewDashboard = document.getElementById('managerViewDashboard');
-const managerViewVetting = document.getElementById('managerViewVetting');
+const managerViewInstitutions = document.getElementById('managerViewInstitutions');
+const managerViewPersons = document.getElementById('managerViewPersons');
 const sessionBadge = document.getElementById('sessionBadge');
 const logoutButton = document.getElementById('logoutButton');
 const managerStatusMessage = document.getElementById('managerStatusMessage');
@@ -739,6 +725,7 @@ const managerCaseStatement = document.getElementById('managerCaseStatement');
 const managerCaseAnalysisUrl = document.getElementById('managerCaseAnalysisUrl');
 const managerCaseFile = document.getElementById('managerCaseFile');
 const managerCaseSave = document.getElementById('managerCaseSave');
+const managerCaseDelete = document.getElementById('managerCaseDelete');
 const managerCaseCancel = document.getElementById('managerCaseCancel');
 const managerCaseFormMessage = document.getElementById('managerCaseFormMessage');
 
@@ -795,28 +782,42 @@ function isSessionAdmin(session) {
 }
 
 function showManagerView(which) {
-  const dashboard = which !== 'vetting';
+  const w = String(which || 'dashboard');
+  const dash = w === 'dashboard';
+  const inst = w === 'institutions';
+  const pers = w === 'persons';
+
   if (managerViewDashboard) {
-    managerViewDashboard.classList.toggle('hidden', !dashboard);
+    managerViewDashboard.classList.toggle('hidden', !dash);
   }
-  if (managerViewVetting) {
-    managerViewVetting.classList.toggle('hidden', dashboard);
+  if (managerViewInstitutions) {
+    managerViewInstitutions.classList.toggle('hidden', !inst);
+  }
+  if (managerViewPersons) {
+    managerViewPersons.classList.toggle('hidden', !pers);
   }
   if (navManagerDashboard) {
-    navManagerDashboard.classList.toggle('is-active', dashboard);
+    navManagerDashboard.classList.toggle('is-active', dash);
   }
-  if (navManagerVetting) {
-    navManagerVetting.classList.toggle('is-active', !dashboard);
+  if (navManagerInstitutions) {
+    navManagerInstitutions.classList.toggle('is-active', inst);
   }
-  if (!dashboard) {
+  if (navManagerPersons) {
+    navManagerPersons.classList.toggle('is-active', pers);
+  }
+  if (!dash) {
     closeManagerCasePanel();
   }
 }
 
 function updateManagerSubNav(session) {
-  if (!managerSubNav) return;
-  const show = isSessionAdmin(session) && !isManagerTesterSession(session);
-  managerSubNav.classList.toggle('hidden', !show);
+  const show = Boolean(session && session.role === 'manager' && !isManagerTesterSession(session));
+  if (managerSubNav) {
+    managerSubNav.classList.toggle('hidden', !show);
+  }
+  if (managerHub) {
+    managerHub.classList.toggle('hidden', !show);
+  }
   if (!show) {
     showManagerView('dashboard');
   }
@@ -1211,6 +1212,118 @@ function collectFormData() {
     training_or_technical_assistance: checkboxToYesNo('training_or_technical_assistance'),
     involves_doctoral_students_or_infrastructure: checkboxToYesNo('involves_doctoral_students_or_infrastructure'),
   };
+}
+
+function intakeDraftStorageKey(email) {
+  return INTAKE_DRAFT_PREFIX + String(email || '').trim().toLowerCase();
+}
+
+function saveIntakeDraftToStorage() {
+  const session = getSession();
+  if (!session || (session.role !== 'user' && !isManagerTesterSession(session)) || !form) return;
+  const payload = collectFormData();
+  const raw = {
+    v: 2,
+    savedAt: new Date().toISOString(),
+    fields: {
+      applicant_name: payload.applicant_name,
+      applicant_unit: payload.applicant_unit,
+      cooperation_type: form.cooperation_type.value,
+      cooperation_stage: form.cooperation_stage.value,
+      partner_name: payload.partner_name,
+      partner_country: payload.partner_country,
+      partner_website: payload.partner_website,
+      intent_description: payload.intent_description,
+    },
+    checks: {
+      external_funding: form.external_funding.checked,
+      access_to_uhk_systems: form.access_to_uhk_systems.checked,
+      sharing_data_knowhow: form.sharing_data_knowhow.checked,
+      sensitive_outputs: form.sensitive_outputs.checked,
+      transfer_outside_eu: form.transfer_outside_eu.checked,
+      training_or_technical_assistance: form.training_or_technical_assistance.checked,
+      involves_doctoral_students_or_infrastructure: form.involves_doctoral_students_or_infrastructure.checked,
+    },
+  };
+  if (isManagerTesterSession(session)) {
+    raw.fields.applicant_email_override = String(form.applicant_email.value || '').trim();
+  }
+  try {
+    localStorage.setItem(intakeDraftStorageKey(payload.applicant_email), JSON.stringify(raw));
+    setStatus(t('user.draftSaved'), 'success');
+  } catch (_) {
+    setStatus(t('user.draftFail'), 'error');
+  }
+}
+
+function loadIntakeDraftFromStorage() {
+  const session = getSession();
+  if (!session || (session.role !== 'user' && !isManagerTesterSession(session)) || !form) return;
+  const email =
+    session.role === 'user'
+      ? session.email
+      : String(form.applicant_email.value || session.testerApplicantEmail || session.email || '').trim();
+  let raw;
+  try {
+    raw = localStorage.getItem(intakeDraftStorageKey(email));
+  } catch (_) {
+    raw = null;
+  }
+  if (!raw) {
+    setStatus(t('user.draftNone'), 'neutral');
+    return;
+  }
+  let d;
+  try {
+    d = JSON.parse(raw);
+  } catch {
+    setStatus(t('user.draftNone'), 'neutral');
+    return;
+  }
+  const f = d.fields || {};
+  if (f.applicant_name != null) form.applicant_name.value = f.applicant_name;
+  if (f.applicant_unit != null) form.applicant_unit.value = f.applicant_unit;
+  if (f.cooperation_type) {
+    form.cooperation_type.value = f.cooperation_type;
+  }
+  if (f.cooperation_stage) form.cooperation_stage.value = f.cooperation_stage;
+  if (f.partner_name != null) form.partner_name.value = f.partner_name;
+  if (f.partner_country != null) form.partner_country.value = f.partner_country;
+  if (f.partner_website != null) form.partner_website.value = f.partner_website;
+  if (f.intent_description != null) form.intent_description.value = f.intent_description;
+  if (isManagerTesterSession(session) && f.applicant_email_override) {
+    form.applicant_email.value = f.applicant_email_override;
+  }
+  const c = d.checks || {};
+  const names = [
+    'external_funding',
+    'access_to_uhk_systems',
+    'sharing_data_knowhow',
+    'sensitive_outputs',
+    'transfer_outside_eu',
+    'training_or_technical_assistance',
+    'involves_doctoral_students_or_infrastructure',
+  ];
+  names.forEach((n) => {
+    if (form.elements[n] && typeof c[n] === 'boolean') {
+      form.elements[n].checked = c[n];
+    }
+  });
+  setStatus(t('user.draftLoaded'), 'success');
+}
+
+function clearIntakeDraftForCurrentUser() {
+  const session = getSession();
+  if (!session || !form) return;
+  const email =
+    session.role === 'user'
+      ? session.email
+      : String(form.applicant_email.value || session.testerApplicantEmail || session.email || '').trim();
+  try {
+    localStorage.removeItem(intakeDraftStorageKey(email));
+  } catch (_) {
+    /* ignore */
+  }
 }
 
 function validateFormData(data) {
@@ -1689,6 +1802,7 @@ async function submitForm(event) {
       setStatus(t('submit.success'), 'success');
     }
 
+    clearIntakeDraftForCurrentUser();
     form.reset();
     const sAfter = getSession();
     if (sAfter.role === 'user') {
@@ -1736,6 +1850,18 @@ function fillDemoData() {
 
 form.addEventListener('submit', submitForm);
 fillDemoButton.addEventListener('click', fillDemoData);
+if (saveDraftButton) {
+  saveDraftButton.addEventListener('click', (ev) => {
+    ev.preventDefault();
+    saveIntakeDraftToStorage();
+  });
+}
+if (loadDraftButton) {
+  loadDraftButton.addEventListener('click', (ev) => {
+    ev.preventDefault();
+    loadIntakeDraftFromStorage();
+  });
+}
 
 if (form.elements.applicant_email) {
   form.elements.applicant_email.addEventListener('blur', persistTesterApplicantEmail);
@@ -1780,12 +1906,32 @@ if (navManagerDashboard) {
     showManagerView('dashboard');
   });
 }
-if (navManagerVetting) {
-  navManagerVetting.addEventListener('click', (ev) => {
+if (navManagerInstitutions) {
+  navManagerInstitutions.addEventListener('click', (ev) => {
     ev.preventDefault();
-    const s = getSession();
-    if (!isSessionAdmin(s) || isManagerTesterSession(s)) return;
-    showManagerView('vetting');
+    if (isManagerTesterSession(getSession())) return;
+    showManagerView('institutions');
+  });
+}
+if (navManagerPersons) {
+  navManagerPersons.addEventListener('click', (ev) => {
+    ev.preventDefault();
+    if (isManagerTesterSession(getSession())) return;
+    showManagerView('persons');
+  });
+}
+if (hubBtnInstitutions) {
+  hubBtnInstitutions.addEventListener('click', (ev) => {
+    ev.preventDefault();
+    if (isManagerTesterSession(getSession())) return;
+    showManagerView('institutions');
+  });
+}
+if (hubBtnPersons) {
+  hubBtnPersons.addEventListener('click', (ev) => {
+    ev.preventDefault();
+    if (isManagerTesterSession(getSession())) return;
+    showManagerView('persons');
   });
 }
 
@@ -1839,6 +1985,10 @@ function openManagerCasePanel(caseId, recordUid) {
   if (managerAnalysisRecurrence) managerAnalysisRecurrence.value = String(item.analysis_recurrence_note || '');
   if (managerNextAnalysisDue) managerNextAnalysisDue.value = dateInputFromCellValue(item.next_analysis_due);
 
+  if (managerCaseDelete) {
+    managerCaseDelete.classList.toggle('hidden', !isSessionAdmin(getSession()));
+  }
+
   managerCasePanel.classList.remove('hidden');
   managerCasePanel.setAttribute('aria-hidden', 'false');
   managerCasePanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -1851,6 +2001,41 @@ casesTableBody.addEventListener('click', (e) => {
 });
 
 managerCaseCancel.addEventListener('click', () => closeManagerCasePanel());
+
+if (managerCaseDelete) {
+  managerCaseDelete.addEventListener('click', async () => {
+    const session = getSession();
+    if (!session || !isSessionAdmin(session) || !session.managerKey) return;
+    const caseId = managerEditCaseId.value.trim();
+    if (!caseId) return;
+    if (!window.confirm(t('admin.deleteConfirm'))) return;
+    managerCaseDelete.disabled = true;
+    try {
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({
+          action: 'delete_submission',
+          manager_key: session.managerKey,
+          admin_email: session.email,
+          case_id: caseId,
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok || !data.ok) {
+        throw new Error(data.message || t('admin.deleteFail'));
+      }
+      setManagerStatus(data.message || t('admin.deleteOk'), false);
+      closeManagerCasePanel();
+      await loadManagerCases();
+      await loadDashboard();
+    } catch (e) {
+      setManagerStatus(e.message || t('admin.deleteFail'), true);
+    } finally {
+      managerCaseDelete.disabled = false;
+    }
+  });
+}
 
 if (managerQuickClose) {
   managerQuickClose.addEventListener('click', () => applyManagerQuickAction('close'));
