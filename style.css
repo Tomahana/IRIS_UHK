@@ -1005,6 +1005,69 @@ button {
 }
 
 /* --- Admin: navigace mezi přehledem IRIS a metodikou prověrek --- */
+.manager-hub-card {
+  margin-bottom: 20px;
+}
+
+.manager-hub-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+  padding: 0 24px 24px;
+}
+
+.manager-hub-tile {
+  text-align: left;
+  padding: 18px 20px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border-strong);
+  background: var(--surface-soft);
+  cursor: pointer;
+  font: inherit;
+  transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.manager-hub-tile:hover {
+  border-color: var(--primary);
+  background: #fff;
+  box-shadow: var(--shadow);
+}
+
+.manager-hub-tile__title {
+  display: block;
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+
+.manager-hub-tile__desc {
+  display: block;
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.form-actions--intake {
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.btn-danger {
+  background: var(--danger-bg);
+  color: var(--danger-text);
+  border: 1px solid #e8b4b4;
+  font: inherit;
+  font-weight: 600;
+  padding: 10px 18px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.btn-danger:hover {
+  filter: brightness(0.97);
+}
+
 .manager-sub-nav {
   display: flex;
   flex-wrap: wrap;
