@@ -22,6 +22,472 @@ const API_URL =
 
 const SESSION_KEY = 'iris_uhk_session';
 
+const LANG_STORAGE = 'iris_uhk_lang';
+/** @type {'cs' | 'en'} */
+let currentLang = 'cs';
+
+const STRINGS = {
+  cs: {
+    'page.title': 'IRIS UHK – Vstupní checklist',
+    'aria.lang': 'Jazyk / Language',
+    'login.eyebrow': 'Institucionální bezpečnost',
+    'login.h1': 'IRIS UHK',
+    'login.leadHtml':
+      '<strong>První vstup:</strong> žádost o přístup s vlastním heslem → účet typu <em>žadatel (User)</em>. Role správce přiřadí pouze IRIS Manager v tabulce Users.',
+    'login.step1': 'Žádost o přístup + heslo',
+    'login.step2': 'Přihlášení žadatele',
+    'login.step3': 'Checklist a sledování stavu / termínů',
+    'login.tabRegister': 'Žádost o přístup',
+    'login.tabUser': 'Přihlášení žadatele',
+    'login.tabManager': 'IRIS Manager',
+    'login.labelName': 'Jméno a příjmení *',
+    'login.phName': 'např. Jan Novák',
+    'login.labelEmail': 'E-mail (pracovní @uhk.cz) *',
+    'login.phEmail': 'jmeno@uhk.cz',
+    'login.labelPassword': 'Heslo *',
+    'login.labelPassword2': 'Potvrzení hesla *',
+    'login.hintPassword': 'Minimálně 8 znaků. Účet vznikne jako <strong>User</strong> ihned; stejné údaje použijete u přihlášení žadatele.',
+    'login.submitRegister': 'Odeslat žádost o přístup',
+    'login.labelUserEmail': 'E-mail (stejný jako u podání)',
+    'login.hintUser': 'Použijte e-mail a heslo z žádosti o přístup.',
+    'login.submitUser': 'Přihlásit se',
+    'login.labelMgrEmail': 'E-mail (účet správce)',
+    'login.phMgrEmail': 'iris.manager@uhk.cz',
+    'login.submitManager': 'Přihlásit se jako správce',
+    'app.eyebrow': 'Institucionální bezpečnost',
+    'app.title': 'IRIS UHK – vstupní checklist',
+    'app.subtitle':
+      'Předběžné vyhodnocení rizikovosti mezinárodní aktivity a založení případu do evidence.',
+    'app.logout': 'Odhlásit se',
+    'user.intakeTitle': 'Vyplnění podání',
+    'user.intakeDesc': 'Vyplňte základní údaje o zamýšlené aktivitě a partnerovi.',
+    'user.lblApplicantName': 'Jméno žadatele *',
+    'user.lblApplicantEmail': 'E-mail žadatele *',
+    'user.titleEmailReadonly': 'E-mail je vázán na přihlášení',
+    'user.lblUnit': 'Součást / fakulta / útvar *',
+    'user.lblCoopType': 'Typ spolupráce *',
+    'user.lblStage': 'Fáze spolupráce *',
+    'user.lblPartner': 'Název partnera *',
+    'user.lblCountry': 'Země partnera / zapojené země *',
+    'user.phCountry': 'např. Čína; Německo',
+    'user.hintCountry': 'Při více zemích je oddělte čárkou, středníkem nebo lomítkem.',
+    'user.lblWebsite': 'Web partnera',
+    'user.phUrl': 'https://…',
+    'user.lblIntent': 'Popis záměru *',
+    'user.legendRisk': 'Rizikové indikátory',
+    'user.riskFunding': 'Externí financování',
+    'user.riskSystems': 'Přístup do systémů UHK',
+    'user.riskShare': 'Sdílení dat / know-how',
+    'user.riskSensitive': 'Citlivé výstupy / citlivá oblast',
+    'user.riskNonEu': 'Přenos mimo EU',
+    'user.riskTraining': 'Technická pomoc / školení',
+    'user.riskPhd': 'Zapojení infrastruktury / doktorandů',
+    'user.submit': 'Odeslat checklist',
+    'user.demo': 'Vyplnit ukázková data',
+    'user.clear': 'Vymazat',
+    'user.casesTitle': 'Moje podání',
+    'user.casesDesc': 'Pouze případy pod vaším přihlášeným e-mailem.',
+    'user.resultTitle': 'Výsledek odeslání',
+    'user.resultDesc': 'Okamžitá zpětná vazba po odeslání checklistu.',
+    'user.statusNone': 'Formulář ještě nebyl odeslán.',
+    'user.lblCaseId': 'Case ID',
+    'user.lblIntakeId': 'Intake ID',
+    'user.lblPrelim': 'Předběžný výsledek',
+    'user.lblScore': 'Skóre',
+    'user.workflowTitle': 'Workflow',
+    'user.workflowDesc': 'Checklist → Case → Posouzení',
+    'user.workflowDeadlines': 'Lhůty',
+    'user.workflowDeadlinesVal': 'u každého případu v tabulce; dle metodiky IRIS',
+    'tbl.caseId': 'Case ID',
+    'tbl.created': 'Vytvořeno',
+    'tbl.name': 'Název',
+    'tbl.partner': 'Partner',
+    'tbl.status': 'Stav',
+    'tbl.due': 'Termín (lhůta)',
+    'tbl.next': 'Další postup',
+    'tbl.iris': 'Vyjádření IRIS',
+    'tbl.analysis': 'Analýza',
+    'tbl.dueShort': 'Termín',
+    'tbl.applicant': 'Žadatel',
+    'tbl.priority': 'Priorita',
+    'tbl.risk': 'Riziko',
+    'tbl.actions': '',
+    'common.select': 'Vyberte',
+    'common.open': 'otevřít',
+    'common.loading': 'Načítání…',
+    'common.emDash': '—',
+    'coop.research': 'Výzkumná spolupráce',
+    'coop.education': 'Vzdělávací spolupráce',
+    'coop.mou': 'Memorandum / MoU',
+    'coop.mobility': 'Mobilita / hostování',
+    'coop.gift': 'Dar / sponzoring',
+    'coop.data': 'Sdílení dat / know-how',
+    'coop.other': 'Jiné',
+    'stage.idea': 'Prvotní úvaha',
+    'stage.prelim': 'Předběžné jednání',
+    'stage.mouPrep': 'Příprava MoU',
+    'stage.contractPrep': 'Příprava smlouvy',
+    'stage.impl': 'Realizace',
+    'manager.title': 'Přehled případů',
+    'manager.desc': 'Základní dashboard a seznam případů napříč organizací.',
+    'manager.statTotal': 'Celkem',
+    'manager.statOpen': 'Otevřené',
+    'manager.statDueSoon': 'Blíží se termín',
+    'manager.statClosed': 'Uzavřené',
+    'manager.statOverdue': 'Po termínu',
+    'manager.searchPh': 'Hledat (název, partner, žadatel…)',
+    'manager.searchAria': 'Hledat v případech',
+    'filter.allStatus': 'Všechny stavy',
+    'filter.allPri': 'Všechny priority',
+    'pri.low': 'Nízká',
+    'pri.mid': 'Střední',
+    'pri.high': 'Vysoká',
+    'manager.refresh': 'Obnovit',
+    'manager.loadingCases': 'Načítání případů…',
+    'manager.empty': 'Nebyly nalezeny žádné případy.',
+    'manager.manage': 'Spravovat',
+    'user.empty': 'Zatím nemáte žádné podání.',
+    'user.loadingRow': 'Načítání…',
+    'manager.panelTitle': 'Úprava případu',
+    'manager.lblStatus': 'Stav případu',
+    'manager.lblDue': 'Termín / lhůta (další milník)',
+    'manager.lblNext': 'Další postup pro žadatele (co a kdy očekávat)',
+    'manager.phNext': 'Dle metodiky IRIS – stručně lhůty a krok.',
+    'manager.lblStatement': 'Vyjádření IRIS k případu',
+    'manager.phStatement': 'Shrnutí pro žadatele, odkaz na metodiku.',
+    'manager.lblAnalysisUrl': 'Odkaz na zprávu / analýzu (Drive, SharePoint…)',
+    'manager.lblFile': 'Nebo nahrát soubor (PDF; vyžaduje složku Drive ve skriptu)',
+    'manager.save': 'Uložit změny',
+    'manager.close': 'Zavřít',
+    'status.new': 'Nový',
+    'status.under_review': 'V posouzení',
+    'status.dd_in_progress': 'Probíhá DD',
+    'status.case_handling': 'Řeší se',
+    'status.analysis_in_progress': 'Probíhá analýza',
+    'status.closed': 'Uzavřeno',
+    'status.waiting_internal_opinion': 'Čeká na interní stanovisko',
+    'status.ready_for_decision': 'Připraveno k rozhodnutí',
+    'next.new': 'Případ je v evidenci; IRIS stanoví další krok v obvyklé lhůtě (viz metodika).',
+    'next.under_review': 'Probíhá posouzení; vyčkejte na vyjádření nebo termín v řádku výše.',
+    'next.dd_in_progress': 'Probíhá due diligence / rozšířená prověrka dle metodiky.',
+    'next.case_handling': 'Případ se aktivně řeší na straně IRIS / prorektorátu.',
+    'next.analysis_in_progress': 'Probíhá analýza; po dokončení obdržíte odkaz nebo vyjádření.',
+    'next.closed': 'Případ je uzavřen; případné podklady najdete u odkazu na analýzu.',
+    'next.waiting_internal_opinion': 'Čeká se na interní stanovisko součásti.',
+    'next.ready_for_decision': 'Případ je připraven k rozhodnutí; sledujte termín a vyjádření.',
+    'next.default': 'Sledujte stav případu a e-mailové upozornění od IRIS.',
+    'due.overdue': 'po termínu',
+    'due.today': 'dnes',
+    'due.inDays': 'za {n} d.',
+    'session.manager': 'IRIS Manager',
+    'session.applicant': 'Žadatel',
+    'err.passwordMismatch': 'Hesla se neshodují.',
+    'err.passwordShort': 'Heslo musí mít alespoň 8 znaků.',
+    'reg.successDefault':
+      'Účet byl založen. Přepněte na „Přihlášení žadatele“ a přihlaste se stejným e-mailem a heslem.',
+    'reg.fail': 'Registrace se nezdařila.',
+    'reg.network': 'Chyba spojení. Zkuste to znovu nebo kontaktujte správce IRIS.',
+    'login.userFail':
+      'Přihlášení se nezdařilo. Zkontrolujte údaje nebo zda je v Apps Scriptu implementována akce login.',
+    'login.mgrFailPin': 'Neplatné heslo nebo chyba serveru.',
+    'login.mgrFailSetup':
+      'Přihlášení správce se nezdařilo. V app.js nastavte MANAGER_FALLBACK_CODE (dočasně) nebo doplňte login v Apps Scriptu.',
+    'err.userOnlySubmit': 'Checklist mohou odesílat pouze přihlášení žadatelé.',
+    'validate.applicant_name': 'Jméno žadatele',
+    'validate.applicant_email': 'E-mail žadatele',
+    'validate.applicant_unit': 'Součást / fakulta / útvar',
+    'validate.cooperation_type': 'Typ spolupráce',
+    'validate.cooperation_stage': 'Fáze spolupráce',
+    'validate.partner_name': 'Název partnera',
+    'validate.partner_country': 'Země partnera / zapojené země',
+    'validate.intent_description': 'Popis záměru',
+    'validate.fill': 'Vyplňte pole: {field}',
+    'submit.sending': 'Odesílání checklistu do systému IRIS UHK…',
+    'submit.fail': 'Nepodařilo se odeslat formulář.',
+    'submit.escalation': 'Checklist byl přijat. Případ vyžaduje eskalaci nebo rozšířenou DD.',
+    'submit.success': 'Checklist byl úspěšně odeslán a případ byl založen.',
+    'submit.error': 'Došlo k chybě při odeslání.',
+    'demo.filled': 'Ukázková data byla doplněna.',
+    'file.readFail': 'Soubor se nepodařilo načíst.',
+    'file.tooBig': 'Soubor je příliš velký (max. cca 5 MB). Vložte odkaz ručně.',
+    'file.readErr': 'Chyba při čtení souboru.',
+    'case.saveFail': 'Uložení se nezdařilo.',
+    'case.saved': 'Případ byl uložen.',
+    'case.editPrefix': 'Úprava případu:',
+    'dash.loadFail': 'Nepodařilo se načíst dashboard.',
+    'cases.loadFail': 'Nepodařilo se načíst případy.',
+    'cases.userLoadFail': 'Nepodařilo se načíst vaše podání.',
+  },
+  en: {
+    'page.title': 'IRIS UHK – Intake checklist',
+    'aria.lang': 'Language / Jazyk',
+    'login.eyebrow': 'Institutional security',
+    'login.h1': 'IRIS UHK',
+    'login.leadHtml':
+      '<strong>First-time access:</strong> request access with your own password → account type <em>applicant (User)</em>. The manager role is assigned only by an IRIS Manager in the Users table.',
+    'login.step1': 'Access request + password',
+    'login.step2': 'Applicant sign-in',
+    'login.step3': 'Checklist and status / deadline tracking',
+    'login.tabRegister': 'Request access',
+    'login.tabUser': 'Applicant sign-in',
+    'login.tabManager': 'IRIS Manager',
+    'login.labelName': 'Full name *',
+    'login.phName': 'e.g. Jan Novák',
+    'login.labelEmail': 'E-mail (work @uhk.cz) *',
+    'login.phEmail': 'name@uhk.cz',
+    'login.labelPassword': 'Password *',
+    'login.labelPassword2': 'Confirm password *',
+    'login.hintPassword':
+      'At least 8 characters. The account is created as <strong>User</strong> immediately; use the same credentials for applicant sign-in.',
+    'login.submitRegister': 'Submit access request',
+    'login.labelUserEmail': 'E-mail (same as in the request)',
+    'login.hintUser': 'Use the e-mail and password from your access request.',
+    'login.submitUser': 'Sign in',
+    'login.labelMgrEmail': 'E-mail (manager account)',
+    'login.phMgrEmail': 'iris.manager@uhk.cz',
+    'login.submitManager': 'Sign in as manager',
+    'app.eyebrow': 'Institutional security',
+    'app.title': 'IRIS UHK – intake checklist',
+    'app.subtitle':
+      'Preliminary assessment of international activity risk and opening a case in the register.',
+    'app.logout': 'Sign out',
+    'user.intakeTitle': 'Submission',
+    'user.intakeDesc': 'Enter basic information about the planned activity and partner.',
+    'user.lblApplicantName': 'Applicant name *',
+    'user.lblApplicantEmail': 'Applicant e-mail *',
+    'user.titleEmailReadonly': 'E-mail is tied to your sign-in',
+    'user.lblUnit': 'Faculty / department / unit *',
+    'user.lblCoopType': 'Type of cooperation *',
+    'user.lblStage': 'Stage of cooperation *',
+    'user.lblPartner': 'Partner name *',
+    'user.lblCountry': 'Partner countries / involved countries *',
+    'user.phCountry': 'e.g. China; Germany',
+    'user.hintCountry': 'If there are several countries, separate them with a comma, semicolon or slash.',
+    'user.lblWebsite': 'Partner website',
+    'user.phUrl': 'https://…',
+    'user.lblIntent': 'Description of intent *',
+    'user.legendRisk': 'Risk indicators',
+    'user.riskFunding': 'External funding',
+    'user.riskSystems': 'Access to UHK systems',
+    'user.riskShare': 'Data / know-how sharing',
+    'user.riskSensitive': 'Sensitive outputs / sensitive area',
+    'user.riskNonEu': 'Transfer outside the EU',
+    'user.riskTraining': 'Technical assistance / training',
+    'user.riskPhd': 'Infrastructure / doctoral students involved',
+    'user.submit': 'Submit checklist',
+    'user.demo': 'Fill demo data',
+    'user.clear': 'Clear',
+    'user.casesTitle': 'My submissions',
+    'user.casesDesc': 'Only cases under your signed-in e-mail.',
+    'user.resultTitle': 'Submission result',
+    'user.resultDesc': 'Immediate feedback after submitting the checklist.',
+    'user.statusNone': 'The form has not been submitted yet.',
+    'user.lblCaseId': 'Case ID',
+    'user.lblIntakeId': 'Intake ID',
+    'user.lblPrelim': 'Preliminary outcome',
+    'user.lblScore': 'Score',
+    'user.workflowTitle': 'Workflow',
+    'user.workflowDesc': 'Checklist → Case → Review',
+    'user.workflowDeadlines': 'Deadlines',
+    'user.workflowDeadlinesVal': 'per case in the table; per IRIS methodology',
+    'tbl.caseId': 'Case ID',
+    'tbl.created': 'Created',
+    'tbl.name': 'Title',
+    'tbl.partner': 'Partner',
+    'tbl.status': 'Status',
+    'tbl.due': 'Deadline',
+    'tbl.next': 'Next steps',
+    'tbl.iris': 'IRIS statement',
+    'tbl.analysis': 'Analysis',
+    'tbl.dueShort': 'Due',
+    'tbl.applicant': 'Applicant',
+    'tbl.priority': 'Priority',
+    'tbl.risk': 'Risk',
+    'tbl.actions': '',
+    'common.select': 'Select',
+    'common.open': 'open',
+    'common.loading': 'Loading…',
+    'common.emDash': '—',
+    'coop.research': 'Research collaboration',
+    'coop.education': 'Educational collaboration',
+    'coop.mou': 'Memorandum / MoU',
+    'coop.mobility': 'Mobility / hosting',
+    'coop.gift': 'Donation / sponsorship',
+    'coop.data': 'Data / know-how sharing',
+    'coop.other': 'Other',
+    'stage.idea': 'Initial idea',
+    'stage.prelim': 'Preliminary discussion',
+    'stage.mouPrep': 'MoU preparation',
+    'stage.contractPrep': 'Contract preparation',
+    'stage.impl': 'Implementation',
+    'manager.title': 'Case overview',
+    'manager.desc': 'Basic dashboard and case list across the organisation.',
+    'manager.statTotal': 'Total',
+    'manager.statOpen': 'Open',
+    'manager.statDueSoon': 'Due soon',
+    'manager.statClosed': 'Closed',
+    'manager.statOverdue': 'Overdue',
+    'manager.searchPh': 'Search (title, partner, applicant…)',
+    'manager.searchAria': 'Search cases',
+    'filter.allStatus': 'All statuses',
+    'filter.allPri': 'All priorities',
+    'pri.low': 'Low',
+    'pri.mid': 'Medium',
+    'pri.high': 'High',
+    'manager.refresh': 'Refresh',
+    'manager.loadingCases': 'Loading cases…',
+    'manager.empty': 'No cases found.',
+    'manager.manage': 'Manage',
+    'user.empty': 'You have no submissions yet.',
+    'user.loadingRow': 'Loading…',
+    'manager.panelTitle': 'Edit case',
+    'manager.lblStatus': 'Case status',
+    'manager.lblDue': 'Deadline / next milestone',
+    'manager.lblNext': 'Next steps for the applicant (what to expect and when)',
+    'manager.phNext': 'Per IRIS methodology – briefly: deadlines and next step.',
+    'manager.lblStatement': 'IRIS statement on the case',
+    'manager.phStatement': 'Summary for the applicant, link to methodology.',
+    'manager.lblAnalysisUrl': 'Link to report / analysis (Drive, SharePoint…)',
+    'manager.lblFile': 'Or upload a file (PDF; requires Drive folder in the script)',
+    'manager.save': 'Save changes',
+    'manager.close': 'Close',
+    'status.new': 'New',
+    'status.under_review': 'Under review',
+    'status.dd_in_progress': 'Due diligence in progress',
+    'status.case_handling': 'In progress',
+    'status.analysis_in_progress': 'Analysis in progress',
+    'status.closed': 'Closed',
+    'status.waiting_internal_opinion': 'Awaiting internal opinion',
+    'status.ready_for_decision': 'Ready for decision',
+    'next.new': 'The case is registered; IRIS will set the next step within the usual deadline (see methodology).',
+    'next.under_review': 'Under review; please wait for a statement or the deadline in the row above.',
+    'next.dd_in_progress': 'Due diligence / extended screening in progress per methodology.',
+    'next.case_handling': 'The case is being actively handled by IRIS / the vice-rectorate.',
+    'next.analysis_in_progress': 'Analysis in progress; you will receive a link or statement when complete.',
+    'next.closed': 'The case is closed; supporting materials are linked from the analysis link.',
+    'next.waiting_internal_opinion': 'Awaiting an internal opinion from the unit.',
+    'next.ready_for_decision': 'The case is ready for a decision; watch the deadline and IRIS statement.',
+    'next.default': 'Watch the case status and e-mail notifications from IRIS.',
+    'due.overdue': 'overdue',
+    'due.today': 'today',
+    'due.inDays': 'in {n} d',
+    'session.manager': 'IRIS Manager',
+    'session.applicant': 'Applicant',
+    'err.passwordMismatch': 'Passwords do not match.',
+    'err.passwordShort': 'Password must be at least 8 characters.',
+    'reg.successDefault':
+      'Account created. Switch to “Applicant sign-in” and sign in with the same e-mail and password.',
+    'reg.fail': 'Registration failed.',
+    'reg.network': 'Connection error. Try again or contact the IRIS administrator.',
+    'login.userFail':
+      'Sign-in failed. Check your credentials or whether the login action is implemented in Apps Script.',
+    'login.mgrFailPin': 'Invalid password or server error.',
+    'login.mgrFailSetup':
+      'Manager sign-in failed. Set MANAGER_FALLBACK_CODE in app.js (temporary) or implement login in Apps Script.',
+    'err.userOnlySubmit': 'Only signed-in applicants can submit the checklist.',
+    'validate.applicant_name': 'Applicant name',
+    'validate.applicant_email': 'Applicant e-mail',
+    'validate.applicant_unit': 'Faculty / department / unit',
+    'validate.cooperation_type': 'Type of cooperation',
+    'validate.cooperation_stage': 'Stage of cooperation',
+    'validate.partner_name': 'Partner name',
+    'validate.partner_country': 'Partner / involved countries',
+    'validate.intent_description': 'Description of intent',
+    'validate.fill': 'Please fill in: {field}',
+    'submit.sending': 'Sending checklist to IRIS UHK…',
+    'submit.fail': 'Could not submit the form.',
+    'submit.escalation': 'Checklist received. The case requires escalation or extended due diligence.',
+    'submit.success': 'Checklist submitted successfully and the case was created.',
+    'submit.error': 'An error occurred while submitting.',
+    'demo.filled': 'Demo data filled in.',
+    'file.readFail': 'Could not read the file.',
+    'file.tooBig': 'File is too large (max. about 5 MB). Paste a link manually.',
+    'file.readErr': 'Error reading the file.',
+    'case.saveFail': 'Save failed.',
+    'case.saved': 'Case saved.',
+    'case.editPrefix': 'Edit case:',
+    'dash.loadFail': 'Could not load the dashboard.',
+    'cases.loadFail': 'Could not load cases.',
+    'cases.userLoadFail': 'Could not load your submissions.',
+  },
+};
+
+function t(key, vars) {
+  let s = STRINGS[currentLang]?.[key];
+  if (s === undefined || s === '') s = STRINGS.cs[key];
+  if (s === undefined) s = key;
+  if (vars && typeof s === 'string') {
+    Object.entries(vars).forEach(([k, v]) => {
+      s = s.split(`{${k}}`).join(String(v));
+    });
+  }
+  return s;
+}
+
+function applyStaticI18n() {
+  document.documentElement.lang = currentLang === 'en' ? 'en' : 'cs';
+  const titleEl = document.querySelector('title');
+  if (titleEl) titleEl.textContent = t('page.title');
+
+  document.querySelectorAll('[data-i18n]').forEach((el) => {
+    const key = el.getAttribute('data-i18n');
+    if (key) el.textContent = t(key);
+  });
+  document.querySelectorAll('[data-i18n-html]').forEach((el) => {
+    const key = el.getAttribute('data-i18n-html');
+    if (key) el.innerHTML = t(key);
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach((el) => {
+    const key = el.getAttribute('data-i18n-placeholder');
+    if (key && 'placeholder' in el) el.placeholder = t(key);
+  });
+  document.querySelectorAll('[data-i18n-title]').forEach((el) => {
+    const key = el.getAttribute('data-i18n-title');
+    if (key) el.title = t(key);
+  });
+  document.querySelectorAll('[data-i18n-aria]').forEach((el) => {
+    const key = el.getAttribute('data-i18n-aria');
+    if (key) el.setAttribute('aria-label', t(key));
+  });
+  document.querySelectorAll('option[data-i18n-opt]').forEach((opt) => {
+    const key = opt.getAttribute('data-i18n-opt');
+    if (key) opt.textContent = t(key);
+  });
+}
+
+function setLang(lang) {
+  if (lang !== 'cs' && lang !== 'en') return;
+  currentLang = lang;
+  try {
+    localStorage.setItem(LANG_STORAGE, lang);
+  } catch (_) {
+    /* ignore */
+  }
+  applyStaticI18n();
+  document.querySelectorAll('[data-set-lang]').forEach((btn) => {
+    const l = btn.getAttribute('data-set-lang');
+    const active = l === lang;
+    btn.classList.toggle('lang-btn--active', active);
+    btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+  });
+  const session = getSession();
+  if (session) {
+    sessionBadge.textContent =
+      session.role === 'manager'
+        ? `${t('session.manager')} · ${session.email}`
+        : `${t('session.applicant')} · ${session.email}`;
+    refreshForRole().catch(() => {});
+  }
+  if (typeof resultDetails !== 'undefined' && resultDetails && typeof statusMessage !== 'undefined' && statusMessage) {
+    if (resultDetails.classList.contains('hidden')) {
+      const cur = statusMessage.textContent.trim();
+      if (cur === STRINGS.cs['user.statusNone'] || cur === STRINGS.en['user.statusNone']) {
+        setStatus(t('user.statusNone'), 'neutral');
+      }
+    }
+  }
+}
+
 /** Dočasné řešení: prázdné = vypnuto. Pokud máte v Apps Scriptu IRIS_MANAGER_KEY, nastavte stejnou hodnotu do MANAGER_STATIC_KEY, aby fungovalo PIN přihlášení správce. */
 const MANAGER_FALLBACK_CODE = '';
 const MANAGER_STATIC_KEY = '';
@@ -86,28 +552,6 @@ const managerCaseFormMessage = document.getElementById('managerCaseFormMessage')
 /** @type {Array<Record<string, unknown>>} */
 let managerCasesCache = [];
 
-const CASE_STATUS_LABELS = {
-  new: 'Nový',
-  under_review: 'V posouzení',
-  dd_in_progress: 'Probíhá DD',
-  case_handling: 'Řeší se',
-  analysis_in_progress: 'Probíhá analýza',
-  closed: 'Uzavřeno',
-  waiting_internal_opinion: 'Čeká na interní stanovisko',
-  ready_for_decision: 'Připraveno k rozhodnutí',
-};
-
-const STATUS_FALLBACK_NEXT = {
-  new: 'Případ je v evidenci; IRIS stanoví další krok v obvyklé lhůtě (viz metodika).',
-  under_review: 'Probíhá posouzení; vyčkejte na vyjádření nebo termín v řádku výše.',
-  dd_in_progress: 'Probíhá due diligence / rozšířená prověrka dle metodiky.',
-  case_handling: 'Případ se aktivně řeší na straně IRIS / prorektorátu.',
-  analysis_in_progress: 'Probíhá analýza; po dokončení obdržíte odkaz nebo vyjádření.',
-  closed: 'Případ je uzavřen; případné podklady najdete u odkazu na analýzu.',
-  waiting_internal_opinion: 'Čeká se na interní stanovisko součásti.',
-  ready_for_decision: 'Případ je připraven k rozhodnutí; sledujte termín a vyjádření.',
-};
-
 const OPEN_CASE_STATUSES = [
   'new',
   'under_review',
@@ -151,8 +595,8 @@ function showApp(session) {
   appRoot.classList.remove('hidden');
   sessionBadge.textContent =
     session.role === 'manager'
-      ? `IRIS Manager · ${session.email}`
-      : `Žadatel · ${session.email}`;
+      ? `${t('session.manager')} · ${session.email}`
+      : `${t('session.applicant')} · ${session.email}`;
 
   if (session.role === 'user') {
     layoutUser.classList.remove('hidden');
@@ -161,6 +605,9 @@ function showApp(session) {
     if (emailInput) {
       emailInput.value = session.email;
       emailInput.readOnly = true;
+    }
+    if (resultDetails.classList.contains('hidden')) {
+      setStatus(t('user.statusNone'), 'neutral');
     }
   } else {
     layoutUser.classList.add('hidden');
@@ -203,12 +650,12 @@ registerForm.addEventListener('submit', async (e) => {
   const password2 = document.getElementById('registerPassword2').value;
 
   if (password !== password2) {
-    registerMessage.textContent = 'Hesla se neshodují.';
+    registerMessage.textContent = t('err.passwordMismatch');
     registerMessage.classList.remove('hidden');
     return;
   }
   if (password.length < 8) {
-    registerMessage.textContent = 'Heslo musí mít alespoň 8 znaků.';
+    registerMessage.textContent = t('err.passwordShort');
     registerMessage.classList.remove('hidden');
     return;
   }
@@ -228,19 +675,17 @@ registerForm.addEventListener('submit', async (e) => {
     const data = await response.json().catch(() => ({}));
 
     if (response.ok && data.ok) {
-      registerMessage.textContent =
-        data.message ||
-        'Účet byl založen. Přepněte na „Přihlášení žadatele“ a přihlaste se stejným e-mailem a heslem.';
+      registerMessage.textContent = data.message || t('reg.successDefault');
       registerMessage.classList.remove('hidden');
       registerMessage.classList.add('login-success');
       document.getElementById('loginUserEmail').value = email;
       registerForm.reset();
       return;
     }
-    registerMessage.textContent = data.message || 'Registrace se nezdařila.';
+    registerMessage.textContent = data.message || t('reg.fail');
     registerMessage.classList.remove('hidden');
   } catch {
-    registerMessage.textContent = 'Chyba spojení. Zkuste to znovu nebo kontaktujte správce IRIS.';
+    registerMessage.textContent = t('reg.network');
     registerMessage.classList.remove('hidden');
   } finally {
     registerSubmit.disabled = false;
@@ -280,8 +725,7 @@ userLoginForm.addEventListener('submit', async (e) => {
     /* fallback níže */
   }
 
-  userLoginError.textContent =
-    'Přihlášení se nezdařilo. Zkontrolujte údaje nebo zda je v Apps Scriptu implementována akce login.';
+  userLoginError.textContent = t('login.userFail');
   userLoginError.classList.remove('hidden');
 });
 
@@ -319,10 +763,7 @@ managerLoginForm.addEventListener('submit', async (e) => {
     /* zpráva níže */
   }
 
-  managerLoginError.textContent =
-    MANAGER_FALLBACK_CODE
-      ? 'Neplatné heslo nebo chyba serveru.'
-      : 'Přihlášení správce se nezdařilo. V app.js nastavte MANAGER_FALLBACK_CODE (dočasně) nebo doplňte login v Apps Scriptu.';
+  managerLoginError.textContent = MANAGER_FALLBACK_CODE ? t('login.mgrFailPin') : t('login.mgrFailSetup');
   managerLoginError.classList.remove('hidden');
 });
 
@@ -339,10 +780,11 @@ function setStatus(message, type = 'neutral') {
 }
 
 function showResult(data) {
-  caseIdValue.textContent = data.case_id || '—';
-  intakeIdValue.textContent = data.intake_id || '—';
-  resultValue.textContent = data.preliminary_result || '—';
-  scoreValue.textContent = data.preliminary_risk_score ?? '—';
+  const dash = t('common.emDash');
+  caseIdValue.textContent = data.case_id || dash;
+  intakeIdValue.textContent = data.intake_id || dash;
+  resultValue.textContent = data.preliminary_result || dash;
+  scoreValue.textContent = data.preliminary_risk_score ?? dash;
   resultDetails.classList.remove('hidden');
 }
 
@@ -378,39 +820,43 @@ function collectFormData() {
 
 function validateFormData(data) {
   const requiredFields = [
-    ['applicant_name', 'Jméno žadatele'],
-    ['applicant_email', 'E-mail žadatele'],
-    ['applicant_unit', 'Součást / fakulta / útvar'],
-    ['cooperation_type', 'Typ spolupráce'],
-    ['cooperation_stage', 'Fáze spolupráce'],
-    ['partner_name', 'Název partnera'],
-    ['partner_country', 'Země partnera / zapojené země'],
-    ['intent_description', 'Popis záměru'],
+    ['applicant_name', 'validate.applicant_name'],
+    ['applicant_email', 'validate.applicant_email'],
+    ['applicant_unit', 'validate.applicant_unit'],
+    ['cooperation_type', 'validate.cooperation_type'],
+    ['cooperation_stage', 'validate.cooperation_stage'],
+    ['partner_name', 'validate.partner_name'],
+    ['partner_country', 'validate.partner_country'],
+    ['intent_description', 'validate.intent_description'],
   ];
 
-  for (const [key, label] of requiredFields) {
+  for (const [key, labelKey] of requiredFields) {
     if (!String(data[key] || '').trim()) {
-      throw new Error(`Vyplňte pole: ${label}`);
+      throw new Error(t('validate.fill', { field: t(labelKey) }));
     }
   }
 }
 
+function dateLocaleTag() {
+  return currentLang === 'en' ? 'en-GB' : 'cs-CZ';
+}
+
 function formatDate(value) {
-  if (!value) return '—';
+  if (!value) return t('common.emDash');
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return String(value);
 
-  return new Intl.DateTimeFormat('cs-CZ', {
+  return new Intl.DateTimeFormat(dateLocaleTag(), {
     dateStyle: 'short',
     timeStyle: 'short',
   }).format(date);
 }
 
 function formatDateOnly(value) {
-  if (!value) return '—';
+  if (!value) return t('common.emDash');
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return String(value);
-  return new Intl.DateTimeFormat('cs-CZ', { dateStyle: 'long' }).format(date);
+  return new Intl.DateTimeFormat(dateLocaleTag(), { dateStyle: 'long' }).format(date);
 }
 
 function toDatetimeLocalValue(value) {
@@ -423,14 +869,19 @@ function toDatetimeLocalValue(value) {
 
 function caseStatusLabel(status) {
   const k = String(status || '').trim();
-  return CASE_STATUS_LABELS[k] || k || '—';
+  if (!k) return t('common.emDash');
+  const key = `status.${k}`;
+  if (STRINGS.cs[key] === undefined && STRINGS.en[key] === undefined) return k;
+  return t(key);
 }
 
 function nextStepForUser(item) {
   const custom = String(item.next_step_note || '').trim();
   if (custom) return custom;
   const st = String(item.status || '').trim();
-  return STATUS_FALLBACK_NEXT[st] || 'Sledujte stav případu a e-mailové upozornění od IRIS.';
+  const key = `next.${st}`;
+  if (STRINGS.cs[key] === undefined && STRINGS.en[key] === undefined) return t('next.default');
+  return t(key);
 }
 
 function analysisUrlForItem(item) {
@@ -465,12 +916,12 @@ function dueDateCellHtml(item) {
   let badge = '';
   if (isCaseOpen(item.status)) {
     if (d < 0) {
-      badge = ` <span class="due-badge due-badge-overdue">po termínu</span>`;
+      badge = ` <span class="due-badge due-badge-overdue">${escapeHtml(t('due.overdue'))}</span>`;
     } else if (item.due_soon) {
       if (d === 0) {
-        badge = ` <span class="due-badge due-badge-soon">dnes</span>`;
+        badge = ` <span class="due-badge due-badge-soon">${escapeHtml(t('due.today'))}</span>`;
       } else {
-        badge = ` <span class="due-badge due-badge-soon">za ${d} d.</span>`;
+        badge = ` <span class="due-badge due-badge-soon">${escapeHtml(t('due.inDays', { n: d }))}</span>`;
       }
     }
   }
@@ -479,16 +930,16 @@ function dueDateCellHtml(item) {
 
 function cellPreview(text, maxLen) {
   const s = String(text || '').replace(/\s+/g, ' ').trim();
-  if (!s) return '—';
+  if (!s) return t('common.emDash');
   if (s.length <= maxLen) return escapeHtml(s);
   return `${escapeHtml(s.slice(0, maxLen))}…`;
 }
 
 function analysisLinkCell(url) {
   const u = String(url || '').trim();
-  if (!/^https:\/\//i.test(u)) return '—';
+  if (!/^https:\/\//i.test(u)) return t('common.emDash');
   const safe = u.replace(/"/g, '%22');
-  return `<a href="${safe}" target="_blank" rel="noopener noreferrer">otevřít</a>`;
+  return `<a href="${safe}" target="_blank" rel="noopener noreferrer">${escapeHtml(t('common.open'))}</a>`;
 }
 
 function readFileAsBase64(file) {
@@ -499,7 +950,7 @@ function readFileAsBase64(file) {
       const i = result.indexOf(',');
       resolve(i >= 0 ? result.slice(i + 1) : result);
     };
-    reader.onerror = () => reject(new Error('Soubor se nepodařilo načíst.'));
+    reader.onerror = () => reject(new Error(t('file.readFail')));
     reader.readAsDataURL(file);
   });
 }
@@ -529,10 +980,11 @@ function renderDashboard(summary) {
 
 function renderManagerCases(items) {
   if (!items || !items.length) {
-    casesTableBody.innerHTML = `<tr><td colspan="10" class="empty-row">Nebyly nalezeny žádné případy.</td></tr>`;
+    casesTableBody.innerHTML = `<tr><td colspan="10" class="empty-row">${escapeHtml(t('manager.empty'))}</td></tr>`;
     return;
   }
 
+  const manageLabel = escapeHtml(t('manager.manage'));
   casesTableBody.innerHTML = items
     .map((item) => {
       let rowCls = '';
@@ -549,7 +1001,7 @@ function renderManagerCases(items) {
       <td>${escapeHtml(caseStatusLabel(item.status))}</td>
       <td>${escapeHtml(item.priority)}</td>
       <td>${escapeHtml(item.risk_level)}</td>
-      <td><button type="button" class="btn-secondary btn-compact" data-manage-case="${escapeHtml(item.case_id)}">Spravovat</button></td>
+      <td><button type="button" class="btn-secondary btn-compact" data-manage-case="${escapeHtml(item.case_id)}">${manageLabel}</button></td>
     </tr>`;
     })
     .join('');
@@ -557,7 +1009,7 @@ function renderManagerCases(items) {
 
 function renderUserCases(items) {
   if (!items || !items.length) {
-    userCasesTableBody.innerHTML = `<tr><td colspan="9" class="empty-row">Zatím nemáte žádné podání.</td></tr>`;
+    userCasesTableBody.innerHTML = `<tr><td colspan="9" class="empty-row">${escapeHtml(t('user.empty'))}</td></tr>`;
     return;
   }
 
@@ -594,7 +1046,7 @@ async function loadDashboard() {
   const data = await response.json();
 
   if (!response.ok || !data.ok) {
-    throw new Error(data.message || 'Nepodařilo se načíst dashboard.');
+    throw new Error(data.message || t('dash.loadFail'));
   }
 
   renderDashboard(data.summary || {});
@@ -626,13 +1078,13 @@ function buildCasesParams() {
 }
 
 async function loadManagerCases() {
-  casesTableBody.innerHTML = `<tr><td colspan="10" class="empty-row">Načítání případů…</td></tr>`;
+  casesTableBody.innerHTML = `<tr><td colspan="10" class="empty-row">${escapeHtml(t('manager.loadingCases'))}</td></tr>`;
 
   const response = await fetch(`${API_URL}?${buildCasesParams().toString()}`);
   const data = await response.json();
 
   if (!response.ok || !data.ok) {
-    throw new Error(data.message || 'Nepodařilo se načíst případy.');
+    throw new Error(data.message || t('cases.loadFail'));
   }
 
   managerCasesCache = data.items || [];
@@ -640,14 +1092,14 @@ async function loadManagerCases() {
 }
 
 async function loadUserCases() {
-  userCasesTableBody.innerHTML = `<tr><td colspan="9" class="empty-row">Načítání…</td></tr>`;
+  userCasesTableBody.innerHTML = `<tr><td colspan="9" class="empty-row">${escapeHtml(t('user.loadingRow'))}</td></tr>`;
 
   const params = buildCasesParams();
   const response = await fetch(`${API_URL}?${params.toString()}`);
   const data = await response.json();
 
   if (!response.ok || !data.ok) {
-    throw new Error(data.message || 'Nepodařilo se načíst vaše podání.');
+    throw new Error(data.message || t('cases.userLoadFail'));
   }
 
   renderUserCases(data.items || []);
@@ -676,10 +1128,10 @@ async function refreshForRole() {
     }
   } catch (error) {
     if (session.role === 'manager') {
-      setManagerStatus(error.message || 'Nepodařilo se načíst přehled.', true);
+      setManagerStatus(error.message || t('cases.loadFail'), true);
     } else {
       userCasesTableBody.innerHTML = `<tr><td colspan="9" class="empty-row">${escapeHtml(
-        error.message || 'Nepodařilo se načíst podání.'
+        error.message || t('cases.userLoadFail')
       )}</td></tr>`;
     }
   }
@@ -695,7 +1147,7 @@ async function submitForm(event) {
 
   const session = getSession();
   if (!session || session.role !== 'user') {
-    setStatus('Checklist mohou odesílat pouze přihlášení žadatelé.', 'error');
+    setStatus(t('err.userOnlySubmit'), 'error');
     return;
   }
 
@@ -705,7 +1157,7 @@ async function submitForm(event) {
     validateFormData(payload);
 
     submitButton.disabled = true;
-    setStatus('Odesílání checklistu do systému IRIS UHK…', 'neutral');
+    setStatus(t('submit.sending'), 'neutral');
 
     const response = await fetch(API_URL, {
       method: 'POST',
@@ -716,22 +1168,22 @@ async function submitForm(event) {
     const data = await response.json();
 
     if (!response.ok || !data.ok) {
-      throw new Error(data.message || 'Nepodařilo se odeslat formulář.');
+      throw new Error(data.message || t('submit.fail'));
     }
 
     showResult(data);
     await refreshForRole();
 
     if (typeof data.preliminary_risk_score === 'number' && data.preliminary_risk_score >= 6) {
-      setStatus('Checklist byl přijat. Případ vyžaduje eskalaci nebo rozšířenou DD.', 'warning');
+      setStatus(t('submit.escalation'), 'warning');
     } else {
-      setStatus('Checklist byl úspěšně odeslán a případ byl založen.', 'success');
+      setStatus(t('submit.success'), 'success');
     }
 
     form.reset();
     form.elements.applicant_email.value = session.email;
   } catch (error) {
-    setStatus(error.message || 'Došlo k chybě při odeslání.', 'error');
+    setStatus(error.message || t('submit.error'), 'error');
   } finally {
     submitButton.disabled = false;
   }
@@ -759,7 +1211,7 @@ function fillDemoData() {
   form.training_or_technical_assistance.checked = false;
   form.involves_doctoral_students_or_infrastructure.checked = true;
 
-  setStatus('Ukázková data byla doplněna.', 'neutral');
+  setStatus(t('demo.filled'), 'neutral');
 }
 
 form.addEventListener('submit', submitForm);
@@ -793,7 +1245,7 @@ function openManagerCasePanel(caseId) {
   if (!item || !managerCasePanel) return;
 
   managerEditCaseId.value = String(item.case_id);
-  managerCasePanelTitle.textContent = `Úprava případu: ${item.case_id}`;
+  managerCasePanelTitle.textContent = `${t('case.editPrefix')} ${item.case_id}`;
   managerCasePanelSubtitle.textContent = [item.title, item.applicant_name].filter(Boolean).join(' · ');
 
   const st = String(item.status || 'new');
@@ -854,7 +1306,7 @@ managerCaseSave.addEventListener('click', async () => {
   const file = managerCaseFile.files && managerCaseFile.files[0];
   if (file) {
     if (file.size > 5.5 * 1024 * 1024) {
-      managerCaseFormMessage.textContent = 'Soubor je příliš velký (max. cca 5 MB). Vložte odkaz ručně.';
+      managerCaseFormMessage.textContent = t('file.tooBig');
       managerCaseFormMessage.classList.remove('hidden');
       return;
     }
@@ -863,7 +1315,7 @@ managerCaseSave.addEventListener('click', async () => {
       payload.analysis_file_name = file.name;
       payload.analysis_file_mime = file.type || 'application/pdf';
     } catch (err) {
-      managerCaseFormMessage.textContent = err.message || 'Chyba při čtení souboru.';
+      managerCaseFormMessage.textContent = err.message || t('file.readErr');
       managerCaseFormMessage.classList.remove('hidden');
       return;
     }
@@ -879,15 +1331,15 @@ managerCaseSave.addEventListener('click', async () => {
     const data = await response.json().catch(() => ({}));
 
     if (!response.ok || !data.ok) {
-      throw new Error(data.message || 'Uložení se nezdařilo.');
+      throw new Error(data.message || t('case.saveFail'));
     }
 
     await loadManagerCases();
     await loadDashboard();
     closeManagerCasePanel();
-    setManagerStatus(data.message || 'Případ byl uložen.', false);
+    setManagerStatus(data.message || t('case.saved'), false);
   } catch (err) {
-    managerCaseFormMessage.textContent = err.message || 'Chyba.';
+    managerCaseFormMessage.textContent = err.message || t('case.saveFail');
     managerCaseFormMessage.classList.remove('hidden');
     managerCaseFormMessage.classList.remove('login-success');
   } finally {
@@ -896,6 +1348,25 @@ managerCaseSave.addEventListener('click', async () => {
 });
 
 (function init() {
+  try {
+    const saved = localStorage.getItem(LANG_STORAGE);
+    if (saved === 'en' || saved === 'cs') currentLang = saved;
+  } catch (_) {
+    /* ignore */
+  }
+  applyStaticI18n();
+  document.querySelectorAll('[data-set-lang]').forEach((btn) => {
+    const l = btn.getAttribute('data-set-lang');
+    const active = l === currentLang;
+    btn.classList.toggle('lang-btn--active', active);
+    btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+  });
+  document.body.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-set-lang]');
+    if (!b) return;
+    setLang(b.getAttribute('data-set-lang'));
+  });
+
   const session = getSession();
   if (session) {
     showApp(session);
