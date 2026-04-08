@@ -124,9 +124,63 @@ body {
 }
 
 .login-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
   width: 100%;
   max-width: 520px;
-  padding: 28px 28px 32px;
+  padding: 28px 96px 32px 28px;
+}
+
+.lang-switch {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+.lang-switch--compact {
+  position: static;
+  margin-bottom: 0;
+}
+
+.topbar-actions .lang-switch--compact {
+  flex-direction: row;
+  align-self: flex-end;
+}
+
+.lang-btn {
+  min-width: 40px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  line-height: 1.2;
+}
+
+.lang-btn:hover {
+  color: var(--text);
+  background: var(--surface-soft);
+}
+
+.lang-btn--active {
+  background: var(--primary);
+  color: #fff;
+}
+
+.lang-btn--active:hover {
+  background: var(--primary-hover);
+  color: #fff;
 }
 
 .login-card h1 {
@@ -193,7 +247,7 @@ body {
 
 .first-entry-steps {
   margin: 0 0 20px;
-  padding-left: 22px;
+  padding-left: 1.35rem;
   color: var(--muted);
   font-size: 14px;
   line-height: 1.55;
@@ -201,11 +255,10 @@ body {
 
 .first-entry-steps li {
   margin-bottom: 6px;
+  padding-left: 0.35rem;
 }
 
-.first-entry-steps span {
-  display: inline-block;
-  min-width: 1.25em;
+.first-entry-steps li::marker {
   font-weight: 700;
   color: var(--primary);
 }
@@ -736,6 +789,18 @@ button {
 
   .table-wrap {
     padding: 0 16px 16px;
+  }
+}
+
+@media (max-width: 520px) {
+  .login-card {
+    padding: 24px 20px 28px;
+  }
+
+  .login-card .lang-switch {
+    position: static;
+    align-self: flex-end;
+    margin: 0 0 16px auto;
   }
 }
 
