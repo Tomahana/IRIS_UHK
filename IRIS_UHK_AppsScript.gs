@@ -15,16 +15,17 @@
  *   Testovací podání checklistu od správce: POST stejné tělo jako intake + test_intake: true + manager_key
  *   (neověřuje se list Users; vyžaduje platný klíč po přihlášení správce / vytvořený při něm.)
  *
- * List Cases – doporučené další sloupce (pro metodiku / UI):
- *   iris_statement      – vyjádření IRIS k případu (text)
- *   next_step_note      – co může žadatel očekávat a kdy (text)
- *   analysis_document_url – odkaz na zprávu / analýzu (URL; po nahrání souboru doplní skript)
- *   preliminary_risk_score, preliminary_result – z checklistu (čísla/text; doplní se u nových případů)
- *   analysis_subject, analysis_scope_methodology, analysis_conclusion, analysis_recommendations,
- *   analysis_recurrence_note – struktura analytické zprávy dle metodiky IRIS (text)
- *   next_analysis_due   – plánovaný termín obnovy / další analýzy (datum; pro připomínky ve dashboardu)
+ * List Cases – začátek hlavičky (1. řádek) typicky:
+ *   case_id | created_at | created_by | source_intake_id | current_phase | …
+ *   Dále doporučené sloupce (metodika / UI): iris_statement, next_step_note, analysis_document_url,
+ *   preliminary_risk_score, preliminary_result, analysis_subject, analysis_scope_methodology,
+ *   analysis_conclusion, analysis_recommendations, analysis_recurrence_note, next_analysis_due, …
  *
- * List Intake_Checklist – volitelně: test_intake (ano/ne) – značí testovací podání od správce (manager_key).
+ * List Intake_Checklist – začátek hlavičky typicky:
+ *   intake_id | case_id | submitted_at | applicant_name | applicant_email | …
+ *   Volitelně: test_intake (ano/ne) – testovací podání od správce (manager_key).
+ *   Název záložky = IRIS_CONFIG.sheets.intake (výchozí „Intake_Checklist“). getSheetByName rozlišuje velikost písmen;
+ *   při jiném zápisu (např. „Intake_checklist“) přidejte řetězec do IRIS_INTAKE_SHEET_ALIASES níže.
  *
  * Skriptové vlastnosti (volitelné):
  *   IRIS_CASE_FILES_FOLDER_ID – kořen příloh (např. 1VQyJWN4Pay4RjCuBnLzuVav6jeceG9hz).
@@ -54,6 +55,23 @@ const IRIS_CONFIG = {
   },
   testEmail: 'hana.tomaskova@uhk.cz',
 };
+
+/** Stejná záložka checklistu pod alternativním názvem (Apps Script rozlišuje velikost písmen). */
+const IRIS_INTAKE_SHEET_ALIASES = ['Intake_checklist'];
+
+function getIntakeSheet_(ss) {
+  let sh = ss.getSheetByName(IRIS_CONFIG.sheets.intake);
+  if (sh) {
+    return sh;
+  }
+  for (let i = 0; i < IRIS_INTAKE_SHEET_ALIASES.length; i++) {
+    sh = ss.getSheetByName(IRIS_INTAKE_SHEET_ALIASES[i]);
+    if (sh) {
+      return sh;
+    }
+  }
+  return null;
+}
 
 function doPost(e) {
   try {
@@ -443,7 +461,7 @@ function processIntakeSubmission_(data) {
   }
 
   const ss = SpreadsheetApp.openById(IRIS_CONFIG.spreadsheetId);
-  const intakeSheet = ss.getSheetByName(IRIS_CONFIG.sheets.intake);
+  const intakeSheet = getIntakeSheet_(ss);
   const casesSheet = ss.getSheetByName(IRIS_CONFIG.sheets.cases);
   const eventsSheet = ss.getSheetByName(IRIS_CONFIG.sheets.events);
   const notificationsSheet = ss.getSheetByName(IRIS_CONFIG.sheets.notifications);
@@ -1412,7 +1430,14 @@ function clearCasesDataRowsOnly() {
 
 function clearIntakeEventsAndNotificationsDataRows() {
   const ss = SpreadsheetApp.openById(IRIS_CONFIG.spreadsheetId);
-  [IRIS_CONFIG.sheets.intake, IRIS_CONFIG.sheets.events, IRIS_CONFIG.sheets.notifications].forEach(function (name) {
+  const intakeSh = getIntakeSheet_(ss);
+  if (intakeSh) {
+    const lastIn = intakeSh.getLastRow();
+    if (lastIn > 1) {
+      intakeSh.deleteRows(2, lastIn - 1);
+    }
+  }
+  [IRIS_CONFIG.sheets.events, IRIS_CONFIG.sheets.notifications].forEach(function (name) {
     const sh = ss.getSheetByName(name);
     if (!sh) {
       return;
@@ -1778,20 +1803,62 @@ function appendByHeaders_(sheet, rowObject) {
   sheet.appendRow(row);
 }
 
+/**
+ * Sekvenční ID ve tvaru PREFIX-RRRR-NNN. Sloupec se hledá podle hlavičky (case_id / intake_id), ne vždy ve sl. A.
+ * Zámek snižuje riziko kolize při dvou rychlých požadavcích; existující hodnoty ve sloupci se berou v úvahu celé.
+ */
 function generateSequentialId_(sheet, prefix) {
-  const values = sheet.getDataRange().getValues();
-  const year = new Date().getFullYear();
-  let maxNum = 0;
+  const lock = LockService.getScriptLock();
+  lock.waitLock(30000);
+  try {
+    const values = sheet.getDataRange().getValues();
+    const year = new Date().getFullYear();
+    const safePrefix = String(prefix || 'ID').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-  for (let i = 1; i < values.length; i++) {
-    const cell = String(values[i][0] || '');
-    const match = cell.match(new RegExp('^' + prefix + '-' + year + '-(\\d+)$'));
-    if (match) {
-      maxNum = Math.max(maxNum, Number(match[1]));
+    if (!values.length) {
+      return prefix + '-' + year + '-001';
     }
-  }
 
-  return prefix + '-' + year + '-' + String(maxNum + 1).padStart(3, '0');
+    const headers = values[0].map(h => String(h || '').trim());
+    let colIdx = 0;
+    if (prefix === 'CASE') {
+      const idx = headers.indexOf('case_id');
+      if (idx !== -1) colIdx = idx;
+    } else if (prefix === 'INT') {
+      const idx = headers.indexOf('intake_id');
+      if (idx !== -1) colIdx = idx;
+    }
+
+    const re = new RegExp('^' + safePrefix + '-' + year + '-(\\d+)$');
+    let maxNum = 0;
+    const existing = new Set();
+    for (let i = 1; i < values.length; i++) {
+      const cell = String(values[i][colIdx] || '').trim();
+      if (!cell) {
+        continue;
+      }
+      existing.add(cell);
+      const match = cell.match(re);
+      if (match) {
+        maxNum = Math.max(maxNum, Number(match[1]));
+      }
+    }
+
+    let n = maxNum + 1;
+    let candidate = prefix + '-' + year + '-' + String(n).padStart(3, '0');
+    let guard = 0;
+    while (existing.has(candidate)) {
+      n++;
+      candidate = prefix + '-' + year + '-' + String(n).padStart(3, '0');
+      guard++;
+      if (guard > 10000) {
+        throw new Error('Nelze vygenerovat unikátní ' + prefix + ' ID (příliš mnoho kolizí).');
+      }
+    }
+    return candidate;
+  } finally {
+    lock.releaseLock();
+  }
 }
 
 function validateRequiredFields_(data, fields) {
