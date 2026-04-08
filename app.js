@@ -135,6 +135,8 @@ const STRINGS = {
     'manager.statDueSoon': 'Blíží se termín',
     'manager.statClosed': 'Uzavřené',
     'manager.statOverdue': 'Po termínu',
+    'manager.statAnalysisOverdue': 'Další analýza: po termínu',
+    'manager.statAnalysisSoon': 'Další analýza: blíží se',
     'manager.searchPh': 'Hledat (název, partner, žadatel…)',
     'manager.searchAria': 'Hledat v případech',
     'filter.allStatus': 'Všechny stavy',
@@ -209,7 +211,7 @@ const STRINGS = {
     'submit.error': 'Došlo k chybě při odeslání.',
     'demo.filled': 'Ukázková data byla doplněna.',
     'file.readFail': 'Soubor se nepodařilo načíst.',
-    'file.tooBig': 'Soubor je příliš velký (max. cca 5 MB). Vložte odkaz ručně.',
+    'file.tooBig': 'Soubor je příliš velký (max. cca 8 MB). Vložte odkaz ručně.',
     'file.readErr': 'Chyba při čtení souboru.',
     'case.saveFail': 'Uložení se nezdařilo.',
     'case.saved': 'Případ byl uložen.',
@@ -217,6 +219,48 @@ const STRINGS = {
     'dash.loadFail': 'Nepodařilo se načíst dashboard.',
     'cases.loadFail': 'Nepodařilo se načíst případy.',
     'cases.userLoadFail': 'Nepodařilo se načíst vaše podání.',
+    'user.requestRefHint':
+      'Toto je váš referenční kód žádosti. Uložte si ho pro komunikaci s IRIS a pro sledování stavu v tabulce „Moje podání“.',
+    'user.copyRequestRef': 'Zkopírovat kód žádosti',
+    'user.copied': 'Kód byl zkopírován do schránky.',
+    'user.copyFail': 'Kopírování se nezdařilo. Vyberte a zkopírujte kód ručně (Ctrl+C).',
+    'manager.reminder.body':
+      'Metodika IRIS předpokládá pravidelnou aktualizaci rizikové analýzy (obnova / follow-up při změně okolností). Analytické zprávy doplňujte strukturovaně (předmět, rozsah, závěr, doporučení, plán obnovy).',
+    'manager.reminder.counts':
+      'Otevřené případy: po lhůtě milníku {mOverdue}, blíží se termín {mSoon}. Plánovaná další analýza: po termínu {aOverdue}, blíží se {aSoon}.',
+    'manager.workflowSuggestTitle': 'Návrh postupu podle vstupního checklistu',
+    'manager.workflowRecommendStatus': 'Doporučený stav',
+    'manager.suggest.review':
+      'Nízké skóre a bez povinné DD – standardní vstupní posouzení; pokračujte ve stavu <strong>V posouzení</strong> nebo <strong>Řeší se</strong> dle metodiky.',
+    'manager.suggest.analysis':
+      'Střední riziko / indikátory – zvažte posun na stav <strong>Probíhá analýza</strong> a vypracování analytické zprávy v obvyklé struktuře (srov. typové zprávy IRIS UHK).',
+    'manager.suggest.deep':
+      'Vyžadována rozšířená prověrka (DD) – zvažte stav <strong>Probíhá DD</strong> (hlubší analýza, rozšířené šetření dle metodiky IRIS).',
+    'manager.quickClose': 'Uzavřít případ',
+    'manager.quickAnalysis': 'Posunout k analýze',
+    'manager.quickDeep': 'Posunout k hluboké analýze (DD)',
+    'manager.preset.close':
+      'Případ byl uzavřen. Dokumentaci a případné podmínky naleznete u odkazu na analýzu v systému IRIS.',
+    'manager.preset.analysis':
+      'Případ předán k vypracování analytické zprávy v standardním rozsahu dle metodiky IRIS UHK.',
+    'manager.preset.deep':
+      'Zahájena rozšířená prověrka / due diligence (hlubší analýza dle metodiky IRIS UHK).',
+    'manager.lblAnalysisSubject': 'Předmět prověrky / věc',
+    'manager.phAnalysisSubject': 'Stručně: partner, předmět spolupráce, kontext…',
+    'manager.lblAnalysisScope': 'Rozsah posouzení a metodika',
+    'manager.phAnalysisScope': 'Rámcová metodika IRIS, rozsah šetření, použité zdroje (OpenSanctions, veřejné registry…).',
+    'manager.lblAnalysisConclusion': 'Závěr k rizikovosti',
+    'manager.phAnalysisConclusion': 'Kategorizace rizika v kontextu UHK a navazujících předpisů.',
+    'manager.lblAnalysisRecs': 'Doporučení a podmínky',
+    'manager.phAnalysisRecs': 'Mitigace, podmínky pro pokračování spolupráce, vazba na smluvní dokumentaci.',
+    'manager.lblAnalysisRecurrence': 'Obnova analýzy / follow-up',
+    'manager.phAnalysisRecurrence':
+      'Kdy provést analýzu znovu (změna partnera, nová smlouva, uplynutí platnosti závěru…).',
+    'manager.lblNextAnalysisDue': 'Plánovaný termín další analýzy',
+    'manager.analysisFieldsetLegend': 'Analytická zpráva (struktura dle metodiky IRIS)',
+    'manager.analysisFieldsetHint':
+      'Struktura odpovídá běžným prověrkám a analytickým zprávám IRIS UHK (předmět, rozsah, závěr, doporučení, plán obnovy).',
+    'manager.reminderRegion': 'Připomenutí pro správce IRIS',
   },
   en: {
     'page.title': 'IRIS UHK – Intake checklist',
@@ -327,6 +371,8 @@ const STRINGS = {
     'manager.statDueSoon': 'Due soon',
     'manager.statClosed': 'Closed',
     'manager.statOverdue': 'Overdue',
+    'manager.statAnalysisOverdue': 'Next analysis: overdue',
+    'manager.statAnalysisSoon': 'Next analysis: due soon',
     'manager.searchPh': 'Search (title, partner, applicant…)',
     'manager.searchAria': 'Search cases',
     'filter.allStatus': 'All statuses',
@@ -401,7 +447,7 @@ const STRINGS = {
     'submit.error': 'An error occurred while submitting.',
     'demo.filled': 'Demo data filled in.',
     'file.readFail': 'Could not read the file.',
-    'file.tooBig': 'File is too large (max. about 5 MB). Paste a link manually.',
+    'file.tooBig': 'File is too large (max. about 8 MB). Paste a link manually.',
     'file.readErr': 'Error reading the file.',
     'case.saveFail': 'Save failed.',
     'case.saved': 'Case saved.',
@@ -409,6 +455,48 @@ const STRINGS = {
     'dash.loadFail': 'Could not load the dashboard.',
     'cases.loadFail': 'Could not load cases.',
     'cases.userLoadFail': 'Could not load your submissions.',
+    'user.requestRefHint':
+      'This is your request reference code. Keep it for communication with IRIS and for tracking status under “My submissions”.',
+    'user.copyRequestRef': 'Copy request code',
+    'user.copied': 'Code copied to clipboard.',
+    'user.copyFail': 'Copy failed. Select and copy the code manually (Ctrl+C).',
+    'manager.reminder.body':
+      'IRIS methodology expects periodic updates to the risk analysis (renewal / follow-up when circumstances change). Complete analytical reports using the standard structure (subject, scope, conclusion, recommendations, renewal plan).',
+    'manager.reminder.counts':
+      'Open cases: past milestone deadline {mOverdue}, deadline approaching {mSoon}. Next planned analysis: overdue {aOverdue}, approaching {aSoon}.',
+    'manager.workflowSuggestTitle': 'Suggested next step from the intake checklist',
+    'manager.workflowRecommendStatus': 'Suggested status',
+    'manager.suggest.review':
+      'Low score and no mandatory DD – continue with <strong>Under review</strong> or <strong>In progress</strong> per methodology.',
+    'manager.suggest.analysis':
+      'Medium risk / indicators – consider moving to <strong>Analysis in progress</strong> and preparing an analytical report (see typical IRIS UHK report structure).',
+    'manager.suggest.deep':
+      'Extended screening (DD) required – consider <strong>Due diligence in progress</strong> (deeper analysis per IRIS methodology).',
+    'manager.quickClose': 'Close case',
+    'manager.quickAnalysis': 'Move to analysis',
+    'manager.quickDeep': 'Move to deep analysis (DD)',
+    'manager.preset.close':
+      'The case is closed. Documentation and any conditions are available via the analysis link in IRIS.',
+    'manager.preset.analysis':
+      'The case is moved to analytical reporting in the standard scope per IRIS UHK methodology.',
+    'manager.preset.deep':
+      'Extended due diligence / deep analysis has been started per IRIS UHK methodology.',
+    'manager.lblAnalysisSubject': 'Subject of review / matter',
+    'manager.phAnalysisSubject': 'Briefly: partner, subject of cooperation, context…',
+    'manager.lblAnalysisScope': 'Scope and methodology',
+    'manager.phAnalysisScope': 'IRIS framework, scope of review, sources used (OpenSanctions, public registers…).',
+    'manager.lblAnalysisConclusion': 'Risk conclusion',
+    'manager.phAnalysisConclusion': 'Risk categorisation in the UHK and regulatory context.',
+    'manager.lblAnalysisRecs': 'Recommendations and conditions',
+    'manager.phAnalysisRecs': 'Mitigation, conditions for continuing cooperation, link to contractual documentation.',
+    'manager.lblAnalysisRecurrence': 'Analysis renewal / follow-up',
+    'manager.phAnalysisRecurrence':
+      'When to repeat the analysis (partner change, new contract, expiry of conclusions…).',
+    'manager.lblNextAnalysisDue': 'Planned date of next analysis',
+    'manager.analysisFieldsetLegend': 'Analytical report (IRIS methodology structure)',
+    'manager.analysisFieldsetHint':
+      'Structure aligns with typical IRIS UHK reviews and analytical reports (subject, scope, conclusion, recommendations, renewal plan).',
+    'manager.reminderRegion': 'Reminder for IRIS managers',
   },
 };
 
@@ -453,39 +541,6 @@ function applyStaticI18n() {
     const key = opt.getAttribute('data-i18n-opt');
     if (key) opt.textContent = t(key);
   });
-}
-
-function setLang(lang) {
-  if (lang !== 'cs' && lang !== 'en') return;
-  currentLang = lang;
-  try {
-    localStorage.setItem(LANG_STORAGE, lang);
-  } catch (_) {
-    /* ignore */
-  }
-  applyStaticI18n();
-  document.querySelectorAll('[data-set-lang]').forEach((btn) => {
-    const l = btn.getAttribute('data-set-lang');
-    const active = l === lang;
-    btn.classList.toggle('lang-btn--active', active);
-    btn.setAttribute('aria-pressed', active ? 'true' : 'false');
-  });
-  const session = getSession();
-  if (session) {
-    sessionBadge.textContent =
-      session.role === 'manager'
-        ? `${t('session.manager')} · ${session.email}`
-        : `${t('session.applicant')} · ${session.email}`;
-    refreshForRole().catch(() => {});
-  }
-  if (typeof resultDetails !== 'undefined' && resultDetails && typeof statusMessage !== 'undefined' && statusMessage) {
-    if (resultDetails.classList.contains('hidden')) {
-      const cur = statusMessage.textContent.trim();
-      if (cur === STRINGS.cs['user.statusNone'] || cur === STRINGS.en['user.statusNone']) {
-        setStatus(t('user.statusNone'), 'neutral');
-      }
-    }
-  }
 }
 
 /** Dočasné řešení: prázdné = vypnuto. Pokud máte v Apps Scriptu IRIS_MANAGER_KEY, nastavte stejnou hodnotu do MANAGER_STATIC_KEY, aby fungovalo PIN přihlášení správce. */
@@ -548,6 +603,28 @@ const managerCaseFile = document.getElementById('managerCaseFile');
 const managerCaseSave = document.getElementById('managerCaseSave');
 const managerCaseCancel = document.getElementById('managerCaseCancel');
 const managerCaseFormMessage = document.getElementById('managerCaseFormMessage');
+
+const requestRefBlock = document.getElementById('requestRefBlock');
+const requestRefCode = document.getElementById('requestRefCode');
+const copyRequestRefBtn = document.getElementById('copyRequestRefBtn');
+const copyRequestRefFeedback = document.getElementById('copyRequestRefFeedback');
+
+const managerReminderBanner = document.getElementById('managerReminderBanner');
+const statAnalysisOverdue = document.getElementById('statAnalysisOverdue');
+const statAnalysisSoon = document.getElementById('statAnalysisSoon');
+const managerWorkflowSuggest = document.getElementById('managerWorkflowSuggest');
+const managerQuickClose = document.getElementById('managerQuickClose');
+const managerQuickAnalysis = document.getElementById('managerQuickAnalysis');
+const managerQuickDeep = document.getElementById('managerQuickDeep');
+const managerAnalysisSubject = document.getElementById('managerAnalysisSubject');
+const managerAnalysisScope = document.getElementById('managerAnalysisScope');
+const managerAnalysisConclusion = document.getElementById('managerAnalysisConclusion');
+const managerAnalysisRecs = document.getElementById('managerAnalysisRecs');
+const managerAnalysisRecurrence = document.getElementById('managerAnalysisRecurrence');
+const managerNextAnalysisDue = document.getElementById('managerNextAnalysisDue');
+
+/** @type {Record<string, unknown>} */
+let lastDashboardSummary = {};
 
 /** @type {Array<Record<string, unknown>>} */
 let managerCasesCache = [];
@@ -786,10 +863,26 @@ function showResult(data) {
   resultValue.textContent = data.preliminary_result || dash;
   scoreValue.textContent = data.preliminary_risk_score ?? dash;
   resultDetails.classList.remove('hidden');
+  const refCode = String(data.case_id || data.intake_id || '').trim();
+  if (requestRefBlock && requestRefCode && refCode) {
+    requestRefCode.textContent = refCode;
+    requestRefBlock.classList.remove('hidden');
+    if (copyRequestRefFeedback) {
+      copyRequestRefFeedback.classList.add('hidden');
+      copyRequestRefFeedback.textContent = '';
+    }
+  } else if (requestRefBlock) {
+    requestRefBlock.classList.add('hidden');
+  }
 }
 
 function hideResult() {
   resultDetails.classList.add('hidden');
+  if (requestRefBlock) requestRefBlock.classList.add('hidden');
+  if (copyRequestRefFeedback) {
+    copyRequestRefFeedback.classList.add('hidden');
+    copyRequestRefFeedback.textContent = '';
+  }
 }
 
 function checkboxToYesNo(checkboxName) {
@@ -865,6 +958,85 @@ function toDatetimeLocalValue(value) {
   if (Number.isNaN(date.getTime())) return '';
   const pad = (n) => String(n).padStart(2, '0');
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
+function addCalendarDays(base, days) {
+  const d = new Date(base);
+  if (Number.isNaN(d.getTime())) return new Date();
+  d.setDate(d.getDate() + days);
+  return d;
+}
+
+function dateInputFromCellValue(value) {
+  if (!value) return '';
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return '';
+  return d.toISOString().slice(0, 10);
+}
+
+function ddRequiredFromItem(item) {
+  const v = item.dd_required;
+  if (v === true) return true;
+  const s = String(v || '').trim().toLowerCase();
+  return s === 'true' || s === 'ano' || s === 'yes' || s === '1';
+}
+
+function suggestWorkflowForCase(item) {
+  const score = Number(item.preliminary_risk_score);
+  const risk = String(item.risk_level || '');
+  const high = /vysok|high/i.test(risk);
+  const ddReq = ddRequiredFromItem(item);
+  if (ddReq || high || (Number.isFinite(score) && score >= 6)) {
+    return { recommended: 'dd_in_progress', reasonKey: 'manager.suggest.deep' };
+  }
+  if (Number.isFinite(score) && score >= 4) {
+    return { recommended: 'analysis_in_progress', reasonKey: 'manager.suggest.analysis' };
+  }
+  return { recommended: 'under_review', reasonKey: 'manager.suggest.review' };
+}
+
+function renderManagerWorkflowSuggest(item) {
+  if (!managerWorkflowSuggest) return;
+  const { recommended, reasonKey } = suggestWorkflowForCase(item);
+  const title = escapeHtml(t('manager.workflowSuggestTitle'));
+  const reasonHtml = t(reasonKey);
+  const recLabel = escapeHtml(t('manager.workflowRecommendStatus'));
+  const recStatus = escapeHtml(caseStatusLabel(recommended));
+  managerWorkflowSuggest.innerHTML = `<h4 class="workflow-suggest-title">${title}</h4><div class="workflow-suggest-reason">${reasonHtml}</div><p class="field-hint">${recLabel}: <strong>${recStatus}</strong></p>`;
+}
+
+function applyManagerQuickAction(kind) {
+  if (kind === 'close') {
+    managerCaseStatus.value = 'closed';
+    managerCaseNextStep.value = t('manager.preset.close');
+    managerCaseDue.value = '';
+  } else if (kind === 'analysis') {
+    managerCaseStatus.value = 'analysis_in_progress';
+    managerCaseNextStep.value = t('manager.preset.analysis');
+    managerCaseDue.value = toDatetimeLocalValue(addCalendarDays(new Date(), 14));
+  } else if (kind === 'deep') {
+    managerCaseStatus.value = 'dd_in_progress';
+    managerCaseNextStep.value = t('manager.preset.deep');
+    managerCaseDue.value = toDatetimeLocalValue(addCalendarDays(new Date(), 21));
+  }
+}
+
+function updateManagerReminderBanner(summary) {
+  if (!managerReminderBanner) return;
+  const s = summary || {};
+  managerReminderBanner.textContent = '';
+  const p1 = document.createElement('p');
+  p1.textContent = t('manager.reminder.body');
+  const p2 = document.createElement('p');
+  p2.className = 'manager-reminder-counts';
+  p2.textContent = t('manager.reminder.counts', {
+    mOverdue: s.overdue_cases ?? 0,
+    mSoon: s.due_soon_cases ?? 0,
+    aOverdue: s.next_analysis_overdue ?? 0,
+    aSoon: s.next_analysis_soon ?? 0,
+  });
+  managerReminderBanner.appendChild(p1);
+  managerReminderBanner.appendChild(p2);
 }
 
 function caseStatusLabel(status) {
@@ -969,6 +1141,7 @@ function escapeAttr(value) {
 }
 
 function renderDashboard(summary) {
+  lastDashboardSummary = summary || {};
   statTotal.textContent = summary.total ?? 0;
   statOpen.textContent = summary.open_cases ?? 0;
   statClosed.textContent = summary.closed_cases ?? 0;
@@ -976,6 +1149,13 @@ function renderDashboard(summary) {
   if (statDueSoon) {
     statDueSoon.textContent = summary.due_soon_cases ?? 0;
   }
+  if (statAnalysisOverdue) {
+    statAnalysisOverdue.textContent = summary.next_analysis_overdue ?? 0;
+  }
+  if (statAnalysisSoon) {
+    statAnalysisSoon.textContent = summary.next_analysis_soon ?? 0;
+  }
+  updateManagerReminderBanner(lastDashboardSummary);
 }
 
 function renderManagerCases(items) {
@@ -1232,6 +1412,7 @@ function closeManagerCasePanel() {
   managerCasePanel.classList.add('hidden');
   managerCasePanel.setAttribute('aria-hidden', 'true');
   managerEditCaseId.value = '';
+  if (managerWorkflowSuggest) managerWorkflowSuggest.innerHTML = '';
   if (managerCaseFile) managerCaseFile.value = '';
   if (managerCaseFormMessage) {
     managerCaseFormMessage.classList.add('hidden');
@@ -1258,6 +1439,14 @@ function openManagerCasePanel(caseId) {
   managerCaseFile.value = '';
   managerCaseFormMessage.classList.add('hidden');
 
+  renderManagerWorkflowSuggest(item);
+  if (managerAnalysisSubject) managerAnalysisSubject.value = String(item.analysis_subject || '');
+  if (managerAnalysisScope) managerAnalysisScope.value = String(item.analysis_scope_methodology || '');
+  if (managerAnalysisConclusion) managerAnalysisConclusion.value = String(item.analysis_conclusion || '');
+  if (managerAnalysisRecs) managerAnalysisRecs.value = String(item.analysis_recommendations || '');
+  if (managerAnalysisRecurrence) managerAnalysisRecurrence.value = String(item.analysis_recurrence_note || '');
+  if (managerNextAnalysisDue) managerNextAnalysisDue.value = dateInputFromCellValue(item.next_analysis_due);
+
   managerCasePanel.classList.remove('hidden');
   managerCasePanel.setAttribute('aria-hidden', 'false');
   managerCasePanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -1270,6 +1459,37 @@ casesTableBody.addEventListener('click', (e) => {
 });
 
 managerCaseCancel.addEventListener('click', () => closeManagerCasePanel());
+
+if (managerQuickClose) {
+  managerQuickClose.addEventListener('click', () => applyManagerQuickAction('close'));
+}
+if (managerQuickAnalysis) {
+  managerQuickAnalysis.addEventListener('click', () => applyManagerQuickAction('analysis'));
+}
+if (managerQuickDeep) {
+  managerQuickDeep.addEventListener('click', () => applyManagerQuickAction('deep'));
+}
+
+if (copyRequestRefBtn && requestRefCode) {
+  copyRequestRefBtn.addEventListener('click', async (ev) => {
+    ev.preventDefault();
+    ev.stopPropagation();
+    const text = requestRefCode.textContent.trim();
+    if (!text) return;
+    try {
+      await navigator.clipboard.writeText(text);
+      if (copyRequestRefFeedback) {
+        copyRequestRefFeedback.textContent = t('user.copied');
+        copyRequestRefFeedback.classList.remove('hidden');
+      }
+    } catch (_) {
+      if (copyRequestRefFeedback) {
+        copyRequestRefFeedback.textContent = t('user.copyFail');
+        copyRequestRefFeedback.classList.remove('hidden');
+      }
+    }
+  });
+}
 
 managerCaseSave.addEventListener('click', async () => {
   const session = getSession();
@@ -1303,9 +1523,20 @@ managerCaseSave.addEventListener('click', async () => {
     payload.analysis_document_url = urlVal;
   }
 
+  if (managerAnalysisSubject) {
+    payload.analysis_subject = managerAnalysisSubject.value.trim();
+    payload.analysis_scope_methodology = managerAnalysisScope.value.trim();
+    payload.analysis_conclusion = managerAnalysisConclusion.value.trim();
+    payload.analysis_recommendations = managerAnalysisRecs.value.trim();
+    payload.analysis_recurrence_note = managerAnalysisRecurrence.value.trim();
+  }
+  if (managerNextAnalysisDue && managerNextAnalysisDue.value) {
+    payload.next_analysis_due = new Date(`${managerNextAnalysisDue.value}T12:00:00`).toISOString();
+  }
+
   const file = managerCaseFile.files && managerCaseFile.files[0];
   if (file) {
-    if (file.size > 5.5 * 1024 * 1024) {
+    if (file.size > 8 * 1024 * 1024) {
       managerCaseFormMessage.textContent = t('file.tooBig');
       managerCaseFormMessage.classList.remove('hidden');
       return;
@@ -1347,6 +1578,54 @@ managerCaseSave.addEventListener('click', async () => {
   }
 });
 
+function setLang(lang) {
+  if (lang !== 'cs' && lang !== 'en') return;
+  currentLang = lang;
+  try {
+    localStorage.setItem(LANG_STORAGE, lang);
+  } catch (_) {
+    /* ignore */
+  }
+  applyStaticI18n();
+  document.querySelectorAll('[data-set-lang]').forEach((btn) => {
+    const l = btn.getAttribute('data-set-lang');
+    const active = l === lang;
+    btn.classList.toggle('lang-btn--active', active);
+    btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+  });
+  const session = getSession();
+  if (session) {
+    sessionBadge.textContent =
+      session.role === 'manager'
+        ? `${t('session.manager')} · ${session.email}`
+        : `${t('session.applicant')} · ${session.email}`;
+    refreshForRole().catch(() => {});
+  }
+  if (resultDetails && statusMessage) {
+    if (resultDetails.classList.contains('hidden')) {
+      const cur = statusMessage.textContent.trim();
+      if (cur === STRINGS.cs['user.statusNone'] || cur === STRINGS.en['user.statusNone']) {
+        setStatus(t('user.statusNone'), 'neutral');
+      }
+    }
+  }
+  const sessAfter = getSession();
+  if (sessAfter && sessAfter.role === 'manager') {
+    updateManagerReminderBanner(lastDashboardSummary);
+  }
+}
+
+function bindLangButtons() {
+  document.querySelectorAll('[data-set-lang]').forEach((btn) => {
+    btn.addEventListener('click', (ev) => {
+      ev.preventDefault();
+      ev.stopPropagation();
+      const lang = btn.getAttribute('data-set-lang');
+      if (lang) setLang(lang);
+    });
+  });
+}
+
 (function init() {
   try {
     const saved = localStorage.getItem(LANG_STORAGE);
@@ -1361,11 +1640,7 @@ managerCaseSave.addEventListener('click', async () => {
     btn.classList.toggle('lang-btn--active', active);
     btn.setAttribute('aria-pressed', active ? 'true' : 'false');
   });
-  document.body.addEventListener('click', (e) => {
-    const b = e.target.closest('[data-set-lang]');
-    if (!b) return;
-    setLang(b.getAttribute('data-set-lang'));
-  });
+  bindLangButtons();
 
   const session = getSession();
   if (session) {
