@@ -13,6 +13,8 @@
  *   IRIS_MANAGER_KEY = náhodný dlouhý řetězec
  *   Po nastavení musí dashboard a „plný“ seznam cases posílat ?manager_key=...
  *   (klient ho dostane v odpovědi na úspěšné přihlášení správce.)
+ *   Testovací podání checklistu od správce: POST stejné tělo jako intake + test_intake: true + manager_key
+ *   (pouze pokud je IRIS_MANAGER_KEY nastaven; neověřuje se list Users).
  *
  * List Cases – doporučené další sloupce (pro metodiku / UI):
  *   iris_statement      – vyjádření IRIS k případu (text)
@@ -22,6 +24,8 @@
  *   analysis_subject, analysis_scope_methodology, analysis_conclusion, analysis_recommendations,
  *   analysis_recurrence_note – struktura analytické zprávy dle metodiky IRIS (text)
  *   next_analysis_due   – plánovaný termín obnovy / další analýzy (datum; pro připomínky ve dashboardu)
+ *
+ * List Intake_Checklist – volitelně: test_intake (ano/ne) – značí testovací podání od správce (manager_key).
  *
  * Skriptové vlastnosti (volitelné):
  *   IRIS_CASE_FILES_FOLDER_ID – kořen příloh (např. 1VQyJWN4Pay4RjCuBnLzuVav6jeceG9hz).
@@ -398,6 +402,30 @@ function extractYearFromCaseId_(caseId) {
   return m ? m[1] : null;
 }
 
+function isManagerTestIntake_(data) {
+  var raw = data.test_intake;
+  if (raw === true) return true;
+  return String(raw || '').toLowerCase() === 'true';
+}
+
+/**
+ * Testovací podání checklistu správcem: vyžaduje platný manager_key a nastavené IRIS_MANAGER_KEY.
+ * Neprověřuje řádek Users (žadatel) – slouží jen pro admin/test.
+ */
+function verifyManagerTestIntake_(data) {
+  var required = getManagerKey_();
+  if (!required) {
+    throw new Error(
+      'Testovací podání je vypnuto: nastavte IRIS_MANAGER_KEY ve skriptových vlastnostech a přihlaste se jako správce s platným klíčem.'
+    );
+  }
+  assertManagerKeyFromPayload_(data);
+  var email = String(data.applicant_email || '').trim();
+  if (!email || email.indexOf('@') === -1) {
+    throw new Error('Vyplňte platný e-mail v poli žadatele (testovací režim).');
+  }
+}
+
 function processIntakeSubmission_(data) {
   validateRequiredFields_(data, [
     'applicant_name',
@@ -410,7 +438,11 @@ function processIntakeSubmission_(data) {
     'intent_description',
   ]);
 
-  verifyApplicantForIntake_(data.applicant_email);
+  if (isManagerTestIntake_(data)) {
+    verifyManagerTestIntake_(data);
+  } else {
+    verifyApplicantForIntake_(data.applicant_email);
+  }
 
   const ss = SpreadsheetApp.openById(IRIS_CONFIG.spreadsheetId);
   const intakeSheet = ss.getSheetByName(IRIS_CONFIG.sheets.intake);
@@ -454,6 +486,7 @@ function processIntakeSubmission_(data) {
     country_risk_score: risk.country_risk_score || 0,
     notification_status: 'sent',
     created_case: true,
+    test_intake: isManagerTestIntake_(data) ? 'ano' : 'ne',
     raw_payload_json: JSON.stringify(data),
   });
 
