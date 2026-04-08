@@ -6,6 +6,7 @@
  *   email | password | role | active
  *   Doporučené navíc: name (jméno žadatele), registered_at (datum registrace – vyplní skript)
  *   role: user | manager | iris_manager | admin
+ *   Účet s role admin v listu Users: při přihlášení v záložce IRIS Manager API vrací is_admin: true (aplikace zobrazí interní stránku Prověrky OSINT/DD).
  *   active: TRUE / FALSE (žádost o přístup ukládá user + active TRUE)
  *   Heslo je v tabulce jako prostý text (vnitřní nástroj).
  *
@@ -141,6 +142,7 @@ function handleLogin_(data) {
 
   if (requestedRole === 'manager') {
     payload.manager_key = getOrCreateManagerKey_();
+    payload.is_admin = sheetRole === 'admin';
   }
 
   return jsonResponse_(200, payload);
