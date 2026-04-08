@@ -7,7 +7,7 @@
   <link rel="icon" href="https://www.uhk.cz/img/favicon.ico" />
   <link rel="preconnect" href="https://www.uhk.cz" crossorigin />
   <!-- Styl je v souboru style.css ve stejné složce — při ručním vkládání do jiného systému zkopírujte obsah obou souborů. ?v= měňte po úpravách CSS (prohlížeč jinak drží starou verzi). -->
-  <link rel="stylesheet" href="style.css?v=6" />
+  <link rel="stylesheet" href="style.css?v=7" />
 </head>
 <body>
   <!-- Loga: uhk-logo.jpg a uhk-logo-small.jpg ve stejné složce jako index (viz GitHub IRIS_UHK). -->
@@ -120,6 +120,8 @@
           <button type="button" class="lang-btn lang-btn--active" data-set-lang="cs" aria-pressed="true">CZ</button>
           <button type="button" class="lang-btn" data-set-lang="en" aria-pressed="false">EN</button>
         </div>
+        <button type="button" id="btnEnterTesterMode" class="btn-secondary topbar-mode-btn hidden" data-i18n="manager.enterTesterMode">Režim žadatele (test)</button>
+        <button type="button" id="btnExitTesterMode" class="btn-secondary topbar-mode-btn hidden" data-i18n="manager.exitTesterMode">Zpět na správce</button>
         <span id="sessionBadge" class="topbar-badge"></span>
         <button type="button" id="logoutButton" class="btn-secondary" data-i18n="app.logout">Odhlásit se</button>
       </div>
@@ -128,6 +130,7 @@
     <!-- ŽADATEL: checklist + jen vlastní podání -->
     <div id="layoutUser" class="layout hidden">
       <div class="main-column">
+        <div id="testerModeBanner" class="tester-mode-banner hidden" role="status"></div>
         <section class="card">
           <div class="card-header">
             <h2 data-i18n="user.intakeTitle">Vyplnění podání</h2>
