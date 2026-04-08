@@ -10,11 +10,10 @@
  *   Heslo je v tabulce jako prostý text (vnitřní nástroj).
  *
  * Projekt → Nastavení → Skriptové vlastnosti:
- *   IRIS_MANAGER_KEY = náhodný dlouhý řetězec
- *   Po nastavení musí dashboard a „plný“ seznam cases posílat ?manager_key=...
- *   (klient ho dostane v odpovědi na úspěšné přihlášení správce.)
+ *   IRIS_MANAGER_KEY = náhodný dlouhý řetězec (volitelné ručně; při prvním přihlášení správce se vygeneruje a uloží automaticky)
+ *   Dashboard a „plný“ seznam cases: ?manager_key=... (klient ho dostane v odpovědi na úspěšné přihlášení správce.)
  *   Testovací podání checklistu od správce: POST stejné tělo jako intake + test_intake: true + manager_key
- *   (pouze pokud je IRIS_MANAGER_KEY nastaven; neověřuje se list Users).
+ *   (neověřuje se list Users; vyžaduje platný klíč po přihlášení správce / vytvořený při něm.)
  *
  * List Cases – doporučené další sloupce (pro metodiku / UI):
  *   iris_statement      – vyjádření IRIS k případu (text)
@@ -121,9 +120,8 @@ function handleLogin_(data) {
     role: requestedRole === 'manager' ? 'manager' : 'user',
   };
 
-  const mk = getManagerKey_();
-  if (requestedRole === 'manager' && mk) {
-    payload.manager_key = mk;
+  if (requestedRole === 'manager') {
+    payload.manager_key = getOrCreateManagerKey_();
   }
 
   return jsonResponse_(200, payload);
@@ -416,7 +414,7 @@ function verifyManagerTestIntake_(data) {
   var required = getManagerKey_();
   if (!required) {
     throw new Error(
-      'Testovací podání je vypnuto: nastavte IRIS_MANAGER_KEY ve skriptových vlastnostech a přihlaste se jako správce s platným klíčem.'
+      'Testovací podání: v projektu ještě neexistuje IRIS_MANAGER_KEY. Přihlaste se jednou jako správce (záložka IRIS Manager) – klíč se vytvoří automaticky – poté odešlete checklist znovu.'
     );
   }
   assertManagerKeyFromPayload_(data);
@@ -659,6 +657,19 @@ function doGet(e) {
 
 function getManagerKey_() {
   return PropertiesService.getScriptProperties().getProperty('IRIS_MANAGER_KEY') || '';
+}
+
+/**
+ * Při přihlášení správce: pokud IRIS_MANAGER_KEY chybí, vygeneruje ji a uloží do skriptových vlastností.
+ */
+function getOrCreateManagerKey_() {
+  const existing = String(getManagerKey_() || '').trim();
+  if (existing) {
+    return existing;
+  }
+  const fresh = Utilities.getUuid() + Utilities.getUuid();
+  PropertiesService.getScriptProperties().setProperty('IRIS_MANAGER_KEY', fresh);
+  return fresh;
 }
 
 function assertManagerKey_(e) {
