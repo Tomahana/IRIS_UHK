@@ -1003,3 +1003,85 @@ button {
     grid-template-columns: 1fr;
   }
 }
+
+/* --- Admin: navigace mezi přehledem IRIS a metodikou prověrek --- */
+.manager-sub-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0 0 20px;
+  padding: 12px 16px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.manager-sub-nav__btn {
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: 1px solid var(--border-strong);
+  background: var(--surface-soft);
+  color: var(--text);
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.manager-sub-nav__btn:hover {
+  border-color: var(--primary);
+  background: #fff;
+}
+
+.manager-sub-nav__btn.is-active {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+}
+
+.manager-view-vetting .vetting-card {
+  margin-bottom: 24px;
+}
+
+.vetting-content {
+  padding: 0 24px 24px;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--text);
+}
+
+.vetting-content .vetting-block h3 {
+  margin: 1.35em 0 0.5em;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.vetting-content .vetting-block h3:first-child {
+  margin-top: 0;
+}
+
+.vetting-content .vetting-block p {
+  margin: 0.5em 0 0.75em;
+}
+
+.vetting-content .vetting-block ul,
+.vetting-content .vetting-block ol {
+  margin: 0.35em 0 0.85em;
+  padding-left: 1.35em;
+}
+
+.vetting-content .vetting-ol li {
+  margin: 0.35em 0;
+}
+
+.vetting-disclaimer {
+  margin-top: 1.5em !important;
+  padding: 14px 16px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--warning-bg);
+  color: var(--warning-text);
+}
