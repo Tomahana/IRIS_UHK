@@ -7,7 +7,7 @@
   <link rel="icon" href="https://www.uhk.cz/img/favicon.ico" />
   <link rel="preconnect" href="https://www.uhk.cz" crossorigin />
   <!-- Styl je v souboru style.css ve stejné složce — při ručním vkládání do jiného systému zkopírujte obsah obou souborů. ?v= měňte po úpravách CSS (prohlížeč jinak drží starou verzi). -->
-  <link rel="stylesheet" href="style.css?v=5" />
+  <link rel="stylesheet" href="style.css?v=6" />
 </head>
 <body>
   <!-- Loga: uhk-logo.jpg a uhk-logo-small.jpg ve stejné složce jako index (viz GitHub IRIS_UHK). -->
@@ -248,6 +248,14 @@
             <div class="result-row"><span class="info-label" data-i18n="user.lblPrelim">Předběžný výsledek</span><span class="info-value" id="resultValue">—</span></div>
             <div class="result-row"><span class="info-label" data-i18n="user.lblScore">Skóre</span><span class="info-value" id="scoreValue">—</span></div>
           </div>
+          <div id="requestRefBlock" class="request-ref-block hidden">
+            <p class="field-hint" data-i18n="user.requestRefHint">Uložte si kód žádosti.</p>
+            <div class="request-ref-row">
+              <code id="requestRefCode" class="request-ref-code" translate="no"></code>
+              <button type="button" class="btn-secondary btn-compact" id="copyRequestRefBtn" data-i18n="user.copyRequestRef">Zkopírovat kód žádosti</button>
+            </div>
+            <p id="copyRequestRefFeedback" class="field-hint copy-feedback hidden" role="status"></p>
+          </div>
         </section>
         <section class="card">
           <div class="card-header">
@@ -269,12 +277,15 @@
           <p data-i18n="manager.desc">Základní dashboard a seznam případů napříč organizací.</p>
         </div>
         <p id="managerStatusMessage" class="manager-status hidden" role="status"></p>
-        <div class="dashboard-grid dashboard-grid-5">
+        <div id="managerReminderBanner" class="manager-reminder-banner" role="region" data-i18n-aria="manager.reminderRegion" aria-label="Připomenutí pro správce IRIS"></div>
+        <div class="dashboard-grid dashboard-grid-7">
           <div class="stat-card"><span data-i18n="manager.statTotal">Celkem</span><strong id="statTotal">0</strong></div>
           <div class="stat-card"><span data-i18n="manager.statOpen">Otevřené</span><strong id="statOpen">0</strong></div>
           <div class="stat-card stat-card-warn"><span data-i18n="manager.statDueSoon">Blíží se termín</span><strong id="statDueSoon">0</strong></div>
           <div class="stat-card"><span data-i18n="manager.statClosed">Uzavřené</span><strong id="statClosed">0</strong></div>
           <div class="stat-card stat-card-danger"><span data-i18n="manager.statOverdue">Po termínu</span><strong id="statOverdue">0</strong></div>
+          <div class="stat-card stat-card-danger"><span data-i18n="manager.statAnalysisOverdue">Další analýza: po termínu</span><strong id="statAnalysisOverdue">0</strong></div>
+          <div class="stat-card stat-card-warn"><span data-i18n="manager.statAnalysisSoon">Další analýza: blíží se</span><strong id="statAnalysisSoon">0</strong></div>
         </div>
         <div class="table-toolbar">
           <input type="search" id="searchCases" data-i18n-placeholder="manager.searchPh" data-i18n-aria="manager.searchAria" placeholder="Hledat (název, partner, žadatel…)" aria-label="Hledat v případech" />
@@ -322,6 +333,14 @@
           <p class="field-hint" id="managerCasePanelSubtitle"></p>
           <input type="hidden" id="managerEditCaseId" value="" />
 
+          <div class="manager-workflow-suggest" id="managerWorkflowSuggest" aria-live="polite"></div>
+
+          <div class="manager-quick-actions" role="group">
+            <button type="button" class="btn-secondary btn-compact" id="managerQuickClose" data-i18n="manager.quickClose">Uzavřít případ</button>
+            <button type="button" class="btn-secondary btn-compact" id="managerQuickAnalysis" data-i18n="manager.quickAnalysis">Posunout k analýze</button>
+            <button type="button" class="btn-secondary btn-compact" id="managerQuickDeep" data-i18n="manager.quickDeep">Posunout k hluboké analýze (DD)</button>
+          </div>
+
           <div class="manager-case-grid">
             <div class="form-group full-width">
               <label for="managerCaseStatus" data-i18n="manager.lblStatus">Stav případu</label>
@@ -354,8 +373,37 @@
             </div>
             <div class="form-group full-width">
               <label for="managerCaseFile" data-i18n="manager.lblFile">Nebo nahrát soubor (PDF; vyžaduje složku Drive ve skriptu)</label>
-              <input type="file" id="managerCaseFile" accept=".pdf,application/pdf" />
+              <input type="file" id="managerCaseFile" accept=".pdf,application/pdf,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" />
             </div>
+
+            <fieldset class="fieldset full-width manager-analysis-fieldset">
+              <legend data-i18n="manager.analysisFieldsetLegend">Analytická zpráva (struktura dle metodiky IRIS)</legend>
+              <p class="field-hint" data-i18n="manager.analysisFieldsetHint">Vyplňte v návaznosti na typové zprávy IRIS UHK (prověrky / analytické zprávy). Sloupce v tabulce Cases lze doplnit podle potřeby.</p>
+              <div class="form-group full-width">
+                <label for="managerAnalysisSubject" data-i18n="manager.lblAnalysisSubject">Předmět prověrky / věc</label>
+                <input type="text" id="managerAnalysisSubject" data-i18n-placeholder="manager.phAnalysisSubject" placeholder="Stručně: partner, předmět spolupráce…" />
+              </div>
+              <div class="form-group full-width">
+                <label for="managerAnalysisScope" data-i18n="manager.lblAnalysisScope">Rozsah posouzení a metodika</label>
+                <textarea id="managerAnalysisScope" rows="2" data-i18n-placeholder="manager.phAnalysisScope" placeholder="Metodika IRIS, rozsah…"></textarea>
+              </div>
+              <div class="form-group full-width">
+                <label for="managerAnalysisConclusion" data-i18n="manager.lblAnalysisConclusion">Závěr k rizikovosti</label>
+                <textarea id="managerAnalysisConclusion" rows="2" data-i18n-placeholder="manager.phAnalysisConclusion" placeholder="Závěr…"></textarea>
+              </div>
+              <div class="form-group full-width">
+                <label for="managerAnalysisRecs" data-i18n="manager.lblAnalysisRecs">Doporučení a podmínky</label>
+                <textarea id="managerAnalysisRecs" rows="2" data-i18n-placeholder="manager.phAnalysisRecs" placeholder="Doporučení…"></textarea>
+              </div>
+              <div class="form-group full-width">
+                <label for="managerAnalysisRecurrence" data-i18n="manager.lblAnalysisRecurrence">Obnova analýzy / follow-up</label>
+                <textarea id="managerAnalysisRecurrence" rows="2" data-i18n-placeholder="manager.phAnalysisRecurrence" placeholder="Kdy znovu provést analýzu…"></textarea>
+              </div>
+              <div class="form-group">
+                <label for="managerNextAnalysisDue" data-i18n="manager.lblNextAnalysisDue">Plánovaný termín další analýzy</label>
+                <input type="date" id="managerNextAnalysisDue" />
+              </div>
+            </fieldset>
           </div>
           <div class="manager-case-actions">
             <button type="button" class="btn-primary" id="managerCaseSave" data-i18n="manager.save">Uložit změny</button>
