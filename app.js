@@ -286,6 +286,9 @@ const STRINGS = {
     'session.adminSuffix': 'Admin',
     'admin.subNavAria': 'Navigace správce',
     'admin.navIris': 'Přehled IRIS',
+    /** Zpětná kompatibilita: starší index.html používal data-i18n="admin.navInstitutions" / "admin.navVetting". */
+    'admin.navInstitutions': 'Instituce a organizace',
+    'admin.navVetting': 'Osoby',
     'manager.hubTitle': 'Rozcestník',
     'manager.hubLead':
       'Metodické check-listy pro prověřování subjektů. Přehled případů a dashboard IRIS otevřete záložkou „Přehled IRIS“.',
@@ -570,6 +573,9 @@ const STRINGS = {
     'session.adminSuffix': 'Admin',
     'admin.subNavAria': 'Manager navigation',
     'admin.navIris': 'IRIS overview',
+    /** Back-compat for older markup: data-i18n="admin.navInstitutions" / "admin.navVetting". */
+    'admin.navInstitutions': 'Institutions & organisations',
+    'admin.navVetting': 'Individuals',
     'manager.hubTitle': 'Directory',
     'manager.hubLead':
       'Methodology checklists for vetting subjects. Open the case dashboard with “IRIS overview”.',
