@@ -7,7 +7,7 @@
   <link rel="icon" href="https://www.uhk.cz/img/favicon.ico" />
   <link rel="preconnect" href="https://www.uhk.cz" crossorigin />
   <!-- Styl je v souboru style.css ve stejné složce — při ručním vkládání do jiného systému zkopírujte obsah obou souborů. ?v= měňte po úpravách CSS (prohlížeč jinak drží starou verzi). -->
-  <link rel="stylesheet" href="style.css?v=9" />
+  <link rel="stylesheet" href="style.css?v=10" />
 </head>
 <body>
   <!-- Loga: uhk-logo.jpg a uhk-logo-small.jpg ve stejné složce jako index (viz GitHub IRIS_UHK). -->
@@ -204,8 +204,10 @@
                 </div>
               </fieldset>
             </div>
-            <div class="actions form-actions">
-              <button type="submit" class="btn-primary" id="submitButton" data-i18n="user.submit">Odeslat checklist</button>
+            <div class="actions form-actions form-actions--intake">
+              <button type="button" class="btn-secondary" id="saveDraftButton" data-i18n="user.saveDraft">Uložit rozpracované</button>
+              <button type="button" class="btn-secondary" id="loadDraftButton" data-i18n="user.loadDraft">Načíst rozpracované</button>
+              <button type="submit" class="btn-primary" id="submitButton" data-i18n="user.finalizeSubmit">Odeslat definitivně</button>
               <button type="button" class="btn-secondary" id="fillDemoButton" data-i18n="user.demo">Vyplnit ukázková data</button>
               <button type="reset" class="btn-secondary" data-i18n="user.clear">Vymazat</button>
             </div>
@@ -290,11 +292,29 @@
       </aside>
     </div>
 
-    <!-- IRIS MANAGER: dashboard + (jen Admin) druhá „stránka“ Prověrky OSINT/DD níže (#managerViewVetting). -->
+    <!-- IRIS MANAGER: rozcestník + přehled případů + metodiky (instituce / osoby). -->
     <div id="layoutManager" class="manager-layout hidden">
+      <section id="managerHub" class="card manager-hub-card hidden">
+        <div class="card-header">
+          <h2 data-i18n="manager.hubTitle">Rozcestník</h2>
+          <p data-i18n="manager.hubLead">Metodické check-listy pro prověřování subjektů. Přehled případů a dashboard IRIS otevřete záložkou „Přehled IRIS“.</p>
+        </div>
+        <div class="manager-hub-grid">
+          <button type="button" class="manager-hub-tile" id="hubBtnInstitutions">
+            <span class="manager-hub-tile__title" data-i18n="manager.hubInstitutionsTitle">Check-list institucí a organizací</span>
+            <span class="manager-hub-tile__desc" data-i18n="manager.hubInstitutionsDesc">Základní rámec DD a OSINT pro právnické osoby a partnery.</span>
+          </button>
+          <button type="button" class="manager-hub-tile" id="hubBtnPersons">
+            <span class="manager-hub-tile__title" data-i18n="manager.hubPersonsTitle">Check-list osob</span>
+            <span class="manager-hub-tile__desc" data-i18n="manager.hubPersonsDesc">Základy prověrky fyzických osob (OSINT, due diligence).</span>
+          </button>
+        </div>
+      </section>
+
       <nav id="managerSubNav" class="manager-sub-nav hidden" data-i18n-aria="admin.subNavAria" aria-label="Navigace správce">
         <button type="button" class="manager-sub-nav__btn is-active" id="navManagerDashboard" data-i18n="admin.navIris">Přehled IRIS</button>
-        <button type="button" class="manager-sub-nav__btn" id="navManagerVetting" data-i18n="admin.navVetting">Prověrky osob (OSINT / DD)</button>
+        <button type="button" class="manager-sub-nav__btn" id="navManagerInstitutions" data-i18n="manager.navInstitutions">Instituce a organizace</button>
+        <button type="button" class="manager-sub-nav__btn" id="navManagerPersons" data-i18n="manager.navPersons">Osoby</button>
       </nav>
 
       <div id="managerViewDashboard">
@@ -358,7 +378,68 @@
       </section>
       </div>
 
-      <div id="managerViewVetting" class="manager-view-vetting hidden">
+      <div id="managerViewInstitutions" class="manager-view-institutions hidden">
+        <section class="card vetting-card">
+          <div class="card-header">
+            <h2 data-i18n="manager.instTitle">Check-list institucí a organizací</h2>
+            <p data-i18n="manager.instLead">Orientační rámec pro prověřování partnerů, institucí a právnických osob v kontextu IRIS UHK. Doplňuje vstupní checklist; nenahrazuje právní posouzení.</p>
+          </div>
+          <div class="vetting-content">
+            <div class="vetting-body-lang" data-iris-lang="cs" id="institutionsBodyCs">
+              <div class="vetting-block">
+                <h3>1. Identifikace a právní subjektivita</h3>
+                <ul>
+                  <li>Oficiální název včetně jazykových variant, sídlo, identifikátory (IČO / zahraniční ekvivalent tam, kde je veřejně dostupný).</li>
+                  <li>Právní forma, statutární orgány, skuteční majitelé (UBO) dle dostupných veřejných registrů.</li>
+                  <li>Web, doména, kontaktní kanály – konzistence s oficiálními materiály.</li>
+                </ul>
+                <h3>2. Otevřené zdroje a reputace (OSINT)</h3>
+                <ul>
+                  <li>Veřejné profily, tiskové zprávy, odborné sítě; časová osa činnosti v oboru.</li>
+                  <li>Negativní zmínky, řízení, sankce, exportní kontroly – dle metodiky a seznamů používaných v IRIS.</li>
+                  <li>Geografie působení a vazby na rizikové jurisdikce nebo sektory.</li>
+                </ul>
+                <h3>3. Due diligence organizace</h3>
+                <ul>
+                  <li>Proporcionalita vůči typu spolupráce (MoU, smlouva, grant, společný projekt).</li>
+                  <li>Finanční transparentnost tam, kde je veřejně ověřitelná; střet zájmů a konkurenční vazby.</li>
+                  <li>Dokumentace: zdroj, datum zjištění, odkaz nebo název registru, zodpovědná osoba.</li>
+                </ul>
+                <h3>4. Vazba na případ v IRIS</h3>
+                <p>Záznamy z této prověrky promítněte do případu v aplikaci (Cases, analytická zpráva) a do rozhodnutí dle vnitřních postupů UHK.</p>
+                <p class="vetting-disclaimer"><strong>Upozornění:</strong> Doplňte konkrétní registry a šablony dle aktuálních interních instrukcí.</p>
+              </div>
+            </div>
+            <div class="vetting-body-lang hidden" data-iris-lang="en" id="institutionsBodyEn">
+              <div class="vetting-block">
+                <h3>1. Identification and legal personality</h3>
+                <ul>
+                  <li>Official name and language variants, registered address, identifiers (where publicly available).</li>
+                  <li>Legal form, governing bodies, beneficial owners from public sources.</li>
+                  <li>Website, domain, contact channels – consistency with official materials.</li>
+                </ul>
+                <h3>2. Open sources and reputation (OSINT)</h3>
+                <ul>
+                  <li>Public profiles, press, professional networks; timeline of activity in the field.</li>
+                  <li>Negative coverage, proceedings, sanctions, export controls per IRIS methodology.</li>
+                  <li>Geography and links to higher-risk jurisdictions or sectors.</li>
+                </ul>
+                <h3>3. Organisational due diligence</h3>
+                <ul>
+                  <li>Proportionality to the type of cooperation (MoU, contract, grant, joint project).</li>
+                  <li>Financial transparency where publicly verifiable; conflicts of interest.</li>
+                  <li>Documentation: source, date, link or register name, responsible officer.</li>
+                </ul>
+                <h3>4. Link to the IRIS case</h3>
+                <p>Record findings in the case file (Cases, analytical report) per UHK procedures.</p>
+                <p class="vetting-disclaimer"><strong>Notice:</strong> Add concrete registers and templates per internal instructions.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div id="managerViewPersons" class="manager-view-vetting hidden">
         <section class="card vetting-card">
           <div class="card-header">
             <h2 data-i18n="admin.vettingTitle">Prověrky osob – základy OSINT a Due diligence</h2>
@@ -366,7 +447,7 @@
           </div>
           <div class="vetting-content">
             <!-- Metodika je zde v HTML (CS/EN); přepíná ji app.js podle jazyka. -->
-            <div class="vetting-body-lang" data-vetting-lang="cs" id="vettingBodyCs">
+            <div class="vetting-body-lang" data-iris-lang="cs" id="vettingBodyCs">
               <div class="vetting-block">
                 <h3>1. Účel a rámec</h3>
                 <p>
@@ -458,7 +539,7 @@
               </div>
             </div>
 
-            <div class="vetting-body-lang hidden" data-vetting-lang="en" id="vettingBodyEn">
+            <div class="vetting-body-lang hidden" data-iris-lang="en" id="vettingBodyEn">
               <div class="vetting-block">
                 <h3>1. Purpose and scope</h3>
                 <p>
@@ -609,6 +690,7 @@
           </div>
           <div class="manager-case-actions">
             <button type="button" class="btn-primary" id="managerCaseSave" data-i18n="manager.save">Uložit změny</button>
+            <button type="button" class="btn-danger hidden" id="managerCaseDelete" data-i18n="admin.deleteSubmission">Smazat podání a případ</button>
             <button type="button" class="btn-secondary" id="managerCaseCancel" data-i18n="manager.close">Zavřít</button>
           </div>
           <p id="managerCaseFormMessage" class="manager-case-form-msg hidden" role="status"></p>
