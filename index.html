@@ -7,13 +7,17 @@
   <link rel="icon" href="https://www.uhk.cz/img/favicon.ico" />
   <link rel="preconnect" href="https://www.uhk.cz" crossorigin />
   <!-- Styl je v souboru style.css ve stejné složce — při ručním vkládání do jiného systému zkopírujte obsah obou souborů. ?v= měňte po úpravách CSS (prohlížeč jinak drží starou verzi). -->
-  <link rel="stylesheet" href="style.css?v=3" />
+  <link rel="stylesheet" href="style.css?v=5" />
 </head>
 <body>
   <!-- Loga: uhk-logo.jpg a uhk-logo-small.jpg ve stejné složce jako index (viz GitHub IRIS_UHK). -->
   <!-- Přihlášení: před zobrazením aplikace -->
   <div id="loginScreen" class="login-screen">
     <div class="login-card card">
+      <div class="lang-switch" role="group" data-i18n-aria="aria.lang" aria-label="Jazyk / Language">
+        <button type="button" class="lang-btn lang-btn--active" data-set-lang="cs" aria-pressed="true">CZ</button>
+        <button type="button" class="lang-btn" data-set-lang="en" aria-pressed="false">EN</button>
+      </div>
       <div class="login-brand" aria-label="Univerzita Hradec Králové">
         <div class="login-brand-frame">
           <img
@@ -26,69 +30,69 @@
           />
         </div>
       </div>
-      <p class="eyebrow">Institucionální bezpečnost</p>
-      <h1>IRIS UHK</h1>
-      <p class="subtitle login-lead">
+      <p class="eyebrow" data-i18n="login.eyebrow">Institucionální bezpečnost</p>
+      <h1 data-i18n="login.h1">IRIS UHK</h1>
+      <p class="subtitle login-lead" data-i18n-html="login.leadHtml">
         <strong>První vstup:</strong> žádost o přístup s vlastním heslem → účet typu <em>žadatel (User)</em>. Role správce přiřadí pouze IRIS Manager v tabulce Users.
       </p>
       <ol class="first-entry-steps">
-        <li><span>1</span> Žádost o přístup + heslo</li>
-        <li><span>2</span> Přihlášení žadatele</li>
-        <li><span>3</span> Checklist a sledování stavu / termínů</li>
+        <li data-i18n="login.step1">Žádost o přístup + heslo</li>
+        <li data-i18n="login.step2">Přihlášení žadatele</li>
+        <li data-i18n="login.step3">Checklist a sledování stavu / termínů</li>
       </ol>
 
       <div class="login-tabs" role="tablist">
-        <button type="button" class="login-tab active" data-tab="register" id="tabRegister">Žádost o přístup</button>
-        <button type="button" class="login-tab" data-tab="user" id="tabUser">Přihlášení žadatele</button>
-        <button type="button" class="login-tab" data-tab="manager" id="tabManager">IRIS Manager</button>
+        <button type="button" class="login-tab active" data-tab="register" id="tabRegister" data-i18n="login.tabRegister">Žádost o přístup</button>
+        <button type="button" class="login-tab" data-tab="user" id="tabUser" data-i18n="login.tabUser">Přihlášení žadatele</button>
+        <button type="button" class="login-tab" data-tab="manager" id="tabManager" data-i18n="login.tabManager">IRIS Manager</button>
       </div>
 
       <form id="registerForm" class="login-form active" autocomplete="off">
         <div class="form-group">
-          <label for="registerName">Jméno a příjmení *</label>
-          <input type="text" id="registerName" name="registerName" required minlength="2" placeholder="např. Jan Novák" />
+          <label for="registerName" data-i18n="login.labelName">Jméno a příjmení *</label>
+          <input type="text" id="registerName" name="registerName" required minlength="2" data-i18n-placeholder="login.phName" placeholder="např. Jan Novák" />
         </div>
         <div class="form-group">
-          <label for="registerEmail">E-mail (pracovní @uhk.cz) *</label>
-          <input type="email" id="registerEmail" name="registerEmail" required placeholder="jmeno@uhk.cz" autocomplete="email" />
+          <label for="registerEmail" data-i18n="login.labelEmail">E-mail (pracovní @uhk.cz) *</label>
+          <input type="email" id="registerEmail" name="registerEmail" required data-i18n-placeholder="login.phEmail" placeholder="jmeno@uhk.cz" autocomplete="email" />
         </div>
         <div class="form-group">
-          <label for="registerPassword">Heslo *</label>
+          <label for="registerPassword" data-i18n="login.labelPassword">Heslo *</label>
           <input type="password" id="registerPassword" name="registerPassword" required minlength="8" autocomplete="new-password" />
         </div>
         <div class="form-group">
-          <label for="registerPassword2">Potvrzení hesla *</label>
+          <label for="registerPassword2" data-i18n="login.labelPassword2">Potvrzení hesla *</label>
           <input type="password" id="registerPassword2" name="registerPassword2" required minlength="8" autocomplete="new-password" />
         </div>
-        <p class="field-hint">Minimálně 8 znaků. Účet vznikne jako <strong>User</strong> ihned; stejné údaje použijete u přihlášení žadatele.</p>
-        <button type="submit" class="btn-primary login-submit" id="registerSubmit">Odeslat žádost o přístup</button>
+        <p class="field-hint" data-i18n-html="login.hintPassword">Minimálně 8 znaků. Účet vznikne jako <strong>User</strong> ihned; stejné údaje použijete u přihlášení žadatele.</p>
+        <button type="submit" class="btn-primary login-submit" id="registerSubmit" data-i18n="login.submitRegister">Odeslat žádost o přístup</button>
         <p id="registerMessage" class="login-error hidden" role="alert"></p>
       </form>
 
       <form id="userLoginForm" class="login-form hidden" autocomplete="username">
         <div class="form-group">
-          <label for="loginUserEmail">E-mail (stejný jako u podání)</label>
-          <input type="email" id="loginUserEmail" name="loginUserEmail" required placeholder="jmeno@uhk.cz" />
+          <label for="loginUserEmail" data-i18n="login.labelUserEmail">E-mail (stejný jako u podání)</label>
+          <input type="email" id="loginUserEmail" name="loginUserEmail" required data-i18n-placeholder="login.phEmail" placeholder="jmeno@uhk.cz" />
         </div>
         <div class="form-group">
-          <label for="loginUserPassword">Heslo</label>
+          <label for="loginUserPassword" data-i18n="login.labelPassword">Heslo</label>
           <input type="password" id="loginUserPassword" name="loginUserPassword" required autocomplete="current-password" />
         </div>
-        <p class="field-hint">Použijte e-mail a heslo z žádosti o přístup.</p>
-        <button type="submit" class="btn-primary login-submit">Přihlásit se</button>
+        <p class="field-hint" data-i18n="login.hintUser">Použijte e-mail a heslo z žádosti o přístup.</p>
+        <button type="submit" class="btn-primary login-submit" data-i18n="login.submitUser">Přihlásit se</button>
         <p id="userLoginError" class="login-error hidden" role="alert"></p>
       </form>
 
       <form id="managerLoginForm" class="login-form hidden" autocomplete="username">
         <div class="form-group">
-          <label for="loginManagerEmail">E-mail (účet správce)</label>
-          <input type="email" id="loginManagerEmail" name="loginManagerEmail" required placeholder="iris.manager@uhk.cz" />
+          <label for="loginManagerEmail" data-i18n="login.labelMgrEmail">E-mail (účet správce)</label>
+          <input type="email" id="loginManagerEmail" name="loginManagerEmail" required data-i18n-placeholder="login.phMgrEmail" placeholder="iris.manager@uhk.cz" />
         </div>
         <div class="form-group">
-          <label for="loginManagerPassword">Heslo</label>
+          <label for="loginManagerPassword" data-i18n="login.labelPassword">Heslo</label>
           <input type="password" id="loginManagerPassword" name="loginManagerPassword" required autocomplete="current-password" />
         </div>
-        <button type="submit" class="btn-primary login-submit">Přihlásit se jako správce</button>
+        <button type="submit" class="btn-primary login-submit" data-i18n="login.submitManager">Přihlásit se jako správce</button>
         <p id="managerLoginError" class="login-error hidden" role="alert"></p>
       </form>
     </div>
@@ -106,14 +110,18 @@
           decoding="async"
         />
         <div class="topbar-titles">
-          <p class="eyebrow">Institucionální bezpečnost</p>
-          <h1>IRIS UHK – vstupní checklist</h1>
-          <p class="subtitle">Předběžné vyhodnocení rizikovosti mezinárodní aktivity a založení případu do evidence.</p>
+          <p class="eyebrow" data-i18n="app.eyebrow">Institucionální bezpečnost</p>
+          <h1 data-i18n="app.title">IRIS UHK – vstupní checklist</h1>
+          <p class="subtitle" data-i18n="app.subtitle">Předběžné vyhodnocení rizikovosti mezinárodní aktivity a založení případu do evidence.</p>
         </div>
       </div>
       <div class="topbar-actions">
+        <div class="lang-switch lang-switch--compact" role="group" data-i18n-aria="aria.lang" aria-label="Jazyk / Language">
+          <button type="button" class="lang-btn lang-btn--active" data-set-lang="cs" aria-pressed="true">CZ</button>
+          <button type="button" class="lang-btn" data-set-lang="en" aria-pressed="false">EN</button>
+        </div>
         <span id="sessionBadge" class="topbar-badge"></span>
-        <button type="button" id="logoutButton" class="btn-secondary">Odhlásit se</button>
+        <button type="button" id="logoutButton" class="btn-secondary" data-i18n="app.logout">Odhlásit se</button>
       </div>
     </header>
 
@@ -122,103 +130,103 @@
       <div class="main-column">
         <section class="card">
           <div class="card-header">
-            <h2>Vyplnění podání</h2>
-            <p>Vyplňte základní údaje o zamýšlené aktivitě a partnerovi.</p>
+            <h2 data-i18n="user.intakeTitle">Vyplnění podání</h2>
+            <p data-i18n="user.intakeDesc">Vyplňte základní údaje o zamýšlené aktivitě a partnerovi.</p>
           </div>
           <form id="intakeForm">
             <div class="form-grid">
               <div class="form-group">
-                <label for="applicant_name">Jméno žadatele *</label>
+                <label for="applicant_name" data-i18n="user.lblApplicantName">Jméno žadatele *</label>
                 <input type="text" id="applicant_name" name="applicant_name" required />
               </div>
               <div class="form-group">
-                <label for="applicant_email">E-mail žadatele *</label>
-                <input type="email" id="applicant_email" name="applicant_email" required readonly class="input-readonly" title="E-mail je vázán na přihlášení" />
+                <label for="applicant_email" data-i18n="user.lblApplicantEmail">E-mail žadatele *</label>
+                <input type="email" id="applicant_email" name="applicant_email" required readonly class="input-readonly" data-i18n-title="user.titleEmailReadonly" title="E-mail je vázán na přihlášení" />
               </div>
               <div class="form-group">
-                <label for="applicant_unit">Součást / fakulta / útvar *</label>
+                <label for="applicant_unit" data-i18n="user.lblUnit">Součást / fakulta / útvar *</label>
                 <input type="text" id="applicant_unit" name="applicant_unit" required />
               </div>
               <div class="form-group">
-                <label for="cooperation_type">Typ spolupráce *</label>
+                <label for="cooperation_type" data-i18n="user.lblCoopType">Typ spolupráce *</label>
                 <select id="cooperation_type" name="cooperation_type" required>
-                  <option value="">Vyberte</option>
-                  <option value="výzkumná spolupráce">Výzkumná spolupráce</option>
-                  <option value="vzdělávací spolupráce">Vzdělávací spolupráce</option>
-                  <option value="memorandum / MoU">Memorandum / MoU</option>
-                  <option value="mobilita / hostování">Mobilita / hostování</option>
-                  <option value="dar / sponzoring">Dar / sponzoring</option>
-                  <option value="sdílení dat / know-how">Sdílení dat / know-how</option>
-                  <option value="jiné">Jiné</option>
+                  <option value="" data-i18n-opt="common.select">Vyberte</option>
+                  <option value="výzkumná spolupráce" data-i18n-opt="coop.research">Výzkumná spolupráce</option>
+                  <option value="vzdělávací spolupráce" data-i18n-opt="coop.education">Vzdělávací spolupráce</option>
+                  <option value="memorandum / MoU" data-i18n-opt="coop.mou">Memorandum / MoU</option>
+                  <option value="mobilita / hostování" data-i18n-opt="coop.mobility">Mobilita / hostování</option>
+                  <option value="dar / sponzoring" data-i18n-opt="coop.gift">Dar / sponzoring</option>
+                  <option value="sdílení dat / know-how" data-i18n-opt="coop.data">Sdílení dat / know-how</option>
+                  <option value="jiné" data-i18n-opt="coop.other">Jiné</option>
                 </select>
               </div>
               <div class="form-group">
-                <label for="cooperation_stage">Fáze spolupráce *</label>
+                <label for="cooperation_stage" data-i18n="user.lblStage">Fáze spolupráce *</label>
                 <select id="cooperation_stage" name="cooperation_stage" required>
-                  <option value="">Vyberte</option>
-                  <option value="prvotní úvaha">Prvotní úvaha</option>
-                  <option value="předběžné jednání">Předběžné jednání</option>
-                  <option value="příprava MoU">Příprava MoU</option>
-                  <option value="příprava smlouvy">Příprava smlouvy</option>
-                  <option value="realizace">Realizace</option>
+                  <option value="" data-i18n-opt="common.select">Vyberte</option>
+                  <option value="prvotní úvaha" data-i18n-opt="stage.idea">Prvotní úvaha</option>
+                  <option value="předběžné jednání" data-i18n-opt="stage.prelim">Předběžné jednání</option>
+                  <option value="příprava MoU" data-i18n-opt="stage.mouPrep">Příprava MoU</option>
+                  <option value="příprava smlouvy" data-i18n-opt="stage.contractPrep">Příprava smlouvy</option>
+                  <option value="realizace" data-i18n-opt="stage.impl">Realizace</option>
                 </select>
               </div>
               <div class="form-group">
-                <label for="partner_name">Název partnera *</label>
+                <label for="partner_name" data-i18n="user.lblPartner">Název partnera *</label>
                 <input type="text" id="partner_name" name="partner_name" required />
               </div>
               <div class="form-group">
-                <label for="partner_country">Země partnera / zapojené země *</label>
-                <input type="text" id="partner_country" name="partner_country" required placeholder="např. Čína; Německo" />
-                <span class="field-hint">Při více zemích je oddělte čárkou, středníkem nebo lomítkem.</span>
+                <label for="partner_country" data-i18n="user.lblCountry">Země partnera / zapojené země *</label>
+                <input type="text" id="partner_country" name="partner_country" required data-i18n-placeholder="user.phCountry" placeholder="např. Čína; Německo" />
+                <span class="field-hint" data-i18n="user.hintCountry">Při více zemích je oddělte čárkou, středníkem nebo lomítkem.</span>
               </div>
               <div class="form-group">
-                <label for="partner_website">Web partnera</label>
-                <input type="url" id="partner_website" name="partner_website" placeholder="https://…" />
+                <label for="partner_website" data-i18n="user.lblWebsite">Web partnera</label>
+                <input type="url" id="partner_website" name="partner_website" data-i18n-placeholder="user.phUrl" placeholder="https://…" />
               </div>
               <div class="form-group full-width">
-                <label for="intent_description">Popis záměru *</label>
+                <label for="intent_description" data-i18n="user.lblIntent">Popis záměru *</label>
                 <textarea id="intent_description" name="intent_description" required></textarea>
               </div>
               <fieldset class="fieldset full-width">
-                <legend>Rizikové indikátory</legend>
+                <legend data-i18n="user.legendRisk">Rizikové indikátory</legend>
                 <div class="checkbox-grid">
-                  <label class="checkbox-card"><input type="checkbox" name="external_funding" /> Externí financování</label>
-                  <label class="checkbox-card"><input type="checkbox" name="access_to_uhk_systems" /> Přístup do systémů UHK</label>
-                  <label class="checkbox-card"><input type="checkbox" name="sharing_data_knowhow" /> Sdílení dat / know-how</label>
-                  <label class="checkbox-card"><input type="checkbox" name="sensitive_outputs" /> Citlivé výstupy / citlivá oblast</label>
-                  <label class="checkbox-card"><input type="checkbox" name="transfer_outside_eu" /> Přenos mimo EU</label>
-                  <label class="checkbox-card"><input type="checkbox" name="training_or_technical_assistance" /> Technická pomoc / školení</label>
-                  <label class="checkbox-card"><input type="checkbox" name="involves_doctoral_students_or_infrastructure" /> Zapojení infrastruktury / doktorandů</label>
+                  <label class="checkbox-card"><input type="checkbox" name="external_funding" /> <span data-i18n="user.riskFunding">Externí financování</span></label>
+                  <label class="checkbox-card"><input type="checkbox" name="access_to_uhk_systems" /> <span data-i18n="user.riskSystems">Přístup do systémů UHK</span></label>
+                  <label class="checkbox-card"><input type="checkbox" name="sharing_data_knowhow" /> <span data-i18n="user.riskShare">Sdílení dat / know-how</span></label>
+                  <label class="checkbox-card"><input type="checkbox" name="sensitive_outputs" /> <span data-i18n="user.riskSensitive">Citlivé výstupy / citlivá oblast</span></label>
+                  <label class="checkbox-card"><input type="checkbox" name="transfer_outside_eu" /> <span data-i18n="user.riskNonEu">Přenos mimo EU</span></label>
+                  <label class="checkbox-card"><input type="checkbox" name="training_or_technical_assistance" /> <span data-i18n="user.riskTraining">Technická pomoc / školení</span></label>
+                  <label class="checkbox-card"><input type="checkbox" name="involves_doctoral_students_or_infrastructure" /> <span data-i18n="user.riskPhd">Zapojení infrastruktury / doktorandů</span></label>
                 </div>
               </fieldset>
             </div>
             <div class="actions form-actions">
-              <button type="submit" class="btn-primary" id="submitButton">Odeslat checklist</button>
-              <button type="button" class="btn-secondary" id="fillDemoButton">Vyplnit ukázková data</button>
-              <button type="reset" class="btn-secondary">Vymazat</button>
+              <button type="submit" class="btn-primary" id="submitButton" data-i18n="user.submit">Odeslat checklist</button>
+              <button type="button" class="btn-secondary" id="fillDemoButton" data-i18n="user.demo">Vyplnit ukázková data</button>
+              <button type="reset" class="btn-secondary" data-i18n="user.clear">Vymazat</button>
             </div>
           </form>
         </section>
 
         <section class="card">
           <div class="card-header">
-            <h2>Moje podání</h2>
-            <p>Pouze případy pod vaším přihlášeným e-mailem.</p>
+            <h2 data-i18n="user.casesTitle">Moje podání</h2>
+            <p data-i18n="user.casesDesc">Pouze případy pod vaším přihlášeným e-mailem.</p>
           </div>
           <div class="table-wrap">
-            <table class="cases-table cases-table-user" aria-label="Moje podání">
+            <table class="cases-table cases-table-user" data-i18n-aria="user.casesTitle" aria-label="Moje podání">
               <thead>
                 <tr>
-                  <th>Case ID</th>
-                  <th>Vytvořeno</th>
-                  <th>Název</th>
-                  <th>Partner</th>
-                  <th>Stav</th>
-                  <th>Termín (lhůta)</th>
-                  <th>Další postup</th>
-                  <th>Vyjádření IRIS</th>
-                  <th>Analýza</th>
+                  <th data-i18n="tbl.caseId">Case ID</th>
+                  <th data-i18n="tbl.created">Vytvořeno</th>
+                  <th data-i18n="tbl.name">Název</th>
+                  <th data-i18n="tbl.partner">Partner</th>
+                  <th data-i18n="tbl.status">Stav</th>
+                  <th data-i18n="tbl.due">Termín (lhůta)</th>
+                  <th data-i18n="tbl.next">Další postup</th>
+                  <th data-i18n="tbl.iris">Vyjádření IRIS</th>
+                  <th data-i18n="tbl.analysis">Analýza</th>
                 </tr>
               </thead>
               <tbody id="userCasesTableBody"></tbody>
@@ -230,24 +238,24 @@
       <aside class="sidebar">
         <section class="card result-card">
           <div class="card-header">
-            <h2>Výsledek odeslání</h2>
-            <p>Okamžitá zpětná vazba po odeslání checklistu.</p>
+            <h2 data-i18n="user.resultTitle">Výsledek odeslání</h2>
+            <p data-i18n="user.resultDesc">Okamžitá zpětná vazba po odeslání checklistu.</p>
           </div>
           <p id="statusMessage" class="status-message status-neutral">Formulář ještě nebyl odeslán.</p>
           <div id="resultDetails" class="result-details hidden">
-            <div class="result-row"><span class="info-label">Case ID</span><span class="info-value" id="caseIdValue">—</span></div>
-            <div class="result-row"><span class="info-label">Intake ID</span><span class="info-value" id="intakeIdValue">—</span></div>
-            <div class="result-row"><span class="info-label">Předběžný výsledek</span><span class="info-value" id="resultValue">—</span></div>
-            <div class="result-row"><span class="info-label">Skóre</span><span class="info-value" id="scoreValue">—</span></div>
+            <div class="result-row"><span class="info-label" data-i18n="user.lblCaseId">Case ID</span><span class="info-value" id="caseIdValue">—</span></div>
+            <div class="result-row"><span class="info-label" data-i18n="user.lblIntakeId">Intake ID</span><span class="info-value" id="intakeIdValue">—</span></div>
+            <div class="result-row"><span class="info-label" data-i18n="user.lblPrelim">Předběžný výsledek</span><span class="info-value" id="resultValue">—</span></div>
+            <div class="result-row"><span class="info-label" data-i18n="user.lblScore">Skóre</span><span class="info-value" id="scoreValue">—</span></div>
           </div>
         </section>
         <section class="card">
           <div class="card-header">
-            <h2>Workflow</h2>
-            <p>Checklist → Case → Posouzení</p>
+            <h2 data-i18n="user.workflowTitle">Workflow</h2>
+            <p data-i18n="user.workflowDesc">Checklist → Case → Posouzení</p>
           </div>
           <div class="info-list">
-            <div class="info-item"><span class="info-label">Lhůty</span><span class="info-value">u každého případu v tabulce; dle metodiky IRIS</span></div>
+            <div class="info-item"><span class="info-label" data-i18n="user.workflowDeadlines">Lhůty</span><span class="info-value" data-i18n="user.workflowDeadlinesVal">u každého případu v tabulce; dle metodiky IRIS</span></div>
           </div>
         </section>
       </aside>
@@ -257,52 +265,52 @@
     <div id="layoutManager" class="manager-layout hidden">
       <section class="card">
         <div class="card-header">
-          <h2>Přehled případů</h2>
-          <p>Základní dashboard a seznam případů napříč organizací.</p>
+          <h2 data-i18n="manager.title">Přehled případů</h2>
+          <p data-i18n="manager.desc">Základní dashboard a seznam případů napříč organizací.</p>
         </div>
         <p id="managerStatusMessage" class="manager-status hidden" role="status"></p>
         <div class="dashboard-grid dashboard-grid-5">
-          <div class="stat-card"><span>Celkem</span><strong id="statTotal">0</strong></div>
-          <div class="stat-card"><span>Otevřené</span><strong id="statOpen">0</strong></div>
-          <div class="stat-card stat-card-warn"><span>Blíží se termín</span><strong id="statDueSoon">0</strong></div>
-          <div class="stat-card"><span>Uzavřené</span><strong id="statClosed">0</strong></div>
-          <div class="stat-card stat-card-danger"><span>Po termínu</span><strong id="statOverdue">0</strong></div>
+          <div class="stat-card"><span data-i18n="manager.statTotal">Celkem</span><strong id="statTotal">0</strong></div>
+          <div class="stat-card"><span data-i18n="manager.statOpen">Otevřené</span><strong id="statOpen">0</strong></div>
+          <div class="stat-card stat-card-warn"><span data-i18n="manager.statDueSoon">Blíží se termín</span><strong id="statDueSoon">0</strong></div>
+          <div class="stat-card"><span data-i18n="manager.statClosed">Uzavřené</span><strong id="statClosed">0</strong></div>
+          <div class="stat-card stat-card-danger"><span data-i18n="manager.statOverdue">Po termínu</span><strong id="statOverdue">0</strong></div>
         </div>
         <div class="table-toolbar">
-          <input type="search" id="searchCases" placeholder="Hledat (název, partner, žadatel…)" aria-label="Hledat v případech" />
-          <select id="filterStatus" aria-label="Filtrovat podle stavu">
-            <option value="">Všechny stavy</option>
-            <option value="new">Nový</option>
-            <option value="under_review">V posouzení</option>
-            <option value="dd_in_progress">Probíhá DD</option>
-            <option value="case_handling">Řeší se</option>
-            <option value="analysis_in_progress">Probíhá analýza</option>
-            <option value="closed">Uzavřeno</option>
-            <option value="waiting_internal_opinion">Čeká na interní stanovisko</option>
-            <option value="ready_for_decision">Připraveno k rozhodnutí</option>
+          <input type="search" id="searchCases" data-i18n-placeholder="manager.searchPh" data-i18n-aria="manager.searchAria" placeholder="Hledat (název, partner, žadatel…)" aria-label="Hledat v případech" />
+          <select id="filterStatus" data-i18n-aria="filter.allStatus" aria-label="Všechny stavy">
+            <option value="" data-i18n-opt="filter.allStatus">Všechny stavy</option>
+            <option value="new" data-i18n-opt="status.new">Nový</option>
+            <option value="under_review" data-i18n-opt="status.under_review">V posouzení</option>
+            <option value="dd_in_progress" data-i18n-opt="status.dd_in_progress">Probíhá DD</option>
+            <option value="case_handling" data-i18n-opt="status.case_handling">Řeší se</option>
+            <option value="analysis_in_progress" data-i18n-opt="status.analysis_in_progress">Probíhá analýza</option>
+            <option value="closed" data-i18n-opt="status.closed">Uzavřeno</option>
+            <option value="waiting_internal_opinion" data-i18n-opt="status.waiting_internal_opinion">Čeká na interní stanovisko</option>
+            <option value="ready_for_decision" data-i18n-opt="status.ready_for_decision">Připraveno k rozhodnutí</option>
           </select>
-          <select id="filterPriority" aria-label="Filtrovat podle priority">
-            <option value="">Všechny priority</option>
-            <option value="nízká">Nízká</option>
-            <option value="střední">Střední</option>
-            <option value="vysoká">Vysoká</option>
+          <select id="filterPriority" data-i18n-aria="filter.allPri" aria-label="Všechny priority">
+            <option value="" data-i18n-opt="filter.allPri">Všechny priority</option>
+            <option value="nízká" data-i18n-opt="pri.low">Nízká</option>
+            <option value="střední" data-i18n-opt="pri.mid">Střední</option>
+            <option value="vysoká" data-i18n-opt="pri.high">Vysoká</option>
           </select>
-          <button type="button" class="btn-secondary" id="refreshCasesButton">Obnovit</button>
+          <button type="button" class="btn-secondary" id="refreshCasesButton" data-i18n="manager.refresh">Obnovit</button>
         </div>
         <div class="table-wrap">
-          <table class="cases-table" aria-label="Všechny případy">
+          <table class="cases-table" data-i18n-aria="manager.title" aria-label="Přehled případů">
             <thead>
               <tr>
-                <th>Case ID</th>
-                <th>Termín</th>
-                <th>Vytvořeno</th>
-                <th>Název</th>
-                <th>Partner</th>
-                <th>Žadatel</th>
-                <th>Stav</th>
-                <th>Priorita</th>
-                <th>Riziko</th>
-                <th></th>
+                <th data-i18n="tbl.caseId">Case ID</th>
+                <th data-i18n="tbl.dueShort">Termín</th>
+                <th data-i18n="tbl.created">Vytvořeno</th>
+                <th data-i18n="tbl.name">Název</th>
+                <th data-i18n="tbl.partner">Partner</th>
+                <th data-i18n="tbl.applicant">Žadatel</th>
+                <th data-i18n="tbl.status">Stav</th>
+                <th data-i18n="tbl.priority">Priorita</th>
+                <th data-i18n="tbl.risk">Riziko</th>
+                <th aria-hidden="true"></th>
               </tr>
             </thead>
             <tbody id="casesTableBody"></tbody>
@@ -316,42 +324,42 @@
 
           <div class="manager-case-grid">
             <div class="form-group full-width">
-              <label for="managerCaseStatus">Stav případu</label>
+              <label for="managerCaseStatus" data-i18n="manager.lblStatus">Stav případu</label>
               <select id="managerCaseStatus">
-                <option value="new">Nový</option>
-                <option value="under_review">V posouzení</option>
-                <option value="dd_in_progress">Probíhá DD</option>
-                <option value="case_handling">Řeší se</option>
-                <option value="analysis_in_progress">Probíhá analýza</option>
-                <option value="waiting_internal_opinion">Čeká na interní stanovisko</option>
-                <option value="ready_for_decision">Připraveno k rozhodnutí</option>
-                <option value="closed">Uzavřeno</option>
+                <option value="new" data-i18n-opt="status.new">Nový</option>
+                <option value="under_review" data-i18n-opt="status.under_review">V posouzení</option>
+                <option value="dd_in_progress" data-i18n-opt="status.dd_in_progress">Probíhá DD</option>
+                <option value="case_handling" data-i18n-opt="status.case_handling">Řeší se</option>
+                <option value="analysis_in_progress" data-i18n-opt="status.analysis_in_progress">Probíhá analýza</option>
+                <option value="waiting_internal_opinion" data-i18n-opt="status.waiting_internal_opinion">Čeká na interní stanovisko</option>
+                <option value="ready_for_decision" data-i18n-opt="status.ready_for_decision">Připraveno k rozhodnutí</option>
+                <option value="closed" data-i18n-opt="status.closed">Uzavřeno</option>
               </select>
             </div>
             <div class="form-group">
-              <label for="managerCaseDue">Termín / lhůta (další milník)</label>
+              <label for="managerCaseDue" data-i18n="manager.lblDue">Termín / lhůta (další milník)</label>
               <input type="datetime-local" id="managerCaseDue" />
             </div>
             <div class="form-group full-width">
-              <label for="managerCaseNextStep">Další postup pro žadatele (co a kdy očekávat)</label>
-              <textarea id="managerCaseNextStep" rows="3" placeholder="Dle metodiky IRIS – stručně lhůty a krok."></textarea>
+              <label for="managerCaseNextStep" data-i18n="manager.lblNext">Další postup pro žadatele (co a kdy očekávat)</label>
+              <textarea id="managerCaseNextStep" rows="3" data-i18n-placeholder="manager.phNext" placeholder="Dle metodiky IRIS – stručně lhůty a krok."></textarea>
             </div>
             <div class="form-group full-width">
-              <label for="managerCaseStatement">Vyjádření IRIS k případu</label>
-              <textarea id="managerCaseStatement" rows="4" placeholder="Shrnutí pro žadatele, odkaz na metodiku."></textarea>
+              <label for="managerCaseStatement" data-i18n="manager.lblStatement">Vyjádření IRIS k případu</label>
+              <textarea id="managerCaseStatement" rows="4" data-i18n-placeholder="manager.phStatement" placeholder="Shrnutí pro žadatele, odkaz na metodiku."></textarea>
             </div>
             <div class="form-group full-width">
-              <label for="managerCaseAnalysisUrl">Odkaz na zprávu / analýzu (Drive, SharePoint…)</label>
-              <input type="url" id="managerCaseAnalysisUrl" placeholder="https://…" />
+              <label for="managerCaseAnalysisUrl" data-i18n="manager.lblAnalysisUrl">Odkaz na zprávu / analýzu (Drive, SharePoint…)</label>
+              <input type="url" id="managerCaseAnalysisUrl" data-i18n-placeholder="user.phUrl" placeholder="https://…" />
             </div>
             <div class="form-group full-width">
-              <label for="managerCaseFile">Nebo nahrát soubor (PDF; vyžaduje složku Drive ve skriptu)</label>
+              <label for="managerCaseFile" data-i18n="manager.lblFile">Nebo nahrát soubor (PDF; vyžaduje složku Drive ve skriptu)</label>
               <input type="file" id="managerCaseFile" accept=".pdf,application/pdf" />
             </div>
           </div>
           <div class="manager-case-actions">
-            <button type="button" class="btn-primary" id="managerCaseSave">Uložit změny</button>
-            <button type="button" class="btn-secondary" id="managerCaseCancel">Zavřít</button>
+            <button type="button" class="btn-primary" id="managerCaseSave" data-i18n="manager.save">Uložit změny</button>
+            <button type="button" class="btn-secondary" id="managerCaseCancel" data-i18n="manager.close">Zavřít</button>
           </div>
           <p id="managerCaseFormMessage" class="manager-case-form-msg hidden" role="status"></p>
         </div>
