@@ -16,13 +16,14 @@
  *   (neověřuje se list Users; vyžaduje platný klíč po přihlášení správce / vytvořený při něm.)
  *
  * List Cases – začátek hlavičky (1. řádek) typicky:
- *   case_id | created_at | created_by | source_intake_id | current_phase | …
+ *   case_id | record_uid | created_at | created_by | source_intake_id | current_phase | …
+ *   record_uid = UUID jednoznačného záznamu (generuje skript u nového podání; slouží k vyhledání v aplikaci).
  *   Dále doporučené sloupce (metodika / UI): iris_statement, next_step_note, analysis_document_url,
  *   preliminary_risk_score, preliminary_result, analysis_subject, analysis_scope_methodology,
  *   analysis_conclusion, analysis_recommendations, analysis_recurrence_note, next_analysis_due, …
  *
  * List Intake_Checklist – začátek hlavičky typicky:
- *   intake_id | case_id | submitted_at | applicant_name | applicant_email | …
+ *   intake_id | case_id | record_uid | submitted_at | applicant_name | applicant_email | …
  *   Volitelně: test_intake (ano/ne) – testovací podání od správce (manager_key).
  *   Název záložky = IRIS_CONFIG.sheets.intake (výchozí „Intake_Checklist“). getSheetByName rozlišuje velikost písmen;
  *   při jiném zápisu (např. „Intake_checklist“) přidejte řetězec do IRIS_INTAKE_SHEET_ALIASES níže.
@@ -467,6 +468,7 @@ function processIntakeSubmission_(data) {
   const notificationsSheet = ss.getSheetByName(IRIS_CONFIG.sheets.notifications);
 
   const now = new Date();
+  const recordUid = Utilities.getUuid();
   const intakeId = generateSequentialId_(intakeSheet, 'INT');
   const caseId = generateSequentialId_(casesSheet, 'CASE');
 
@@ -475,6 +477,7 @@ function processIntakeSubmission_(data) {
   appendByHeaders_(intakeSheet, {
     intake_id: intakeId,
     case_id: caseId,
+    record_uid: recordUid,
     submitted_at: now,
     applicant_name: data.applicant_name,
     applicant_email: data.applicant_email,
@@ -508,6 +511,7 @@ function processIntakeSubmission_(data) {
 
   appendByHeaders_(casesSheet, {
     case_id: caseId,
+    record_uid: recordUid,
     created_at: now,
     created_by: data.applicant_name,
     source_intake_id: intakeId,
@@ -565,6 +569,9 @@ function processIntakeSubmission_(data) {
   const body =
     'Dobrý den,\n\n' +
     'vaše podání bylo přijato.\n\n' +
+    'Jednoznačné referenční ID (vyhledání v aplikaci IRIS – Moje podání): ' +
+    recordUid +
+    '\n\n' +
     'Case ID: ' +
     caseId +
     '\n' +
@@ -588,6 +595,9 @@ function processIntakeSubmission_(data) {
   const internalSubject = 'IRIS UHK – nový případ ' + caseId;
   const internalBody =
     'Byl podán nový vstupní checklist.\n\n' +
+    'Referenční ID: ' +
+    recordUid +
+    '\n' +
     'Case ID: ' +
     caseId +
     '\n' +
@@ -644,6 +654,7 @@ function processIntakeSubmission_(data) {
     ok: true,
     case_id: caseId,
     intake_id: intakeId,
+    record_uid: recordUid,
     preliminary_result: risk.result,
     preliminary_risk_score: risk.score,
   });
@@ -738,15 +749,25 @@ function getCasesResponse_(e) {
   }
 
   if (search) {
-    const s = normalizeText_(search);
-    cases = cases.filter(
-      row =>
-        normalizeText_(row.case_id).includes(s) ||
-        normalizeText_(row.title).includes(s) ||
-        normalizeText_(row.partner_name).includes(s) ||
-        normalizeText_(row.applicant_name).includes(s) ||
-        normalizeText_(row.applicant_unit).includes(s)
-    );
+    const raw = String(search).trim();
+    const uuidLike =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    if (uuidLike.test(raw)) {
+      const want = raw.toLowerCase();
+      cases = cases.filter(row => String(row.record_uid || '').trim().toLowerCase() === want);
+    } else {
+      const s = normalizeText_(raw);
+      const uidCompact = normalizeText_(String(raw).replace(/-/g, ''));
+      cases = cases.filter(
+        row =>
+          normalizeText_(row.case_id).includes(s) ||
+          normalizeText_(String(row.record_uid || '').replace(/-/g, '')).includes(uidCompact) ||
+          normalizeText_(row.title).includes(s) ||
+          normalizeText_(row.partner_name).includes(s) ||
+          normalizeText_(row.applicant_name).includes(s) ||
+          normalizeText_(row.applicant_unit).includes(s)
+      );
+    }
   }
 
   cases.sort((a, b) => {
