@@ -13,6 +13,7 @@
  * 3) POST { action: 'register', name, email, password } – založí řádek v Users (žadatel).
  *
  * 4) POST intake: server ověří, že applicant_email patří aktivnímu řádku Users (role user).
+ *    Výjimka: test_intake: true + platný manager_key → testovací podání správce (bez Users).
  *
  * 5) POST { action: 'update_case', manager_key, case_id, manager_email, status?, … } – úprava případu (správce).
  */
@@ -183,6 +184,13 @@ const STRINGS = {
     'due.inDays': 'za {n} d.',
     'session.manager': 'IRIS Manager',
     'session.applicant': 'Žadatel',
+    'session.testerSuffix': 'test žadatele',
+    'manager.enterTesterMode': 'Režim žadatele (test)',
+    'manager.exitTesterMode': 'Zpět na správce',
+    'manager.testerBanner':
+      'Testovací režim: checklist se odešle jako zkušební podání (vyžaduje nastavený IRIS_MANAGER_KEY a platný klíč po přihlášení). E-mail žadatele lze upravit (např. separátní testovací účet @uhk.cz).',
+    'err.testIntakeNoKey':
+      'Nelze odeslat testovací podání: chybí manager_key. Odhlaste se a přihlaste znovu jako IRIS Manager, nebo zkontrolujte IRIS_MANAGER_KEY v Apps Scriptu.',
     'err.passwordMismatch': 'Hesla se neshodují.',
     'err.passwordShort': 'Heslo musí mít alespoň 8 znaků.',
     'reg.successDefault':
@@ -419,6 +427,13 @@ const STRINGS = {
     'due.inDays': 'in {n} d',
     'session.manager': 'IRIS Manager',
     'session.applicant': 'Applicant',
+    'session.testerSuffix': 'applicant test mode',
+    'manager.enterTesterMode': 'Applicant mode (test)',
+    'manager.exitTesterMode': 'Back to manager dashboard',
+    'manager.testerBanner':
+      'Test mode: the checklist is submitted as a test intake (requires IRIS_MANAGER_KEY and a valid key from manager sign-in). You can edit the applicant e-mail (e.g. a separate test @uhk.cz account).',
+    'err.testIntakeNoKey':
+      'Cannot submit test intake: manager_key missing. Sign out and sign in again as IRIS Manager, or check IRIS_MANAGER_KEY in Apps Script.',
     'err.passwordMismatch': 'Passwords do not match.',
     'err.passwordShort': 'Password must be at least 8 characters.',
     'reg.successDefault':
@@ -623,6 +638,10 @@ const managerAnalysisRecs = document.getElementById('managerAnalysisRecs');
 const managerAnalysisRecurrence = document.getElementById('managerAnalysisRecurrence');
 const managerNextAnalysisDue = document.getElementById('managerNextAnalysisDue');
 
+const btnEnterTesterMode = document.getElementById('btnEnterTesterMode');
+const btnExitTesterMode = document.getElementById('btnExitTesterMode');
+const testerModeBanner = document.getElementById('testerModeBanner');
+
 /** @type {Record<string, unknown>} */
 let lastDashboardSummary = {};
 
@@ -638,6 +657,63 @@ const OPEN_CASE_STATUSES = [
   'waiting_internal_opinion',
   'ready_for_decision',
 ];
+
+function isManagerTesterSession(session) {
+  return Boolean(session && session.role === 'manager' && session.viewAs === 'tester');
+}
+
+function formatSessionBadge(session) {
+  if (!session) return '';
+  if (isManagerTesterSession(session)) {
+    return `${t('session.manager')} · ${session.email} · ${t('session.testerSuffix')}`;
+  }
+  if (session.role === 'manager') {
+    return `${t('session.manager')} · ${session.email}`;
+  }
+  return `${t('session.applicant')} · ${session.email}`;
+}
+
+function updateTesterModeButtons(session) {
+  if (!btnEnterTesterMode || !btnExitTesterMode) return;
+  const isMgr = Boolean(session && session.role === 'manager');
+  const isTester = isManagerTesterSession(session);
+  btnEnterTesterMode.classList.toggle('hidden', !isMgr || isTester);
+  btnExitTesterMode.classList.toggle('hidden', !isTester);
+}
+
+function persistTesterApplicantEmail() {
+  const session = getSession();
+  if (!isManagerTesterSession(session) || !form || !form.elements.applicant_email) return;
+  const em = form.elements.applicant_email.value.trim();
+  if (!em) return;
+  setSession({ ...session, testerApplicantEmail: em });
+}
+
+function enterTesterMode() {
+  const session = getSession();
+  if (!session || session.role !== 'manager') return;
+  setSession({
+    email: session.email,
+    role: 'manager',
+    managerKey: session.managerKey || '',
+    viewAs: 'tester',
+    testerApplicantEmail: session.testerApplicantEmail || session.email,
+  });
+  showApp(getSession());
+  refreshForRole().catch(() => {});
+}
+
+function exitTesterMode() {
+  const session = getSession();
+  if (!session || session.role !== 'manager') return;
+  setSession({
+    email: session.email,
+    role: 'manager',
+    managerKey: session.managerKey || '',
+  });
+  showApp(getSession());
+  refreshForRole().catch(() => {});
+}
 
 function getSession() {
   try {
@@ -670,18 +746,28 @@ function showLogin() {
 function showApp(session) {
   loginScreen.classList.add('hidden');
   appRoot.classList.remove('hidden');
-  sessionBadge.textContent =
-    session.role === 'manager'
-      ? `${t('session.manager')} · ${session.email}`
-      : `${t('session.applicant')} · ${session.email}`;
+  sessionBadge.textContent = formatSessionBadge(session);
+  updateTesterModeButtons(session);
 
-  if (session.role === 'user') {
+  if (testerModeBanner) {
+    testerModeBanner.classList.toggle('hidden', !isManagerTesterSession(session));
+    if (isManagerTesterSession(session)) {
+      testerModeBanner.textContent = t('manager.testerBanner');
+    }
+  }
+
+  if (session.role === 'user' || isManagerTesterSession(session)) {
     layoutUser.classList.remove('hidden');
     layoutManager.classList.add('hidden');
     const emailInput = form.elements.applicant_email;
     if (emailInput) {
-      emailInput.value = session.email;
-      emailInput.readOnly = true;
+      const tester = isManagerTesterSession(session);
+      emailInput.value = tester
+        ? String(session.testerApplicantEmail || session.email || '')
+        : session.email;
+      emailInput.readOnly = !tester;
+      emailInput.classList.toggle('input-readonly', !tester);
+      emailInput.title = tester ? '' : t('user.titleEmailReadonly');
     }
     if (resultDetails.classList.contains('hidden')) {
       setStatus(t('user.statusNone'), 'neutral');
@@ -891,9 +977,13 @@ function checkboxToYesNo(checkboxName) {
 
 function collectFormData() {
   const session = getSession();
+  const applicantEmail =
+    session && session.role === 'user'
+      ? session.email
+      : String(form.applicant_email.value || '').trim();
   return {
     applicant_name: form.applicant_name.value.trim(),
-    applicant_email: (session && session.role === 'user' ? session.email : form.applicant_email.value).trim(),
+    applicant_email: applicantEmail,
     applicant_unit: form.applicant_unit.value.trim(),
     cooperation_type: form.cooperation_type.value,
     cooperation_stage: form.cooperation_stage.value,
@@ -1239,6 +1329,12 @@ function buildCasesParams() {
 
   if (session && session.role === 'user') {
     params.set('applicant_email', session.email);
+  } else if (isManagerTesterSession(session)) {
+    let em =
+      (form && form.elements.applicant_email && String(form.elements.applicant_email.value || '').trim()) ||
+      String(session.testerApplicantEmail || session.email || '').trim();
+    if (!em) em = String(session.email || '').trim();
+    if (em) params.set('applicant_email', em);
   }
 
   if (session && session.role === 'manager' && session.managerKey) {
@@ -1301,13 +1397,17 @@ async function refreshForRole() {
 
   try {
     if (session.role === 'manager') {
-      await loadDashboard();
-      await loadManagerCases();
+      if (isManagerTesterSession(session)) {
+        await loadUserCases();
+      } else {
+        await loadDashboard();
+        await loadManagerCases();
+      }
     } else {
       await loadUserCases();
     }
   } catch (error) {
-    if (session.role === 'manager') {
+    if (session.role === 'manager' && !isManagerTesterSession(session)) {
       setManagerStatus(error.message || t('cases.loadFail'), true);
     } else {
       userCasesTableBody.innerHTML = `<tr><td colspan="9" class="empty-row">${escapeHtml(
@@ -1326,12 +1426,21 @@ async function submitForm(event) {
   hideResult();
 
   const session = getSession();
-  if (!session || session.role !== 'user') {
+  const asTester = isManagerTesterSession(session);
+  if (!session || (session.role !== 'user' && !asTester)) {
     setStatus(t('err.userOnlySubmit'), 'error');
+    return;
+  }
+  if (asTester && !session.managerKey) {
+    setStatus(t('err.testIntakeNoKey'), 'error');
     return;
   }
 
   const payload = collectFormData();
+  if (asTester) {
+    payload.test_intake = true;
+    payload.manager_key = session.managerKey;
+  }
 
   try {
     validateFormData(payload);
@@ -1361,7 +1470,16 @@ async function submitForm(event) {
     }
 
     form.reset();
-    form.elements.applicant_email.value = session.email;
+    const sAfter = getSession();
+    if (sAfter.role === 'user') {
+      form.elements.applicant_email.value = sAfter.email;
+      form.elements.applicant_email.readOnly = true;
+      form.elements.applicant_email.classList.add('input-readonly');
+    } else if (isManagerTesterSession(sAfter)) {
+      form.elements.applicant_email.value = sAfter.testerApplicantEmail || sAfter.email;
+      form.elements.applicant_email.readOnly = false;
+      form.elements.applicant_email.classList.remove('input-readonly');
+    }
   } catch (error) {
     setStatus(error.message || t('submit.error'), 'error');
   } finally {
@@ -1371,10 +1489,12 @@ async function submitForm(event) {
 
 function fillDemoData() {
   const session = getSession();
-  if (!session || session.role !== 'user') return;
+  if (!session || (session.role !== 'user' && !isManagerTesterSession(session))) return;
 
   form.applicant_name.value = 'Jan Novák';
-  form.applicant_email.value = session.email;
+  form.applicant_email.value = isManagerTesterSession(session)
+    ? session.testerApplicantEmail || session.email
+    : session.email;
   form.applicant_unit.value = 'FIM';
   form.cooperation_type.value = 'výzkumná spolupráce';
   form.cooperation_stage.value = 'příprava MoU';
@@ -1396,6 +1516,23 @@ function fillDemoData() {
 
 form.addEventListener('submit', submitForm);
 fillDemoButton.addEventListener('click', fillDemoData);
+
+if (form.elements.applicant_email) {
+  form.elements.applicant_email.addEventListener('blur', persistTesterApplicantEmail);
+}
+
+if (btnEnterTesterMode) {
+  btnEnterTesterMode.addEventListener('click', (ev) => {
+    ev.preventDefault();
+    enterTesterMode();
+  });
+}
+if (btnExitTesterMode) {
+  btnExitTesterMode.addEventListener('click', (ev) => {
+    ev.preventDefault();
+    exitTesterMode();
+  });
+}
 
 refreshCasesButton.addEventListener('click', refreshOverview);
 filterStatus.addEventListener('change', loadManagerCases);
@@ -1595,11 +1732,13 @@ function setLang(lang) {
   });
   const session = getSession();
   if (session) {
-    sessionBadge.textContent =
-      session.role === 'manager'
-        ? `${t('session.manager')} · ${session.email}`
-        : `${t('session.applicant')} · ${session.email}`;
+    sessionBadge.textContent = formatSessionBadge(session);
+    updateTesterModeButtons(session);
     refreshForRole().catch(() => {});
+  }
+  const sessBanner = getSession();
+  if (isManagerTesterSession(sessBanner) && testerModeBanner) {
+    testerModeBanner.textContent = t('manager.testerBanner');
   }
   if (resultDetails && statusMessage) {
     if (resultDetails.classList.contains('hidden')) {
@@ -1610,7 +1749,7 @@ function setLang(lang) {
     }
   }
   const sessAfter = getSession();
-  if (sessAfter && sessAfter.role === 'manager') {
+  if (sessAfter && sessAfter.role === 'manager' && !isManagerTesterSession(sessAfter)) {
     updateManagerReminderBanner(lastDashboardSummary);
   }
 }
