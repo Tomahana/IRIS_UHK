@@ -7,7 +7,7 @@
   <link rel="icon" href="https://www.uhk.cz/img/favicon.ico" />
   <link rel="preconnect" href="https://www.uhk.cz" crossorigin />
   <!-- Styl je v souboru style.css ve stejné složce — při ručním vkládání do jiného systému zkopírujte obsah obou souborů. ?v= měňte po úpravách CSS (prohlížeč jinak drží starou verzi). -->
-  <link rel="stylesheet" href="style.css?v=7" />
+  <link rel="stylesheet" href="style.css?v=8" />
 </head>
 <body>
   <!-- Loga: uhk-logo.jpg a uhk-logo-small.jpg ve stejné složce jako index (viz GitHub IRIS_UHK). -->
@@ -217,11 +217,22 @@
             <h2 data-i18n="user.casesTitle">Moje podání</h2>
             <p data-i18n="user.casesDesc">Pouze případy pod vaším přihlášeným e-mailem.</p>
           </div>
+          <div class="table-toolbar table-toolbar--user">
+            <input
+              type="search"
+              id="userCasesSearch"
+              data-i18n-placeholder="user.casesSearchPh"
+              data-i18n-aria="user.casesSearchAria"
+              placeholder="Hledat (referenční ID, Case ID, název…)"
+              aria-label="Hledat v mých podáních"
+            />
+          </div>
           <div class="table-wrap">
             <table class="cases-table cases-table-user" data-i18n-aria="user.casesTitle" aria-label="Moje podání">
               <thead>
                 <tr>
                   <th data-i18n="tbl.caseId">Case ID</th>
+                  <th data-i18n="tbl.refUid">Referenční ID</th>
                   <th data-i18n="tbl.created">Vytvořeno</th>
                   <th data-i18n="tbl.name">Název</th>
                   <th data-i18n="tbl.partner">Partner</th>
@@ -246,16 +257,23 @@
           </div>
           <p id="statusMessage" class="status-message status-neutral">Formulář ještě nebyl odeslán.</p>
           <div id="resultDetails" class="result-details hidden">
+            <div class="result-row">
+              <span class="info-label" data-i18n="user.lblRecordUid">Jednoznačné referenční ID</span>
+              <span class="info-value info-value--mono" id="recordUidValue" translate="no">—</span>
+            </div>
             <div class="result-row"><span class="info-label" data-i18n="user.lblCaseId">Case ID</span><span class="info-value" id="caseIdValue">—</span></div>
             <div class="result-row"><span class="info-label" data-i18n="user.lblIntakeId">Intake ID</span><span class="info-value" id="intakeIdValue">—</span></div>
             <div class="result-row"><span class="info-label" data-i18n="user.lblPrelim">Předběžný výsledek</span><span class="info-value" id="resultValue">—</span></div>
             <div class="result-row"><span class="info-label" data-i18n="user.lblScore">Skóre</span><span class="info-value" id="scoreValue">—</span></div>
           </div>
           <div id="requestRefBlock" class="request-ref-block hidden">
-            <p class="field-hint" data-i18n="user.requestRefHint">Uložte si kód žádosti.</p>
+            <p class="field-hint" data-i18n="user.requestRefHint">Uložte si referenční ID.</p>
             <div class="request-ref-row">
               <code id="requestRefCode" class="request-ref-code" translate="no"></code>
-              <button type="button" class="btn-secondary btn-compact" id="copyRequestRefBtn" data-i18n="user.copyRequestRef">Zkopírovat kód žádosti</button>
+              <div class="request-ref-actions">
+                <button type="button" class="btn-secondary btn-compact" id="copyRequestRefBtn" data-i18n="user.copyRequestRef">Zkopírovat referenční ID</button>
+                <button type="button" class="btn-secondary btn-compact" id="downloadRefTxtBtn" data-i18n="user.downloadRefTxt">Stáhnout .txt</button>
+              </div>
             </div>
             <p id="copyRequestRefFeedback" class="field-hint copy-feedback hidden" role="status"></p>
           </div>
@@ -291,7 +309,7 @@
           <div class="stat-card stat-card-warn"><span data-i18n="manager.statAnalysisSoon">Další analýza: blíží se</span><strong id="statAnalysisSoon">0</strong></div>
         </div>
         <div class="table-toolbar">
-          <input type="search" id="searchCases" data-i18n-placeholder="manager.searchPh" data-i18n-aria="manager.searchAria" placeholder="Hledat (název, partner, žadatel…)" aria-label="Hledat v případech" />
+          <input type="search" id="searchCases" data-i18n-placeholder="manager.searchPh" data-i18n-aria="manager.searchAria" placeholder="Hledat (referenční ID, Case ID, název…)" aria-label="Hledat v případech" />
           <select id="filterStatus" data-i18n-aria="filter.allStatus" aria-label="Všechny stavy">
             <option value="" data-i18n-opt="filter.allStatus">Všechny stavy</option>
             <option value="new" data-i18n-opt="status.new">Nový</option>
@@ -316,6 +334,7 @@
             <thead>
               <tr>
                 <th data-i18n="tbl.caseId">Case ID</th>
+                <th data-i18n="tbl.refUid">Referenční ID</th>
                 <th data-i18n="tbl.dueShort">Termín</th>
                 <th data-i18n="tbl.created">Vytvořeno</th>
                 <th data-i18n="tbl.name">Název</th>
