@@ -1005,6 +1005,20 @@ button {
 }
 
 /* --- Admin: navigace mezi přehledem IRIS a metodikou prověrek --- */
+.user-requests-subtitle {
+  font-size: 1.05rem;
+  margin: 20px 0 10px;
+  color: var(--text);
+}
+
+.user-requests-subtitle--spaced {
+  margin-top: 28px;
+}
+
+.row-draft td {
+  background: var(--warning-bg);
+}
+
 .manager-hub-card {
   margin-bottom: 20px;
 }
