@@ -7,7 +7,7 @@
   <link rel="icon" href="https://www.uhk.cz/img/favicon.ico" />
   <link rel="preconnect" href="https://www.uhk.cz" crossorigin />
   <!-- Styl je v souboru style.css ve stejné složce — při ručním vkládání do jiného systému zkopírujte obsah obou souborů. ?v= měňte po úpravách CSS (prohlížeč jinak drží starou verzi). -->
-  <link rel="stylesheet" href="style.css?v=18" />
+  <link rel="stylesheet" href="style.css?v=19" />
 </head>
 <body>
   <!-- Loga: uhk-logo.jpg a uhk-logo-small.jpg ve stejné složce jako index (viz GitHub IRIS_UHK). -->
@@ -136,7 +136,7 @@
           <div class="card-header">
             <h2 data-i18n="user.hubTitle">Rozcestník</h2>
             <p data-i18n="user.hubLeadApplicant">
-              Metodické check-listy pro prověřování subjektů. Kachlíky níže otevřou metodiku; v liště najdete také formuláře a přehled svých požadavků.
+              Kachlíky níže otevřou přímo formulář check-listu. Metodické pokyny si můžete rozkliknout u formuláře; v liště je také přehled vašich požadavků.
             </p>
           </div>
           <div class="manager-hub-grid">
@@ -152,44 +152,10 @@
         </section>
 
         <nav id="userSubNav" class="manager-sub-nav" data-i18n-aria="user.subNavAria" aria-label="Navigace žadatele">
-          <button type="button" class="manager-sub-nav__btn" id="navUserInstMethod" data-i18n="user.navInstMethod">Metodika – instituce</button>
-          <button type="button" class="manager-sub-nav__btn" id="navUserPersonMethod" data-i18n="user.navPersonMethod">Metodika – osoby</button>
           <button type="button" class="manager-sub-nav__btn is-active" id="navUserInstForm" data-i18n="user.navInstForm">Check-list institucí (formulář)</button>
           <button type="button" class="manager-sub-nav__btn" id="navUserPersonForm" data-i18n="user.navPersonForm">Check-list osob (formulář)</button>
           <button type="button" class="manager-sub-nav__btn" id="navUserRequests" data-i18n="user.navRequests">Moje požadavky</button>
         </nav>
-
-        <div id="userViewInstMethod" class="user-main-view hidden">
-          <section class="card vetting-card">
-            <div class="card-header">
-              <h2 data-i18n="manager.instTitle">Check-list institucí a organizací</h2>
-              <p data-i18n="manager.instLead">Orientační rámec pro prověřování partnerů, institucí a právnických osob v kontextu IRIS UHK.</p>
-            </div>
-            <details class="methodology-details">
-              <summary class="methodology-details__summary">
-                <span data-i18n="methodology.applicantInstSummary">Chcete zobrazit metodické pokyny pro žadatele? (check-list institucí)</span>
-              </summary>
-              <div class="vetting-content methodology-details__body" id="userMethodologyInstMount"></div>
-            </details>
-          </section>
-        </div>
-
-        <div id="userViewPersonMethod" class="user-main-view hidden">
-          <section class="card vetting-card">
-            <div class="card-header">
-              <h2 data-i18n="admin.vettingTitle">Prověrky osob – základy OSINT a Due diligence</h2>
-              <p data-i18n="user.personMethodLead">
-                Orientační metodický podklad pro žadatele. Doplňuje rámec institucionální bezpečnosti; nenahrazuje právní posouzení ani interní směrnice Ústavu.
-              </p>
-            </div>
-            <details class="methodology-details">
-              <summary class="methodology-details__summary">
-                <span data-i18n="methodology.applicantPersonSummary">Chcete zobrazit metodické pokyny pro žadatele? (check-list osob)</span>
-              </summary>
-              <div class="vetting-content methodology-details__body" id="userMethodologyPersonMount"></div>
-            </details>
-          </section>
-        </div>
 
         <div id="userViewInstForm" class="user-main-view">
         <section class="card">
@@ -197,6 +163,12 @@
             <h2 data-i18n="user.intakeTitle">Vyplnění podání</h2>
             <p data-i18n="user.intakeDesc">Vyplňte základní údaje o zamýšlené aktivitě a partnerovi.</p>
           </div>
+          <details class="methodology-details">
+            <summary class="methodology-details__summary">
+              <span data-i18n="methodology.applicantInstSummary">Chcete zobrazit metodické pokyny pro žadatele? (check-list institucí)</span>
+            </summary>
+            <div class="vetting-content methodology-details__body" id="userMethodologyInstMount"></div>
+          </details>
           <form id="intakeForm">
             <div class="form-grid">
               <div class="form-group">
@@ -287,6 +259,12 @@
               Uvádějte zejména informace legálně dostupné z otevřených zdrojů (profily, publikace, identifikátory výzkumné aktivity). Citlivé údaje nad rámec běžně zveřejňovaných zde nevyplňujte.
             </p>
           </div>
+          <details class="methodology-details">
+            <summary class="methodology-details__summary">
+              <span data-i18n="methodology.applicantPersonSummary">Chcete zobrazit metodické pokyny pro žadatele? (check-list osob)</span>
+            </summary>
+            <div class="vetting-content methodology-details__body" id="userMethodologyPersonMount"></div>
+          </details>
           <form id="applicantPersonVettingForm">
             <fieldset class="fieldset full-width">
               <legend data-i18n="user.pvLegendRequester">Žadatel</legend>
@@ -530,37 +508,34 @@
       </aside>
     </div>
 
-    <!-- IRIS MANAGER: rozcestník + přehled případů + metodiky (instituce / osoby). -->
+    <!-- IRIS MANAGER: rozcestník (pouze přehled + PAR) + správa případů. Metodiky zůstávají v DOM pro klonování žadateli, mimo UI správce. -->
     <div id="layoutManager" class="manager-layout hidden">
       <section id="managerHub" class="card manager-hub-card hidden">
         <div class="card-header">
           <h2 data-i18n="manager.hubTitle">Rozcestník</h2>
-          <p data-i18n="manager.hubLead">Metodické check-listy pro prověřování subjektů. Přehled případů a dashboard IRIS otevřete záložkou „Přehled IRIS“.</p>
+          <p data-i18n="manager.hubLeadAdmin">
+            Přehled případů IRIS a evidence prověrek osob (PAR). Pracujte ve správě případů a v tabulce PAR podle oprávnění účtu.
+          </p>
         </div>
-        <div class="manager-hub-grid">
-          <button type="button" class="manager-hub-tile" id="hubBtnInstitutions">
-            <span class="manager-hub-tile__title" data-i18n="manager.hubInstitutionsTitle">Check-list institucí a organizací</span>
-            <span class="manager-hub-tile__desc" data-i18n="manager.hubInstitutionsDesc">Základní rámec DD a OSINT pro právnické osoby a partnery.</span>
+        <div class="manager-hub-grid manager-hub-grid--two">
+          <button type="button" class="manager-hub-tile" id="hubBtnDashboard">
+            <span class="manager-hub-tile__title" data-i18n="manager.hubDashTileTitle">Přehled případů (IRIS)</span>
+            <span class="manager-hub-tile__desc" data-i18n="manager.hubDashTileDesc">Dashboard, seznam případů a úpravy záznamů v režimu IRIS.</span>
           </button>
-          <button type="button" class="manager-hub-tile" id="hubBtnPersons">
-            <span class="manager-hub-tile__title" data-i18n="manager.hubPersonsTitle">Check-list osob</span>
-            <span class="manager-hub-tile__desc" data-i18n="manager.hubPersonsDesc">Základy prověrky fyzických osob (OSINT, due diligence).</span>
-          </button>
-          <button type="button" class="manager-hub-tile" id="hubBtnPersonAnalysis">
-            <span class="manager-hub-tile__title" data-i18n="manager.hubPersonAnalysisTitle">Podněty k analýze osob</span>
-            <span class="manager-hub-tile__desc" data-i18n="manager.hubPersonAnalysisDesc">Formulář pro zadání prověřované osoby a veřejných identifikátorů do evidence.</span>
+          <button type="button" class="manager-hub-tile" id="hubBtnPar">
+            <span class="manager-hub-tile__title" data-i18n="manager.hubParTileTitle">Evidence prověrek osob (PAR)</span>
+            <span class="manager-hub-tile__desc" data-i18n="manager.hubParTileDesc">Záznamy z listu Person_Analysis_Requests.</span>
           </button>
         </div>
       </section>
 
       <nav id="managerSubNav" class="manager-sub-nav hidden" data-i18n-aria="admin.subNavAria" aria-label="Navigace správce">
         <button type="button" class="manager-sub-nav__btn is-active" id="navManagerDashboard" data-i18n="admin.navIris">Přehled IRIS</button>
-        <button type="button" class="manager-sub-nav__btn" id="navManagerInstitutions" data-i18n="manager.navInstitutions">Instituce a organizace</button>
-        <button type="button" class="manager-sub-nav__btn" id="navManagerPersons" data-i18n="manager.navPersons">Osoby</button>
-        <button type="button" class="manager-sub-nav__btn" id="navManagerPersonAnalysis" data-i18n="manager.navPersonAnalysis">Podněty k analýze</button>
+        <button type="button" class="manager-sub-nav__btn" id="navManagerPar" data-i18n="manager.navPar">Evidence PAR</button>
       </nav>
 
       <div id="managerViewDashboard">
+      <div id="managerDashboardMain">
       <section class="card">
         <div class="card-header">
           <h2 data-i18n="manager.title">Přehled případů</h2>
@@ -619,6 +594,7 @@
           </table>
         </div>
       </section>
+      </div>
 
       <section id="managerParListSection" class="card hidden">
         <div class="card-header">
@@ -645,7 +621,7 @@
       </section>
       </div>
 
-      <div id="managerViewInstitutions" class="manager-view-institutions hidden">
+      <div id="managerViewInstitutions" class="manager-view-institutions hidden manager-view-source-only" aria-hidden="true">
         <section class="card vetting-card">
           <div class="card-header">
             <h2 data-i18n="manager.instTitle">Check-list institucí a organizací</h2>
@@ -711,7 +687,7 @@
         </section>
       </div>
 
-      <div id="managerViewPersons" class="manager-view-vetting hidden">
+      <div id="managerViewPersons" class="manager-view-vetting hidden manager-view-source-only" aria-hidden="true">
         <section class="card vetting-card">
           <div class="card-header">
             <h2 data-i18n="admin.vettingTitle">Prověrky osob – základy OSINT a Due diligence</h2>
@@ -1150,6 +1126,6 @@
   </dialog>
 
   <script src="iris-prompts.js?v=1"></script>
-  <script src="app.js?v=18"></script>
+  <script src="app.js?v=19"></script>
 </body>
 </html>
