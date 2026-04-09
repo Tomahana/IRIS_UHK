@@ -4,8 +4,8 @@
  * Očekávané rozšíření Google Apps Script (stejný deploy URL jako dosud):
  *
  * 1) POST JSON: { "action": "login", "email": "...", "password": "...", "role": "user" | "manager" }
- *    → { "ok": true, "role": "user"|"manager", "email": "...", "manager_key"?, "is_admin"? }
- *    (is_admin: true jen pokud sloupec role v Users = admin – zobrazí se interní stránka Prověrky.)
+ *    → { "ok": true, "role": "user"|"manager", "email": "...", "manager_key"?, "is_admin"?, "can_delete_submissions"? }
+ *    (is_admin při role admin; can_delete_submissions při role admin nebo iris_manager – tlačítko smazání případu.)
  *
  * 2) GET  ?action=cases&applicant_email=…  = jen případy žadatele (bez manager_key).
  *    GET  ?action=cases&manager_key=…      = plný seznam (Script Property IRIS_MANAGER_KEY).
@@ -17,7 +17,9 @@
  *    Výjimka: test_intake: true + platný manager_key → testovací podání správce (bez Users).
  *
  * 5) POST { action: 'update_case', manager_key, case_id, manager_email, status?, … } – úprava případu (správce).
- * 6) POST { action: 'delete_submission', manager_key, admin_email, case_id } – smazání případu/podání (jen role admin v Users).
+ * 6) POST { action: 'delete_submission', manager_key, admin_email, case_id } – smazání případu (Users: admin nebo iris_manager).
+ * 7) POST { action: 'submit_person_analysis', manager_key, manager_email, … } – podnět (submission_channel=manager).
+ * 8) POST { action: 'submit_applicant_person_vetting', applicant_email, applicant_name, … } – podání prověrky FO (submission_channel=applicant).
  */
 
 const API_URL =
@@ -65,6 +67,20 @@ const STRINGS = {
     'app.logout': 'Odhlásit se',
     'user.intakeTitle': 'Vyplnění podání',
     'user.intakeDesc': 'Vyplňte základní údaje o zamýšlené aktivitě a partnerovi.',
+    'user.pvTitle': 'Podání prověrky fyzické osoby',
+    'user.pvLead':
+      'Žádost o zahájení / zařazení prověrky fyzické osoby v režimu IRIS. Vyplňte známé veřejné údaje o prověřované osobě a stručný popis věci.',
+    'user.pvHintOsint':
+      'Uvádějte zejména informace legálně dostupné z otevřených zdrojů. Citlivé údaje nad rámec běžně zveřejňovaných zde nevyplňujte.',
+    'user.pvLegendRequester': 'Žadatel',
+    'user.pvLblRequesterName': 'Jméno a příjmení žadatele *',
+    'user.pvLblRequesterEmail': 'E-mail žadatele *',
+    'user.pvLegendLink': 'Vazba na stávající případ (nepovinné)',
+    'user.pvLblSummary': 'Důvod a rozsah požadované prověrky *',
+    'user.pvSubmit': 'Odeslat podání prověrky',
+    'user.pvReset': 'Vymazat formulář',
+    'user.pvOk': 'Podání bylo přijato. ID záznamu: {id}',
+    'user.pvFail': 'Podání se nepodařilo odeslat.',
     'user.lblApplicantName': 'Jméno žadatele *',
     'user.lblApplicantEmail': 'E-mail žadatele *',
     'user.titleEmailReadonly': 'E-mail je vázán na přihlášení',
@@ -298,6 +314,47 @@ const STRINGS = {
     'manager.hubPersonsDesc': 'Základy prověrky fyzických osob (OSINT, due diligence).',
     'manager.navInstitutions': 'Instituce a organizace',
     'manager.navPersons': 'Osoby',
+    'manager.hubPersonAnalysisTitle': 'Podněty k analýze osob',
+    'manager.hubPersonAnalysisDesc': 'Formulář: osoba, veřejné identifikátory, uložení do tabulky Person_Analysis_Requests.',
+    'manager.navPersonAnalysis': 'Podněty k analýze',
+    'manager.paTitle': 'Podněty k analýze osob (správce)',
+    'manager.paLead':
+      'Interní záznam pro koordinaci analýzy fyzické osoby (list Person_Analysis_Requests; sloupec submission_channel = manager). Žadatelé mají vlastní formulář „Podání prověrky fyzické osoby“.',
+    'manager.paHintIdentifiers':
+      'Vyplňte pouze údaje legálně dostupné z otevřených zdrojů (metodika OSINT). Citlivé osobní údaje nad rámec veřejného profilu zde neuvádějte.',
+    'manager.paLegendLink': 'Vazba na případ (nepovinné)',
+    'manager.paLblCaseId': 'Case ID',
+    'manager.paPhCaseId': 'např. CASE-2026-042',
+    'manager.paLblRecordUid': 'Referenční ID',
+    'manager.paLegendSubject': 'Prověřovaná osoba',
+    'manager.paLblLegalName': 'Jméno a příjmení (oficiální zápis) *',
+    'manager.paLblAltNames': 'Alternativní zápisy / příjmení / transliterace',
+    'manager.paLblDob': 'Rok nebo datum narození (pokud je veřejně známé)',
+    'manager.paLblCitizenship': 'Státní příslušnost (veřejně uváděná)',
+    'manager.paLblResidence': 'Země / region obvyklého působení',
+    'manager.paLblAffiliation': 'Instituce / zaměstnavatel v kontextu věci',
+    'manager.paLblRole': 'Role vůči UHK (např. hostující výzkumník, řešitel, expert)',
+    'manager.paLegendIds': 'Veřejné identifikátory a profily (OSINT)',
+    'manager.paHintIds':
+      'Typicky dohledatelné: ORCID, Scopus Author ID, ResearcherID (WoS), Google Scholar, LinkedIn, oficiální profil na webu instituce.',
+    'manager.paLblOrcid': 'ORCID',
+    'manager.paLblScopus': 'Scopus Author ID',
+    'manager.paLblWos': 'Web of Science ResearcherID',
+    'manager.paLblScholar': 'URL profilu Google Scholar',
+    'manager.paLblLinkedin': 'URL veřejného profilu LinkedIn',
+    'manager.paLblInstProfiles': 'URL institucionálních profilů (jeden na řádek)',
+    'manager.paLblOtherUrls': 'Další veřejné URL (jedna na řádek)',
+    'manager.paLegendRequest': 'Podnět',
+    'manager.paLblSummary': 'Co má být ověřeno / kontext a cíl analýzy *',
+    'manager.paLblUrgency': 'Důležitost / naléhavost',
+    'manager.paUrgLow': 'Nízká',
+    'manager.paUrgMed': 'Střední',
+    'manager.paUrgHigh': 'Vysoká',
+    'manager.paLblIdSource': 'Odkud pocházejí identifikátory (publikace, smlouva, web UHK, …)',
+    'manager.paSubmit': 'Odeslat do evidence',
+    'manager.paReset': 'Vymazat formulář',
+    'manager.paOk': 'Podnět byl uložen. ID záznamu: {id}',
+    'manager.paFail': 'Podnět se nepodařilo uložit.',
     'manager.instTitle': 'Check-list institucí a organizací',
     'manager.instLead':
       'Orientační rámec pro prověřování partnerů, institucí a právnických osob v kontextu IRIS UHK. Doplňuje vstupní checklist; nenahrazuje právní posouzení.',
@@ -352,6 +409,20 @@ const STRINGS = {
     'app.logout': 'Sign out',
     'user.intakeTitle': 'Submission',
     'user.intakeDesc': 'Enter basic information about the planned activity and partner.',
+    'user.pvTitle': 'Natural person vetting request',
+    'user.pvLead':
+      'Request to initiate or register vetting of a natural person under IRIS. Enter publicly known details about the person and a short description of the matter.',
+    'user.pvHintOsint':
+      'Prefer information lawfully available from open sources. Do not enter sensitive personal data beyond what is already public.',
+    'user.pvLegendRequester': 'Requesting party',
+    'user.pvLblRequesterName': 'Requester full name *',
+    'user.pvLblRequesterEmail': 'Requester e-mail *',
+    'user.pvLegendLink': 'Link to existing case (optional)',
+    'user.pvLblSummary': 'Reason and scope of vetting requested *',
+    'user.pvSubmit': 'Submit vetting request',
+    'user.pvReset': 'Clear form',
+    'user.pvOk': 'Request received. Record ID: {id}',
+    'user.pvFail': 'Could not submit the request.',
     'user.lblApplicantName': 'Applicant name *',
     'user.lblApplicantEmail': 'Applicant e-mail *',
     'user.titleEmailReadonly': 'E-mail is tied to your sign-in',
@@ -585,6 +656,47 @@ const STRINGS = {
     'manager.hubPersonsDesc': 'Basics for vetting natural persons (OSINT, due diligence).',
     'manager.navInstitutions': 'Institutions & organisations',
     'manager.navPersons': 'Individuals',
+    'manager.hubPersonAnalysisTitle': 'Person analysis requests',
+    'manager.hubPersonAnalysisDesc': 'Form: subject, public identifiers, saved to Person_Analysis_Requests.',
+    'manager.navPersonAnalysis': 'Analysis requests',
+    'manager.paTitle': 'Person analysis requests (manager)',
+    'manager.paLead':
+      'Internal record for coordinating natural-person analysis (Person_Analysis_Requests; submission_channel = manager). Applicants use the separate “Natural person vetting request” form.',
+    'manager.paHintIdentifiers':
+      'Enter only information lawfully available from open sources (OSINT methodology). Do not enter sensitive personal data beyond what is already public.',
+    'manager.paLegendLink': 'Link to case (optional)',
+    'manager.paLblCaseId': 'Case ID',
+    'manager.paPhCaseId': 'e.g. CASE-2026-042',
+    'manager.paLblRecordUid': 'Reference ID',
+    'manager.paLegendSubject': 'Subject to be assessed',
+    'manager.paLblLegalName': 'Full legal name *',
+    'manager.paLblAltNames': 'Alternate spellings / maiden name / transliteration',
+    'manager.paLblDob': 'Year or date of birth (if publicly known)',
+    'manager.paLblCitizenship': 'Nationality (as publicly stated)',
+    'manager.paLblResidence': 'Country / region of usual activity',
+    'manager.paLblAffiliation': 'Institution / employer in context',
+    'manager.paLblRole': 'Role vis-à-vis UHK (e.g. visiting researcher, PI, expert)',
+    'manager.paLegendIds': 'Public identifiers and profiles (OSINT)',
+    'manager.paHintIds':
+      'Often discoverable: ORCID, Scopus Author ID, Web of Science ResearcherID, Google Scholar, LinkedIn, official institutional profile pages.',
+    'manager.paLblOrcid': 'ORCID',
+    'manager.paLblScopus': 'Scopus Author ID',
+    'manager.paLblWos': 'Web of Science ResearcherID',
+    'manager.paLblScholar': 'Google Scholar profile URL',
+    'manager.paLblLinkedin': 'Public LinkedIn profile URL',
+    'manager.paLblInstProfiles': 'Institutional profile URLs (one per line)',
+    'manager.paLblOtherUrls': 'Other public URLs (one per line)',
+    'manager.paLegendRequest': 'Request',
+    'manager.paLblSummary': 'What to verify / context and aim of analysis *',
+    'manager.paLblUrgency': 'Priority / urgency',
+    'manager.paUrgLow': 'Low',
+    'manager.paUrgMed': 'Medium',
+    'manager.paUrgHigh': 'High',
+    'manager.paLblIdSource': 'Where identifiers come from (publication, contract, UHK website, …)',
+    'manager.paSubmit': 'Submit to register',
+    'manager.paReset': 'Clear form',
+    'manager.paOk': 'Request saved. Record ID: {id}',
+    'manager.paFail': 'Could not save the request.',
     'manager.instTitle': 'Institutions and organisations checklist',
     'manager.instLead':
       'Orientation framework for vetting partners and legal entities in IRIS UHK. Complements the intake checklist; not legal advice.',
@@ -669,6 +781,10 @@ const submitButton = document.getElementById('submitButton');
 const saveDraftButton = document.getElementById('saveDraftButton');
 const loadDraftButton = document.getElementById('loadDraftButton');
 const fillDemoButton = document.getElementById('fillDemoButton');
+const applicantPersonVettingForm = document.getElementById('applicantPersonVettingForm');
+const pvSubmit = document.getElementById('pvSubmit');
+const pvFormMessage = document.getElementById('pvFormMessage');
+const pvApplicantEmail = document.getElementById('pv_applicant_email');
 
 const statusMessage = document.getElementById('statusMessage');
 const resultDetails = document.getElementById('resultDetails');
@@ -699,12 +815,18 @@ const managerSubNav = document.getElementById('managerSubNav');
 const navManagerDashboard = document.getElementById('navManagerDashboard');
 const navManagerInstitutions = document.getElementById('navManagerInstitutions');
 const navManagerPersons = document.getElementById('navManagerPersons');
+const navManagerPersonAnalysis = document.getElementById('navManagerPersonAnalysis');
 const managerHub = document.getElementById('managerHub');
 const hubBtnInstitutions = document.getElementById('hubBtnInstitutions');
 const hubBtnPersons = document.getElementById('hubBtnPersons');
+const hubBtnPersonAnalysis = document.getElementById('hubBtnPersonAnalysis');
 const managerViewDashboard = document.getElementById('managerViewDashboard');
 const managerViewInstitutions = document.getElementById('managerViewInstitutions');
 const managerViewPersons = document.getElementById('managerViewPersons');
+const managerViewPersonAnalysis = document.getElementById('managerViewPersonAnalysis');
+const personAnalysisForm = document.getElementById('personAnalysisForm');
+const personAnalysisFormMessage = document.getElementById('personAnalysisFormMessage');
+const personAnalysisSubmit = document.getElementById('personAnalysisSubmit');
 const sessionBadge = document.getElementById('sessionBadge');
 const logoutButton = document.getElementById('logoutButton');
 const managerStatusMessage = document.getElementById('managerStatusMessage');
@@ -787,11 +909,17 @@ function isSessionAdmin(session) {
   return Boolean(session && session.role === 'manager' && session.isAdmin === true);
 }
 
+/** Smazání případu v UI: API vrací can_delete_submissions pro role admin a iris_manager. */
+function isSessionCanDeleteSubmissions(session) {
+  return Boolean(session && session.role === 'manager' && session.canDeleteSubmissions === true);
+}
+
 function showManagerView(which) {
   const w = String(which || 'dashboard');
   const dash = w === 'dashboard';
   const inst = w === 'institutions';
   const pers = w === 'persons';
+  const pan = w === 'personAnalysis';
 
   if (managerViewDashboard) {
     managerViewDashboard.classList.toggle('hidden', !dash);
@@ -802,6 +930,9 @@ function showManagerView(which) {
   if (managerViewPersons) {
     managerViewPersons.classList.toggle('hidden', !pers);
   }
+  if (managerViewPersonAnalysis) {
+    managerViewPersonAnalysis.classList.toggle('hidden', !pan);
+  }
   if (navManagerDashboard) {
     navManagerDashboard.classList.toggle('is-active', dash);
   }
@@ -810,6 +941,9 @@ function showManagerView(which) {
   }
   if (navManagerPersons) {
     navManagerPersons.classList.toggle('is-active', pers);
+  }
+  if (navManagerPersonAnalysis) {
+    navManagerPersonAnalysis.classList.toggle('is-active', pan);
   }
   if (!dash) {
     closeManagerCasePanel();
@@ -855,6 +989,18 @@ function persistTesterApplicantEmail() {
   const em = form.elements.applicant_email.value.trim();
   if (!em) return;
   setSession({ ...session, testerApplicantEmail: em });
+  if (pvApplicantEmail) {
+    pvApplicantEmail.value = em;
+  }
+}
+
+function persistTesterApplicantEmailFromPv() {
+  const session = getSession();
+  if (!isManagerTesterSession(session) || !pvApplicantEmail || !form?.elements?.applicant_email) return;
+  const em = pvApplicantEmail.value.trim();
+  if (!em) return;
+  setSession({ ...session, testerApplicantEmail: em });
+  form.elements.applicant_email.value = em;
 }
 
 function enterTesterMode() {
@@ -865,6 +1011,7 @@ function enterTesterMode() {
     role: 'manager',
     managerKey: session.managerKey || '',
     isAdmin: session.isAdmin === true,
+    canDeleteSubmissions: session.canDeleteSubmissions === true,
     viewAs: 'tester',
     testerApplicantEmail: session.testerApplicantEmail || session.email,
   });
@@ -880,6 +1027,7 @@ function exitTesterMode() {
     role: 'manager',
     managerKey: session.managerKey || '',
     isAdmin: session.isAdmin === true,
+    canDeleteSubmissions: session.canDeleteSubmissions === true,
   });
   showApp(getSession());
   refreshForRole().catch(() => {});
@@ -913,6 +1061,18 @@ function showLogin() {
   layoutManager.classList.add('hidden');
 }
 
+function syncApplicantPersonVettingFromSession(session) {
+  if (!session || !pvApplicantEmail) return;
+  if (session.role !== 'user' && !isManagerTesterSession(session)) return;
+  const tester = isManagerTesterSession(session);
+  pvApplicantEmail.value = tester
+    ? String(session.testerApplicantEmail || session.email || '')
+    : session.email;
+  pvApplicantEmail.readOnly = !tester;
+  pvApplicantEmail.classList.toggle('input-readonly', !tester);
+  pvApplicantEmail.title = tester ? '' : t('user.titleEmailReadonly');
+}
+
 function showApp(session) {
   loginScreen.classList.add('hidden');
   appRoot.classList.remove('hidden');
@@ -940,6 +1100,7 @@ function showApp(session) {
       emailInput.classList.toggle('input-readonly', !tester);
       emailInput.title = tester ? '' : t('user.titleEmailReadonly');
     }
+    syncApplicantPersonVettingFromSession(session);
     if (resultDetails.classList.contains('hidden')) {
       setStatus(t('user.statusNone'), 'neutral');
     }
@@ -1075,6 +1236,7 @@ managerLoginForm.addEventListener('submit', async (e) => {
       role: 'manager',
       managerKey: MANAGER_STATIC_KEY || '',
       isAdmin: MANAGER_PIN_AS_ADMIN === true,
+      canDeleteSubmissions: MANAGER_PIN_AS_ADMIN === true,
     });
     showApp(getSession());
     await refreshForRole();
@@ -1095,6 +1257,9 @@ managerLoginForm.addEventListener('submit', async (e) => {
         role: 'manager',
         managerKey: mk,
         isAdmin: data.is_admin === true,
+        canDeleteSubmissions:
+          data.can_delete_submissions === true ||
+          data.is_admin === true,
       });
       showApp(getSession());
       await refreshForRole();
@@ -1820,6 +1985,7 @@ async function submitForm(event) {
       form.elements.applicant_email.readOnly = false;
       form.elements.applicant_email.classList.remove('input-readonly');
     }
+    syncApplicantPersonVettingFromSession(sAfter);
   } catch (error) {
     setStatus(error.message || t('submit.error'), 'error');
   } finally {
@@ -1871,6 +2037,9 @@ if (loadDraftButton) {
 
 if (form.elements.applicant_email) {
   form.elements.applicant_email.addEventListener('blur', persistTesterApplicantEmail);
+}
+if (pvApplicantEmail) {
+  pvApplicantEmail.addEventListener('blur', persistTesterApplicantEmailFromPv);
 }
 
 if (btnEnterTesterMode) {
@@ -1940,6 +2109,126 @@ if (hubBtnPersons) {
     showManagerView('persons');
   });
 }
+if (navManagerPersonAnalysis) {
+  navManagerPersonAnalysis.addEventListener('click', (ev) => {
+    ev.preventDefault();
+    if (isManagerTesterSession(getSession())) return;
+    showManagerView('personAnalysis');
+  });
+}
+if (hubBtnPersonAnalysis) {
+  hubBtnPersonAnalysis.addEventListener('click', (ev) => {
+    ev.preventDefault();
+    if (isManagerTesterSession(getSession())) return;
+    showManagerView('personAnalysis');
+  });
+}
+
+function setPersonAnalysisFormMessage(text, isError) {
+  if (!personAnalysisFormMessage) return;
+  personAnalysisFormMessage.textContent = text || '';
+  personAnalysisFormMessage.classList.toggle('hidden', !text);
+  personAnalysisFormMessage.classList.toggle('login-success', Boolean(text) && !isError);
+  personAnalysisFormMessage.style.color = isError ? 'var(--danger-text)' : '';
+}
+
+if (personAnalysisForm && personAnalysisSubmit) {
+  personAnalysisForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    setPersonAnalysisFormMessage('', false);
+    const session = getSession();
+    if (!session || session.role !== 'manager' || !session.managerKey || isManagerTesterSession(session)) {
+      setPersonAnalysisFormMessage(t('manager.paFail'), true);
+      return;
+    }
+    const fd = new FormData(personAnalysisForm);
+    const payload = {
+      action: 'submit_person_analysis',
+      manager_key: session.managerKey,
+      manager_email: session.email,
+    };
+    fd.forEach((value, key) => {
+      if (typeof value === 'string') payload[key] = value.trim();
+    });
+    personAnalysisSubmit.disabled = true;
+    try {
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || !data.ok) {
+        throw new Error(data.message || t('manager.paFail'));
+      }
+      const pid = String(data.person_analysis_id || '').trim();
+      setPersonAnalysisFormMessage(t('manager.paOk', { id: pid || '—' }), false);
+      personAnalysisForm.reset();
+    } catch (err) {
+      setPersonAnalysisFormMessage(err.message || t('manager.paFail'), true);
+    } finally {
+      personAnalysisSubmit.disabled = false;
+    }
+  });
+}
+
+function setPvFormMessage(text, isError) {
+  if (!pvFormMessage) return;
+  pvFormMessage.textContent = text || '';
+  pvFormMessage.classList.toggle('hidden', !text);
+  pvFormMessage.classList.toggle('login-success', Boolean(text) && !isError);
+  pvFormMessage.style.color = isError ? 'var(--danger-text)' : '';
+}
+
+if (applicantPersonVettingForm && pvSubmit) {
+  applicantPersonVettingForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    setPvFormMessage('', false);
+    const session = getSession();
+    const asTester = isManagerTesterSession(session);
+    if (!session || (session.role !== 'user' && !asTester)) {
+      setPvFormMessage(t('user.pvFail'), true);
+      return;
+    }
+    const fd = new FormData(applicantPersonVettingForm);
+    const payload = { action: 'submit_applicant_person_vetting' };
+    fd.forEach((value, key) => {
+      if (typeof value !== 'string') return;
+      if (key.startsWith('pv_')) {
+        payload[key.replace(/^pv_/, '')] = value.trim();
+      }
+    });
+    if (
+      !payload.applicant_email ||
+      !payload.applicant_name ||
+      !payload.subject_legal_name ||
+      !payload.request_summary
+    ) {
+      setPvFormMessage(t('user.pvFail'), true);
+      return;
+    }
+    pvSubmit.disabled = true;
+    try {
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || !data.ok) {
+        throw new Error(data.message || t('user.pvFail'));
+      }
+      const pid = String(data.person_analysis_id || '').trim();
+      setPvFormMessage(t('user.pvOk', { id: pid || '—' }), false);
+      applicantPersonVettingForm.reset();
+      syncApplicantPersonVettingFromSession(getSession());
+    } catch (err) {
+      setPvFormMessage(err.message || t('user.pvFail'), true);
+    } finally {
+      pvSubmit.disabled = false;
+    }
+  });
+}
 
 function closeManagerCasePanel() {
   if (!managerCasePanel) return;
@@ -1992,7 +2281,7 @@ function openManagerCasePanel(caseId, recordUid) {
   if (managerNextAnalysisDue) managerNextAnalysisDue.value = dateInputFromCellValue(item.next_analysis_due);
 
   if (managerCaseDelete) {
-    managerCaseDelete.classList.toggle('hidden', !isSessionAdmin(getSession()));
+    managerCaseDelete.classList.toggle('hidden', !isSessionCanDeleteSubmissions(getSession()));
   }
 
   managerCasePanel.classList.remove('hidden');
@@ -2011,7 +2300,7 @@ managerCaseCancel.addEventListener('click', () => closeManagerCasePanel());
 if (managerCaseDelete) {
   managerCaseDelete.addEventListener('click', async () => {
     const session = getSession();
-    if (!session || !isSessionAdmin(session) || !session.managerKey) return;
+    if (!session || !isSessionCanDeleteSubmissions(session) || !session.managerKey) return;
     const caseId = managerEditCaseId.value.trim();
     if (!caseId) return;
     if (!window.confirm(t('admin.deleteConfirm'))) return;
