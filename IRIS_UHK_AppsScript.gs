@@ -6,7 +6,8 @@
  *   email | password | role | active
  *   Doporučené navíc: name (jméno žadatele), registered_at (datum registrace – vyplní skript)
  *   role: user | manager | iris_manager | admin
- *   Účet s role admin v listu Users: při přihlášení v záložce IRIS Manager API vrací is_admin: true (aplikace zobrazí interní stránku Prověrky OSINT/DD).
+ *   Účet s role admin v listu Users: při přihlášení API vrací is_admin: true a can_delete_submissions: true.
+ *   Role iris_manager: can_delete_submissions: true (smazání případu v aplikaci), is_admin: false.
  *   active: TRUE / FALSE (žádost o přístup ukládá user + active TRUE)
  *   Heslo je v tabulce jako prostý text (vnitřní nástroj).
  *
@@ -15,7 +16,10 @@
  *   Dashboard a „plný“ seznam cases: ?manager_key=... (klient ho dostane v odpovědi na úspěšné přihlášení správce.)
  *   Testovací podání checklistu od správce: POST stejné tělo jako intake + test_intake: true + manager_key
  *   (neověřuje se list Users; vyžaduje platný klíč po přihlášení správce / vytvořený při něm.)
- *   Smazání podání (admin): POST JSON action delete_submission + manager_key + admin_email + case_id (admin_email musí mít v Users roli admin).
+ *   Smazání podání: POST action delete_submission + manager_key + admin_email + case_id
+ *     (admin_email musí mít v Users roli admin nebo iris_manager).
+ *   Podněty k analýze osob (správce): POST submit_person_analysis + manager_key + manager_email + … → Person_Analysis_Requests (submission_channel=manager).
+ *   Podání prověrky FO (žadatel): POST submit_applicant_person_vetting + applicant_email + applicant_name + … → stejný list (submission_channel=applicant).
  *
  * List Cases – začátek hlavičky (1. řádek) typicky:
  *   case_id | record_uid | created_at | created_by | source_intake_id | current_phase | …
@@ -55,9 +59,40 @@ const IRIS_CONFIG = {
     events: 'Case_Events',
     notifications: 'Notifications',
     countries: 'Countries',
+    personAnalysis: 'Person_Analysis_Requests',
   },
   testEmail: 'hana.tomaskova@uhk.cz',
 };
+
+/** Hlavička listu Person_Analysis_Requests (1. řádek); při prvním podnětu list založí skript. */
+const PERSON_ANALYSIS_REQUEST_HEADERS_ = [
+  'person_analysis_id',
+  'submitted_at',
+  'submitter_email',
+  'submitter_name',
+  'submission_channel',
+  'related_case_id',
+  'related_record_uid',
+  'subject_legal_name',
+  'subject_alternate_names',
+  'subject_dob_or_year',
+  'subject_citizenships',
+  'subject_country_residence',
+  'subject_affiliation',
+  'subject_role_in_matter',
+  'id_orcid',
+  'id_scopus_author_id',
+  'id_wos_researcher_id',
+  'id_google_scholar_url',
+  'id_linkedin_url',
+  'id_institutional_profiles',
+  'id_other_public_urls',
+  'request_summary',
+  'urgency',
+  'identifier_source_note',
+  'status',
+  'raw_payload_json',
+];
 
 /** Stejná záložka checklistu pod alternativním názvem (Apps Script rozlišuje velikost písmen). */
 const IRIS_INTAKE_SHEET_ALIASES = ['Intake_checklist'];
@@ -95,6 +130,14 @@ function doPost(e) {
 
     if (action === 'delete_submission') {
       return handleDeleteSubmission_(data);
+    }
+
+    if (action === 'submit_person_analysis') {
+      return handlePersonAnalysisRequest_(data);
+    }
+
+    if (action === 'submit_applicant_person_vetting') {
+      return handleApplicantPersonVetting_(data);
     }
 
     return processIntakeSubmission_(data);
@@ -148,6 +191,8 @@ function handleLogin_(data) {
   if (requestedRole === 'manager') {
     payload.manager_key = getOrCreateManagerKey_();
     payload.is_admin = sheetRole === 'admin';
+    /** Mazání případu/podání v UI: admin nebo iris_manager (ověření i na serveru u delete_submission). */
+    payload.can_delete_submissions = sheetRole === 'admin' || sheetRole === 'iris_manager';
   }
 
   return jsonResponse_(200, payload);
@@ -390,27 +435,138 @@ function findRowNumbersMatchingColumn_(sheet, headerName, wantValue) {
   return out.sort((a, b) => b - a);
 }
 
-function verifyAdminByEmail_(email) {
+function verifyCanDeleteSubmissionByEmail_(email) {
   const row = findUserByEmail_(email);
   if (!row || !isActive_(row.active)) {
-    throw new Error('Účet pro potvrzení admina nenalezen nebo není aktivní.');
+    throw new Error('Účet pro smazání nenalezen nebo není aktivní.');
   }
   const r = String(row.role || '')
     .trim()
     .toLowerCase();
-  if (r !== 'admin') {
-    throw new Error('Smazání podání a případu je povoleno jen účtu s rolí admin v listu Users.');
+  if (r !== 'admin' && r !== 'iris_manager') {
+    throw new Error(
+      'Smazání podání a případu je povoleno jen účtům s rolí admin nebo iris_manager v listu Users.'
+    );
+  }
+}
+
+function verifyActiveIrisStaffForPersonAnalysis_(email) {
+  const row = findUserByEmail_(email);
+  if (!row || !isActive_(row.active)) {
+    throw new Error('Účet správce nenalezen nebo není aktivní.');
+  }
+  const r = String(row.role || '')
+    .trim()
+    .toLowerCase();
+  if (!['manager', 'iris_manager', 'admin'].includes(r)) {
+    throw new Error('Podněty k analýze osob mohou zadávat jen přihlášení správci IRIS.');
+  }
+}
+
+function getOrEnsurePersonAnalysisSheet_(ss) {
+  const name = IRIS_CONFIG.sheets.personAnalysis;
+  let sh = ss.getSheetByName(name);
+  if (sh) {
+    return sh;
+  }
+  sh = ss.insertSheet(name);
+  sh.getRange(1, 1, 1, PERSON_ANALYSIS_REQUEST_HEADERS_.length).setValues([PERSON_ANALYSIS_REQUEST_HEADERS_]);
+  return sh;
+}
+
+/**
+ * Společný zápis řádku do Person_Analysis_Requests.
+ * submission_channel: manager | applicant
+ */
+function personAnalysisSaveRow_(data, submitterEmail, submitterName, submissionChannel) {
+  const lock = LockService.getScriptLock();
+  lock.waitLock(30000);
+  try {
+    const ss = SpreadsheetApp.openById(IRIS_CONFIG.spreadsheetId);
+    const sh = getOrEnsurePersonAnalysisSheet_(ss);
+    const now = new Date();
+    const pid = generateSequentialId_(sh, 'PAR');
+
+    const rowObj = {
+      person_analysis_id: pid,
+      submitted_at: now,
+      submitter_email: String(submitterEmail || '').trim(),
+      submitter_name: String(submitterName || '').trim(),
+      submission_channel: String(submissionChannel || '').trim(),
+      related_case_id: String(data.related_case_id || '').trim(),
+      related_record_uid: String(data.related_record_uid || '').trim(),
+      subject_legal_name: String(data.subject_legal_name || '').trim(),
+      subject_alternate_names: String(data.subject_alternate_names || '').trim(),
+      subject_dob_or_year: String(data.subject_dob_or_year || '').trim(),
+      subject_citizenships: String(data.subject_citizenships || '').trim(),
+      subject_country_residence: String(data.subject_country_residence || '').trim(),
+      subject_affiliation: String(data.subject_affiliation || '').trim(),
+      subject_role_in_matter: String(data.subject_role_in_matter || '').trim(),
+      id_orcid: String(data.id_orcid || '').trim(),
+      id_scopus_author_id: String(data.id_scopus_author_id || '').trim(),
+      id_wos_researcher_id: String(data.id_wos_researcher_id || '').trim(),
+      id_google_scholar_url: String(data.id_google_scholar_url || '').trim(),
+      id_linkedin_url: String(data.id_linkedin_url || '').trim(),
+      id_institutional_profiles: String(data.id_institutional_profiles || '').trim(),
+      id_other_public_urls: String(data.id_other_public_urls || '').trim(),
+      request_summary: String(data.request_summary || '').trim(),
+      urgency: String(data.urgency || 'medium').trim(),
+      identifier_source_note: String(data.identifier_source_note || '').trim(),
+      status: 'new',
+      raw_payload_json: JSON.stringify(data),
+    };
+
+    appendByHeaders_(sh, rowObj);
+
+    const msg =
+      submissionChannel === 'applicant'
+        ? 'Podání prověrky fyzické osoby bylo přijato.'
+        : 'Podnět k analýze osoby byl uložen do tabulky.';
+    return jsonResponse_(200, {
+      ok: true,
+      message: msg,
+      person_analysis_id: pid,
+    });
+  } finally {
+    lock.releaseLock();
   }
 }
 
 /**
- * Admin: smaže řádek Cases, související Intake, Events a Notifications pro dané case_id.
+ * Podnět k analýze fyzické osoby (správce IRIS). Uložení do Person_Analysis_Requests.
+ * POST: { action, manager_key, manager_email, subject_legal_name, request_summary, … }
+ */
+function handlePersonAnalysisRequest_(data) {
+  assertManagerKeyFromPayload_(data);
+  validateRequiredFields_(data, ['manager_email', 'subject_legal_name', 'request_summary']);
+  verifyActiveIrisStaffForPersonAnalysis_(data.manager_email);
+
+  const mgr = findUserByEmail_(data.manager_email);
+  const subName = String((mgr && mgr.name) || '').trim();
+  const subEm = String(mgr ? mgr.email || data.manager_email : data.manager_email).trim();
+  return personAnalysisSaveRow_(data, subEm, subName, 'manager');
+}
+
+/**
+ * Podání prověrky fyzické osoby (žadatel – role user v Users).
+ * POST: { action, applicant_email, applicant_name, subject_legal_name, request_summary, … }
+ */
+function handleApplicantPersonVetting_(data) {
+  validateRequiredFields_(data, ['applicant_email', 'applicant_name', 'subject_legal_name', 'request_summary']);
+  verifyApplicantForIntake_(data.applicant_email);
+  const subEm = String(data.applicant_email || '').trim();
+  const subName = String(data.applicant_name || '').trim();
+  return personAnalysisSaveRow_(data, subEm, subName, 'applicant');
+}
+
+/**
+ * Admin / iris_manager: smaže řádek Cases, související Intake, Events a Notifications pro dané case_id.
  * POST: { action: 'delete_submission', manager_key, admin_email, case_id }
  */
 function handleDeleteSubmission_(data) {
   assertManagerKeyFromPayload_(data);
   validateRequiredFields_(data, ['case_id', 'admin_email']);
-  verifyAdminByEmail_(data.admin_email);
+  verifyCanDeleteSubmissionByEmail_(data.admin_email);
 
   const caseId = String(data.case_id || '').trim();
   if (!caseId) {
@@ -422,6 +578,9 @@ function handleDeleteSubmission_(data) {
   try {
     const ss = SpreadsheetApp.openById(IRIS_CONFIG.spreadsheetId);
     const casesSheet = ss.getSheetByName(IRIS_CONFIG.sheets.cases);
+    if (!casesSheet) {
+      return jsonResponse_(500, { ok: false, message: 'List Cases chybí v sešitu.' });
+    }
     const intakeSheet = getIntakeSheet_(ss);
     const eventsSheet = ss.getSheetByName(IRIS_CONFIG.sheets.events);
     const notificationsSheet = ss.getSheetByName(IRIS_CONFIG.sheets.notifications);
@@ -1943,6 +2102,9 @@ function generateSequentialId_(sheet, prefix) {
       if (idx !== -1) colIdx = idx;
     } else if (prefix === 'INT') {
       const idx = headers.indexOf('intake_id');
+      if (idx !== -1) colIdx = idx;
+    } else if (prefix === 'PAR') {
+      const idx = headers.indexOf('person_analysis_id');
       if (idx !== -1) colIdx = idx;
     }
 
