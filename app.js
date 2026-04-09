@@ -337,6 +337,13 @@ const STRINGS = {
     'manager.hubTitle': 'Rozcestník',
     'manager.hubLead':
       'Metodické check-listy pro prověřování subjektů. Přehled případů a dashboard IRIS otevřete záložkou „Přehled IRIS“.',
+    'manager.hubLeadAdmin':
+      'Přehled případů IRIS a evidence prověrek osob (PAR). Pracujte ve správě případů a v tabulce PAR podle oprávnění účtu.',
+    'manager.hubDashTileTitle': 'Přehled případů (IRIS)',
+    'manager.hubDashTileDesc': 'Dashboard, seznam případů a úpravy záznamů v režimu IRIS.',
+    'manager.hubParTileTitle': 'Evidence prověrek osob (PAR)',
+    'manager.hubParTileDesc': 'Záznamy z listu Person_Analysis_Requests.',
+    'manager.navPar': 'Evidence PAR',
     'manager.hubInstitutionsTitle': 'Check-list institucí a organizací',
     'manager.hubInstitutionsDesc': 'Základní rámec DD a OSINT pro právnické osoby a partnery.',
     'manager.hubPersonsTitle': 'Check-list osob',
@@ -396,7 +403,7 @@ const STRINGS = {
     'user.draftFail': 'Koncept se nepodařilo uložit (blokované úložiště prohlížeče?).',
     'user.hubTitle': 'Rozcestník',
     'user.hubLeadApplicant':
-      'Metodické check-listy pro prověřování subjektů. Kachlíky níže otevřou metodiku; v liště najdete také formuláře a přehled svých požadavků.',
+      'Kachlíky níže otevřou přímo formulář check-listu. Metodické pokyny si můžete rozkliknout u formuláře; v liště je také přehled vašich požadavků.',
     'user.subNavAria': 'Navigace žadatele',
     'user.navInstMethod': 'Metodika – instituce',
     'user.navPersonMethod': 'Metodika – osoby',
@@ -747,6 +754,13 @@ const STRINGS = {
     'manager.hubTitle': 'Directory',
     'manager.hubLead':
       'Methodology checklists for vetting subjects. Open the case dashboard with “IRIS overview”.',
+    'manager.hubLeadAdmin':
+      'IRIS case overview and person vetting records (PAR). Work in case management and the PAR table according to your account permissions.',
+    'manager.hubDashTileTitle': 'Case overview (IRIS)',
+    'manager.hubDashTileDesc': 'Dashboard, case list, and record updates in IRIS mode.',
+    'manager.hubParTileTitle': 'Person vetting records (PAR)',
+    'manager.hubParTileDesc': 'Rows from the Person_Analysis_Requests sheet.',
+    'manager.navPar': 'PAR records',
     'manager.hubInstitutionsTitle': 'Institutions and organisations checklist',
     'manager.hubInstitutionsDesc': 'Basic DD and OSINT framework for legal entities and partners.',
     'manager.hubPersonsTitle': 'Individuals checklist',
@@ -806,7 +820,7 @@ const STRINGS = {
     'user.draftFail': 'Could not save draft (browser storage blocked?).',
     'user.hubTitle': 'Directory',
     'user.hubLeadApplicant':
-      'Methodology checklists for vetting subjects. Tiles below open the methodology; the bar links to forms and your requests.',
+      'Tiles below open the checklist form directly. You can expand methodology on the form page; the bar also lists your requests.',
     'user.subNavAria': 'Applicant navigation',
     'user.navInstMethod': 'Methodology – institutions',
     'user.navPersonMethod': 'Methodology – individuals',
@@ -865,9 +879,16 @@ const STRINGS = {
  * chybí novější klíče (jinak by se na stránce zobrazoval samotný klíč).
  */
 const I18N_FALLBACK_CS = {
+  'manager.hubLeadAdmin':
+    'Přehled případů IRIS a evidence prověrek osob (PAR). Pracujte ve správě případů a v tabulce PAR podle oprávnění účtu.',
+  'manager.hubDashTileTitle': 'Přehled případů (IRIS)',
+  'manager.hubDashTileDesc': 'Dashboard, seznam případů a úpravy záznamů v režimu IRIS.',
+  'manager.hubParTileTitle': 'Evidence prověrek osob (PAR)',
+  'manager.hubParTileDesc': 'Záznamy z listu Person_Analysis_Requests.',
+  'manager.navPar': 'Evidence PAR',
   'user.hubTitle': 'Rozcestník',
   'user.hubLeadApplicant':
-    'Metodické check-listy pro prověřování subjektů. Kachlíky níže otevřou metodiku; v liště najdete také formuláře a přehled svých požadavků.',
+    'Kachlíky níže otevřou přímo formulář check-listu. Metodické pokyny si můžete rozkliknout u formuláře; v liště je také přehled vašich požadavků.',
   'user.navInstMethod': 'Metodika – instituce',
   'user.navPersonMethod': 'Metodika – osoby',
   'user.navInstForm': 'Check-list institucí (formulář)',
@@ -903,9 +924,16 @@ const I18N_FALLBACK_CS = {
   'manager.promptNeedCase': 'Nejprve otevřete případ v tabulce (tlačítko Spravovat).',
 };
 const I18N_FALLBACK_EN = {
+  'manager.hubLeadAdmin':
+    'IRIS case overview and person vetting records (PAR). Work in case management and the PAR table according to your account permissions.',
+  'manager.hubDashTileTitle': 'Case overview (IRIS)',
+  'manager.hubDashTileDesc': 'Dashboard, case list, and record updates in IRIS mode.',
+  'manager.hubParTileTitle': 'Person vetting records (PAR)',
+  'manager.hubParTileDesc': 'Rows from the Person_Analysis_Requests sheet.',
+  'manager.navPar': 'PAR records',
   'user.hubTitle': 'Directory',
   'user.hubLeadApplicant':
-    'Methodology checklists for vetting subjects. Tiles below open the methodology; the bar links to forms and your requests.',
+    'Tiles below open the checklist form directly. You can expand methodology on the form page; the bar also lists your requests.',
   'user.navInstMethod': 'Methodology – institutions',
   'user.navPersonMethod': 'Methodology – individuals',
   'user.navInstForm': 'Institution checklist (form)',
@@ -1014,13 +1042,9 @@ const pvLoadDraftButton = document.getElementById('pvLoadDraftButton');
 const userPersonRequestsTableBody = document.getElementById('userPersonRequestsTableBody');
 const userHubBtnInstitutions = document.getElementById('userHubBtnInstitutions');
 const userHubBtnPersons = document.getElementById('userHubBtnPersons');
-const navUserInstMethod = document.getElementById('navUserInstMethod');
-const navUserPersonMethod = document.getElementById('navUserPersonMethod');
 const navUserInstForm = document.getElementById('navUserInstForm');
 const navUserPersonForm = document.getElementById('navUserPersonForm');
 const navUserRequests = document.getElementById('navUserRequests');
-const userViewInstMethod = document.getElementById('userViewInstMethod');
-const userViewPersonMethod = document.getElementById('userViewPersonMethod');
 const userViewInstForm = document.getElementById('userViewInstForm');
 const userViewPersonForm = document.getElementById('userViewPersonForm');
 const userViewRequests = document.getElementById('userViewRequests');
@@ -1055,14 +1079,12 @@ const layoutUser = document.getElementById('layoutUser');
 const layoutManager = document.getElementById('layoutManager');
 const managerSubNav = document.getElementById('managerSubNav');
 const navManagerDashboard = document.getElementById('navManagerDashboard');
-const navManagerInstitutions = document.getElementById('navManagerInstitutions');
-const navManagerPersons = document.getElementById('navManagerPersons');
-const navManagerPersonAnalysis = document.getElementById('navManagerPersonAnalysis');
+const navManagerPar = document.getElementById('navManagerPar');
 const managerHub = document.getElementById('managerHub');
-const hubBtnInstitutions = document.getElementById('hubBtnInstitutions');
-const hubBtnPersons = document.getElementById('hubBtnPersons');
-const hubBtnPersonAnalysis = document.getElementById('hubBtnPersonAnalysis');
+const hubBtnDashboard = document.getElementById('hubBtnDashboard');
+const hubBtnPar = document.getElementById('hubBtnPar');
 const managerViewDashboard = document.getElementById('managerViewDashboard');
+const managerDashboardMain = document.getElementById('managerDashboardMain');
 const managerViewInstitutions = document.getElementById('managerViewInstitutions');
 const managerViewPersons = document.getElementById('managerViewPersons');
 const managerViewPersonAnalysis = document.getElementById('managerViewPersonAnalysis');
@@ -1159,36 +1181,38 @@ function isSessionCanDeleteSubmissions(session) {
 function showManagerView(which) {
   const w = String(which || 'dashboard');
   const dash = w === 'dashboard';
-  const inst = w === 'institutions';
-  const pers = w === 'persons';
-  const pan = w === 'personAnalysis';
+  const par = w === 'par';
+  const inIrisOrPar = dash || par;
 
   if (managerViewDashboard) {
-    managerViewDashboard.classList.toggle('hidden', !dash);
+    managerViewDashboard.classList.toggle('hidden', !inIrisOrPar);
+  }
+  if (managerDashboardMain) {
+    managerDashboardMain.classList.toggle('hidden', !dash);
+  }
+  if (managerParListSection) {
+    managerParListSection.classList.toggle('hidden', !par);
   }
   if (managerViewInstitutions) {
-    managerViewInstitutions.classList.toggle('hidden', !inst);
+    managerViewInstitutions.classList.add('hidden');
   }
   if (managerViewPersons) {
-    managerViewPersons.classList.toggle('hidden', !pers);
+    managerViewPersons.classList.add('hidden');
   }
   if (managerViewPersonAnalysis) {
-    managerViewPersonAnalysis.classList.toggle('hidden', !pan);
+    managerViewPersonAnalysis.classList.toggle('hidden', !par);
   }
   if (navManagerDashboard) {
     navManagerDashboard.classList.toggle('is-active', dash);
   }
-  if (navManagerInstitutions) {
-    navManagerInstitutions.classList.toggle('is-active', inst);
-  }
-  if (navManagerPersons) {
-    navManagerPersons.classList.toggle('is-active', pers);
-  }
-  if (navManagerPersonAnalysis) {
-    navManagerPersonAnalysis.classList.toggle('is-active', pan);
+  if (navManagerPar) {
+    navManagerPar.classList.toggle('is-active', par);
   }
   if (!dash) {
     closeManagerCasePanel();
+  }
+  if (par) {
+    loadManagerPersonAnalysisList().catch(() => {});
   }
 }
 
@@ -1909,8 +1933,6 @@ function ensureUserMethodologyCloned() {
 function updateUserSubNavActive(which) {
   const w = String(which || 'instForm');
   const map = [
-    ['instMethod', navUserInstMethod],
-    ['personMethod', navUserPersonMethod],
     ['instForm', navUserInstForm],
     ['personForm', navUserPersonForm],
     ['requests', navUserRequests],
@@ -1925,15 +1947,11 @@ let currentUserMainView = 'instForm';
 function showUserView(which) {
   const w = String(which || 'instForm');
   currentUserMainView = w;
-  const instM = w === 'instMethod';
-  const persM = w === 'personMethod';
   const instF = w === 'instForm';
   const persF = w === 'personForm';
   const req = w === 'requests';
 
   ensureUserMethodologyCloned();
-  if (userViewInstMethod) userViewInstMethod.classList.toggle('hidden', !instM);
-  if (userViewPersonMethod) userViewPersonMethod.classList.toggle('hidden', !persM);
   if (userViewInstForm) userViewInstForm.classList.toggle('hidden', !instF);
   if (userViewPersonForm) userViewPersonForm.classList.toggle('hidden', !persF);
   if (userViewRequests) userViewRequests.classList.toggle('hidden', !req);
@@ -2338,14 +2356,8 @@ async function loadManagerPersonAnalysisList() {
   if (!managerParTableBody) return;
   const session = getSession();
   if (!session || session.role !== 'manager' || !session.managerKey || isManagerTesterSession(session)) {
-    if (managerParListSection) managerParListSection.classList.add('hidden');
     return;
   }
-  if (!isSessionCanDeleteSubmissions(session)) {
-    if (managerParListSection) managerParListSection.classList.add('hidden');
-    return;
-  }
-  if (managerParListSection) managerParListSection.classList.remove('hidden');
   managerParTableBody.innerHTML = `<tr><td colspan="7" class="empty-row">${escapeHtml(t('manager.loadingCases'))}</td></tr>`;
   try {
     const params = new URLSearchParams({
@@ -2637,25 +2649,13 @@ if (pvApplicantEmail) {
 if (userHubBtnInstitutions) {
   userHubBtnInstitutions.addEventListener('click', (ev) => {
     ev.preventDefault();
-    showUserView('instMethod');
+    showUserView('instForm');
   });
 }
 if (userHubBtnPersons) {
   userHubBtnPersons.addEventListener('click', (ev) => {
     ev.preventDefault();
-    showUserView('personMethod');
-  });
-}
-if (navUserInstMethod) {
-  navUserInstMethod.addEventListener('click', (ev) => {
-    ev.preventDefault();
-    showUserView('instMethod');
-  });
-}
-if (navUserPersonMethod) {
-  navUserPersonMethod.addEventListener('click', (ev) => {
-    ev.preventDefault();
-    showUserView('personMethod');
+    showUserView('personForm');
   });
 }
 if (navUserInstForm) {
@@ -2779,46 +2779,24 @@ if (navManagerDashboard) {
     showManagerView('dashboard');
   });
 }
-if (navManagerInstitutions) {
-  navManagerInstitutions.addEventListener('click', (ev) => {
+if (navManagerPar) {
+  navManagerPar.addEventListener('click', (ev) => {
     ev.preventDefault();
     if (isManagerTesterSession(getSession())) return;
-    showManagerView('institutions');
+    showManagerView('par');
   });
 }
-if (navManagerPersons) {
-  navManagerPersons.addEventListener('click', (ev) => {
+if (hubBtnDashboard) {
+  hubBtnDashboard.addEventListener('click', (ev) => {
     ev.preventDefault();
-    if (isManagerTesterSession(getSession())) return;
-    showManagerView('persons');
+    showManagerView('dashboard');
   });
 }
-if (hubBtnInstitutions) {
-  hubBtnInstitutions.addEventListener('click', (ev) => {
+if (hubBtnPar) {
+  hubBtnPar.addEventListener('click', (ev) => {
     ev.preventDefault();
     if (isManagerTesterSession(getSession())) return;
-    showManagerView('institutions');
-  });
-}
-if (hubBtnPersons) {
-  hubBtnPersons.addEventListener('click', (ev) => {
-    ev.preventDefault();
-    if (isManagerTesterSession(getSession())) return;
-    showManagerView('persons');
-  });
-}
-if (navManagerPersonAnalysis) {
-  navManagerPersonAnalysis.addEventListener('click', (ev) => {
-    ev.preventDefault();
-    if (isManagerTesterSession(getSession())) return;
-    showManagerView('personAnalysis');
-  });
-}
-if (hubBtnPersonAnalysis) {
-  hubBtnPersonAnalysis.addEventListener('click', (ev) => {
-    ev.preventDefault();
-    if (isManagerTesterSession(getSession())) return;
-    showManagerView('personAnalysis');
+    showManagerView('par');
   });
 }
 
