@@ -304,6 +304,45 @@ body {
   font-weight: 700;
 }
 
+.manager-case-form-msg--error {
+  color: var(--danger-text, #8b1a1a);
+}
+
+.manager-prompt-fieldset {
+  margin-top: 8px;
+}
+
+.manager-prompt-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.methodology-details {
+  margin-top: 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0 14px 12px;
+  background: var(--surface-soft, var(--surface));
+}
+
+.methodology-details__summary {
+  cursor: pointer;
+  font-weight: 600;
+  padding: 12px 0 8px;
+  list-style-position: outside;
+}
+
+.methodology-details__summary::-webkit-details-marker,
+.methodology-details__summary::marker {
+  color: var(--uhk-green, #006b3f);
+}
+
+.methodology-details__body {
+  padding-top: 4px;
+}
+
 .btn-compact {
   padding: 8px 12px;
   font-size: 13px;
