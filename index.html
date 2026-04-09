@@ -134,9 +134,9 @@
 
         <section id="userHub" class="card manager-hub-card">
           <div class="card-header">
-            <h2 data-i18n="manager.hubTitle">Rozcestník</h2>
+            <h2 data-i18n="user.hubTitle">Rozcestník</h2>
             <p data-i18n="user.hubLeadApplicant">
-              Metodické check-listy pro prověřování subjektů. Níže otevřete metodiku, formuláře nebo přehled svých požadavků.
+              Metodické check-listy pro prověřování subjektů. Kachlíky níže otevřou metodiku; v liště najdete také formuláře a přehled svých požadavků.
             </p>
           </div>
           <div class="manager-hub-grid">
@@ -154,8 +154,8 @@
         <nav id="userSubNav" class="manager-sub-nav" data-i18n-aria="user.subNavAria" aria-label="Navigace žadatele">
           <button type="button" class="manager-sub-nav__btn" id="navUserInstMethod" data-i18n="user.navInstMethod">Metodika – instituce</button>
           <button type="button" class="manager-sub-nav__btn" id="navUserPersonMethod" data-i18n="user.navPersonMethod">Metodika – osoby</button>
-          <button type="button" class="manager-sub-nav__btn is-active" id="navUserInstForm" data-i18n="user.navInstForm">Check-list institucí</button>
-          <button type="button" class="manager-sub-nav__btn" id="navUserPersonForm" data-i18n="user.navPersonForm">Check-list osob</button>
+          <button type="button" class="manager-sub-nav__btn is-active" id="navUserInstForm" data-i18n="user.navInstForm">Check-list institucí (formulář)</button>
+          <button type="button" class="manager-sub-nav__btn" id="navUserPersonForm" data-i18n="user.navPersonForm">Check-list osob (formulář)</button>
           <button type="button" class="manager-sub-nav__btn" id="navUserRequests" data-i18n="user.navRequests">Moje požadavky</button>
         </nav>
 
@@ -173,7 +173,9 @@
           <section class="card vetting-card">
             <div class="card-header">
               <h2 data-i18n="admin.vettingTitle">Prověrky osob – základy OSINT a Due diligence</h2>
-              <p data-i18n="admin.vettingLead">Interní metodický podklad. Doplňuje obecný rámec institucionální bezpečnosti.</p>
+              <p data-i18n="user.personMethodLead">
+                Orientační metodický podklad pro žadatele. Doplňuje rámec institucionální bezpečnosti; nenahrazuje právní posouzení ani interní směrnice Ústavu.
+              </p>
             </div>
             <div class="vetting-content" id="userMethodologyPersonMount"></div>
           </section>
@@ -1088,6 +1090,6 @@
     </div>
   </div>
 
-  <script src="app.js"></script>
+  <script src="app.js?v=15"></script>
 </body>
 </html>
