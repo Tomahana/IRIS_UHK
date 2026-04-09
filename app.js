@@ -20,6 +20,8 @@
  * 6) POST { action: 'delete_submission', manager_key, admin_email, case_id } – smazání případu (Users: admin nebo iris_manager).
  * 7) POST { action: 'submit_person_analysis', manager_key, manager_email, … } – podnět (submission_channel=manager).
  * 8) POST { action: 'submit_applicant_person_vetting', applicant_email, applicant_name, … } – podání prověrky FO (submission_channel=applicant).
+ *
+ * Frontend: index.html načítá iris-prompts.js (šablony pro ChatGPT/Claude) před tímto souborem – při nasazení je přiložte.
  */
 
 const API_URL =
@@ -278,6 +280,25 @@ const STRINGS = {
     'manager.quickClose': 'Uzavřít případ',
     'manager.quickAnalysis': 'Posunout k analýze',
     'manager.quickDeep': 'Posunout k hluboké analýze (DD)',
+    'methodology.applicantInstSummary':
+      'Chcete zobrazit metodické pokyny pro žadatele? (check-list institucí a organizací)',
+    'methodology.applicantPersonSummary':
+      'Chcete zobrazit metodické pokyny pro žadatele? (check-list fyzických osob)',
+    'methodology.managerInstSummary':
+      'Chcete zobrazit metodické pokyny pro správce IRIS? (check-list institucí a organizací)',
+    'methodology.managerPersonSummary':
+      'Chcete zobrazit metodické pokyny pro správce IRIS? (check-list fyzických osob)',
+    'manager.promptSectionTitle': 'Asistence LLM (kopírování promptu)',
+    'manager.promptSectionHint':
+      'Vygeneruje text do schránky z údajů případu a otevřeného panelu. Vložte do ChatGPT / Claude a doplňte vlastní zjištění.',
+    'manager.promptGpt': 'Prompt pro ChatGPT (předběžná prověrka)',
+    'manager.promptClaude': 'Prompt pro Claude (finální analytická zpráva)',
+    'manager.promptClaudeSanctions': 'Prompt pro Claude (sankční prověrka)',
+    'manager.promptCopied': 'Prompt zkopírován do schránky.',
+    'manager.promptCopyFail': 'Kopírování se nezdařilo (oprávnění prohlížeče?).',
+    'manager.promptMissingTemplates':
+      'Chybí soubor iris-prompts.js nebo šablony. Nahrajte iris-prompts.js spolu s index.html, nebo kontaktujte správce.',
+    'manager.promptNeedCase': 'Nejprve otevřete případ v tabulce (tlačítko Spravovat).',
     'manager.preset.close':
       'Případ byl uzavřen. Dokumentaci a případné podmínky naleznete u odkazu na analýzu v systému IRIS.',
     'manager.preset.analysis':
@@ -665,6 +686,23 @@ const STRINGS = {
     'manager.quickClose': 'Close case',
     'manager.quickAnalysis': 'Move to analysis',
     'manager.quickDeep': 'Move to deep analysis (DD)',
+    'methodology.applicantInstSummary':
+      'Show applicant methodology? (institutions and organisations checklist)',
+    'methodology.applicantPersonSummary': 'Show applicant methodology? (natural persons checklist)',
+    'methodology.managerInstSummary':
+      'Show IRIS manager methodology? (institutions and organisations checklist)',
+    'methodology.managerPersonSummary': 'Show IRIS manager methodology? (natural persons checklist)',
+    'manager.promptSectionTitle': 'LLM assistance (copy prompt)',
+    'manager.promptSectionHint':
+      'Builds clipboard text from the case row and the open panel. Paste into ChatGPT / Claude and add your own findings.',
+    'manager.promptGpt': 'Prompt for ChatGPT (preliminary review)',
+    'manager.promptClaude': 'Prompt for Claude (final analytical report)',
+    'manager.promptClaudeSanctions': 'Prompt for Claude (sanctions screening)',
+    'manager.promptCopied': 'Prompt copied to clipboard.',
+    'manager.promptCopyFail': 'Copy failed (browser permissions?).',
+    'manager.promptMissingTemplates':
+      'Missing iris-prompts.js or templates. Deploy iris-prompts.js with index.html or contact your administrator.',
+    'manager.promptNeedCase': 'Open a case from the table first (Manage).',
     'manager.preset.close':
       'The case is closed. Documentation and any conditions are available via the analysis link in IRIS.',
     'manager.preset.analysis':
@@ -824,6 +862,25 @@ const I18N_FALLBACK_CS = {
   'user.navRequests': 'Moje požadavky',
   'user.personMethodLead':
     'Orientační metodický podklad pro žadatele. Doplňuje rámec institucionální bezpečnosti; nenahrazuje právní posouzení ani interní směrnice Ústavu.',
+  'methodology.applicantInstSummary':
+    'Chcete zobrazit metodické pokyny pro žadatele? (check-list institucí a organizací)',
+  'methodology.applicantPersonSummary':
+    'Chcete zobrazit metodické pokyny pro žadatele? (check-list fyzických osob)',
+  'methodology.managerInstSummary':
+    'Chcete zobrazit metodické pokyny pro správce IRIS? (check-list institucí a organizací)',
+  'methodology.managerPersonSummary':
+    'Chcete zobrazit metodické pokyny pro správce IRIS? (check-list fyzických osob)',
+  'manager.promptSectionTitle': 'Asistence LLM (kopírování promptu)',
+  'manager.promptSectionHint':
+    'Vygeneruje text do schránky z údajů případu a otevřeného panelu. Vložte do ChatGPT / Claude a doplňte vlastní zjištění.',
+  'manager.promptGpt': 'Prompt pro ChatGPT (předběžná prověrka)',
+  'manager.promptClaude': 'Prompt pro Claude (finální analytická zpráva)',
+  'manager.promptClaudeSanctions': 'Prompt pro Claude (sankční prověrka)',
+  'manager.promptCopied': 'Prompt zkopírován do schránky.',
+  'manager.promptCopyFail': 'Kopírování se nezdařilo (oprávnění prohlížeče?).',
+  'manager.promptMissingTemplates':
+    'Chybí soubor iris-prompts.js nebo šablony. Nahrajte iris-prompts.js spolu s index.html, nebo kontaktujte správce.',
+  'manager.promptNeedCase': 'Nejprve otevřete případ v tabulce (tlačítko Spravovat).',
 };
 const I18N_FALLBACK_EN = {
   'user.hubTitle': 'Directory',
@@ -836,6 +893,23 @@ const I18N_FALLBACK_EN = {
   'user.navRequests': 'My requests',
   'user.personMethodLead':
     'Orientation methodology for applicants. Complements institutional security; not legal advice or a substitute for university policies.',
+  'methodology.applicantInstSummary':
+    'Show applicant methodology? (institutions and organisations checklist)',
+  'methodology.applicantPersonSummary': 'Show applicant methodology? (natural persons checklist)',
+  'methodology.managerInstSummary':
+    'Show IRIS manager methodology? (institutions and organisations checklist)',
+  'methodology.managerPersonSummary': 'Show IRIS manager methodology? (natural persons checklist)',
+  'manager.promptSectionTitle': 'LLM assistance (copy prompt)',
+  'manager.promptSectionHint':
+    'Builds clipboard text from the case row and the open panel. Paste into ChatGPT / Claude and add your own findings.',
+  'manager.promptGpt': 'Prompt for ChatGPT (preliminary review)',
+  'manager.promptClaude': 'Prompt for Claude (final analytical report)',
+  'manager.promptClaudeSanctions': 'Prompt for Claude (sanctions screening)',
+  'manager.promptCopied': 'Prompt copied to clipboard.',
+  'manager.promptCopyFail': 'Copy failed (browser permissions?).',
+  'manager.promptMissingTemplates':
+    'Missing iris-prompts.js or templates. Deploy iris-prompts.js with index.html or contact your administrator.',
+  'manager.promptNeedCase': 'Open a case from the table first (Manage).',
 };
 
 function t(key, vars) {
@@ -1021,6 +1095,9 @@ const managerAnalysisConclusion = document.getElementById('managerAnalysisConclu
 const managerAnalysisRecs = document.getElementById('managerAnalysisRecs');
 const managerAnalysisRecurrence = document.getElementById('managerAnalysisRecurrence');
 const managerNextAnalysisDue = document.getElementById('managerNextAnalysisDue');
+const managerPromptGptBtn = document.getElementById('managerPromptGptBtn');
+const managerPromptClaudeBtn = document.getElementById('managerPromptClaudeBtn');
+const managerPromptClaudeSanctionsBtn = document.getElementById('managerPromptClaudeSanctionsBtn');
 
 const btnEnterTesterMode = document.getElementById('btnEnterTesterMode');
 const btnExitTesterMode = document.getElementById('btnExitTesterMode');
@@ -2842,7 +2919,94 @@ function closeManagerCasePanel() {
     managerCaseFormMessage.classList.add('hidden');
     managerCaseFormMessage.textContent = '';
     managerCaseFormMessage.classList.remove('login-success');
+    managerCaseFormMessage.classList.remove('manager-case-form-msg--error');
   }
+}
+
+function getIrisPrompts() {
+  return typeof globalThis.IRIS_PROMPTS !== 'undefined' ? globalThis.IRIS_PROMPTS : null;
+}
+
+function getCurrentManagerCaseItem() {
+  const id = managerEditCaseId?.value?.trim();
+  if (!id) return null;
+  return managerCasesCache.find((c) => String(c.case_id) === String(id)) || null;
+}
+
+function buildCasePromptContext() {
+  const item = getCurrentManagerCaseItem();
+  const lines = [];
+  lines.push('=== KONTEXT PŘÍPADU IRIS UHK ===');
+  if (item) {
+    const pick = (k) => String(item[k] ?? '').trim();
+    lines.push(`Case ID: ${pick('case_id') || '—'}`);
+    lines.push(`Referenční ID: ${pick('record_uid') || '—'}`);
+    lines.push(`Název / předmět: ${pick('title') || '—'}`);
+    lines.push(`Partner: ${pick('partner_name') || '—'}`);
+    lines.push(`Země partnera: ${pick('partner_country') || pick('countries') || '—'}`);
+    lines.push(`Web partnera: ${pick('partner_website') || '—'}`);
+    lines.push(`Žadatel: ${pick('applicant_name') || '—'}`);
+    lines.push(`E-mail žadatele: ${pick('applicant_email') || '—'}`);
+    lines.push(`Součást UHK: ${pick('applicant_unit') || '—'}`);
+    lines.push(`Typ spolupráce: ${pick('cooperation_type') || '—'}`);
+    lines.push(`Fáze spolupráce: ${pick('cooperation_stage') || '—'}`);
+    lines.push(`Popis záměru: ${pick('intent_description') || '—'}`);
+    lines.push(`Stav případu: ${pick('status') || '—'}`);
+    lines.push(`Úroveň rizika (evidence): ${pick('risk_level') || '—'}`);
+    lines.push(`Priorita: ${pick('priority') || '—'}`);
+  } else {
+    lines.push('(Řádek případu v tabulce nebyl nalezen – doplňte identifikaci ručně.)');
+  }
+  lines.push('');
+  lines.push('--- Vyplnění v panelu správce (může obsahovat neuložené úpravy) ---');
+  if (managerCaseStatement) lines.push(`Vyjádření IRIS: ${managerCaseStatement.value.trim() || '—'}`);
+  if (managerCaseNextStep) lines.push(`Další postup pro žadatele: ${managerCaseNextStep.value.trim() || '—'}`);
+  if (managerAnalysisSubject) lines.push(`Analytika – předmět: ${managerAnalysisSubject.value.trim() || '—'}`);
+  if (managerAnalysisScope) lines.push(`Analytika – rozsah / metodika: ${managerAnalysisScope.value.trim() || '—'}`);
+  if (managerAnalysisConclusion) lines.push(`Analytika – závěr: ${managerAnalysisConclusion.value.trim() || '—'}`);
+  if (managerAnalysisRecs) lines.push(`Analytika – doporučení: ${managerAnalysisRecs.value.trim() || '—'}`);
+  if (managerAnalysisRecurrence) lines.push(`Analytika – obnova / follow-up: ${managerAnalysisRecurrence.value.trim() || '—'}`);
+  if (managerCaseAnalysisUrl) lines.push(`Odkaz na dokument analýzy: ${managerCaseAnalysisUrl.value.trim() || '—'}`);
+  lines.push('');
+  lines.push(`Datum sestavení kontextu: ${new Date().toISOString()}`);
+  return lines.join('\n');
+}
+
+async function copyManagerPromptToClipboard(text) {
+  if (!managerCaseFormMessage) return;
+  try {
+    await navigator.clipboard.writeText(String(text || ''));
+    managerCaseFormMessage.textContent = t('manager.promptCopied');
+    managerCaseFormMessage.classList.remove('hidden');
+    managerCaseFormMessage.classList.add('login-success');
+    managerCaseFormMessage.classList.remove('manager-case-form-msg--error');
+  } catch (_) {
+    managerCaseFormMessage.textContent = t('manager.promptCopyFail');
+    managerCaseFormMessage.classList.remove('hidden');
+    managerCaseFormMessage.classList.remove('login-success');
+    managerCaseFormMessage.classList.add('manager-case-form-msg--error');
+  }
+}
+
+function buildManagerPromptGpt() {
+  const p = getIrisPrompts();
+  const body = p && p.gptPartnerChecklistCs ? p.gptPartnerChecklistCs : '';
+  if (!body) return `${t('manager.promptMissingTemplates')}\n\n${buildCasePromptContext()}`;
+  return `${body}\n\n${buildCasePromptContext()}`;
+}
+
+function buildManagerPromptClaude() {
+  const p = getIrisPrompts();
+  const body = p && p.claudeAnalystCs ? p.claudeAnalystCs : '';
+  if (!body) return `${t('manager.promptMissingTemplates')}\n\n${buildCasePromptContext()}`;
+  return `${buildCasePromptContext()}\n\n---\nINSTRUKCE PRO MODEL (finální analytická zpráva):\n\n${body}`;
+}
+
+function buildManagerPromptClaudeSanctions() {
+  const p = getIrisPrompts();
+  const body = p && p.claudeSanctionsCs ? p.claudeSanctionsCs : '';
+  if (!body) return `${t('manager.promptMissingTemplates')}\n\n${buildCasePromptContext()}`;
+  return `${buildCasePromptContext()}\n\n---\nINSTRUKCE PRO MODEL (sankční prověrka):\n\n${body}`;
 }
 
 function openManagerCasePanel(caseId, recordUid) {
@@ -2887,6 +3051,7 @@ function openManagerCasePanel(caseId, recordUid) {
 
   managerCasePanel.classList.remove('hidden');
   managerCasePanel.setAttribute('aria-hidden', 'false');
+  applyStaticI18n();
   managerCasePanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
@@ -2897,6 +3062,52 @@ casesTableBody.addEventListener('click', (e) => {
 });
 
 managerCaseCancel.addEventListener('click', () => closeManagerCasePanel());
+
+if (managerPromptGptBtn) {
+  managerPromptGptBtn.addEventListener('click', async (ev) => {
+    ev.preventDefault();
+    if (!managerEditCaseId?.value?.trim()) {
+      if (managerCaseFormMessage) {
+        managerCaseFormMessage.textContent = t('manager.promptNeedCase');
+        managerCaseFormMessage.classList.remove('hidden');
+        managerCaseFormMessage.classList.remove('login-success');
+        managerCaseFormMessage.classList.add('manager-case-form-msg--error');
+      }
+      return;
+    }
+    await copyManagerPromptToClipboard(buildManagerPromptGpt());
+  });
+}
+if (managerPromptClaudeBtn) {
+  managerPromptClaudeBtn.addEventListener('click', async (ev) => {
+    ev.preventDefault();
+    if (!managerEditCaseId?.value?.trim()) {
+      if (managerCaseFormMessage) {
+        managerCaseFormMessage.textContent = t('manager.promptNeedCase');
+        managerCaseFormMessage.classList.remove('hidden');
+        managerCaseFormMessage.classList.remove('login-success');
+        managerCaseFormMessage.classList.add('manager-case-form-msg--error');
+      }
+      return;
+    }
+    await copyManagerPromptToClipboard(buildManagerPromptClaude());
+  });
+}
+if (managerPromptClaudeSanctionsBtn) {
+  managerPromptClaudeSanctionsBtn.addEventListener('click', async (ev) => {
+    ev.preventDefault();
+    if (!managerEditCaseId?.value?.trim()) {
+      if (managerCaseFormMessage) {
+        managerCaseFormMessage.textContent = t('manager.promptNeedCase');
+        managerCaseFormMessage.classList.remove('hidden');
+        managerCaseFormMessage.classList.remove('login-success');
+        managerCaseFormMessage.classList.add('manager-case-form-msg--error');
+      }
+      return;
+    }
+    await copyManagerPromptToClipboard(buildManagerPromptClaudeSanctions());
+  });
+}
 
 if (managerCaseDelete) {
   managerCaseDelete.addEventListener('click', async () => {
