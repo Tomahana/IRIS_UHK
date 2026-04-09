@@ -7,7 +7,7 @@
   <link rel="icon" href="https://www.uhk.cz/img/favicon.ico" />
   <link rel="preconnect" href="https://www.uhk.cz" crossorigin />
   <!-- Styl je v souboru style.css ve stejné složce — při ručním vkládání do jiného systému zkopírujte obsah obou souborů. ?v= měňte po úpravách CSS (prohlížeč jinak drží starou verzi). -->
-  <link rel="stylesheet" href="style.css?v=12" />
+  <link rel="stylesheet" href="style.css?v=14" />
 </head>
 <body>
   <!-- Loga: uhk-logo.jpg a uhk-logo-small.jpg ve stejné složce jako index (viz GitHub IRIS_UHK). -->
@@ -131,6 +131,55 @@
     <div id="layoutUser" class="layout hidden">
       <div class="main-column">
         <div id="testerModeBanner" class="tester-mode-banner hidden" role="status"></div>
+
+        <section id="userHub" class="card manager-hub-card">
+          <div class="card-header">
+            <h2 data-i18n="manager.hubTitle">Rozcestník</h2>
+            <p data-i18n="user.hubLeadApplicant">
+              Metodické check-listy pro prověřování subjektů. Níže otevřete metodiku, formuláře nebo přehled svých požadavků.
+            </p>
+          </div>
+          <div class="manager-hub-grid">
+            <button type="button" class="manager-hub-tile" id="userHubBtnInstitutions">
+              <span class="manager-hub-tile__title" data-i18n="manager.hubInstitutionsTitle">Check-list institucí a organizací</span>
+              <span class="manager-hub-tile__desc" data-i18n="manager.hubInstitutionsDesc">Základní rámec DD a OSINT pro právnické osoby a partnery.</span>
+            </button>
+            <button type="button" class="manager-hub-tile" id="userHubBtnPersons">
+              <span class="manager-hub-tile__title" data-i18n="manager.hubPersonsTitle">Check-list osob</span>
+              <span class="manager-hub-tile__desc" data-i18n="manager.hubPersonsDesc">Základy prověrky fyzických osob (OSINT, due diligence).</span>
+            </button>
+          </div>
+        </section>
+
+        <nav id="userSubNav" class="manager-sub-nav" data-i18n-aria="user.subNavAria" aria-label="Navigace žadatele">
+          <button type="button" class="manager-sub-nav__btn" id="navUserInstMethod" data-i18n="user.navInstMethod">Metodika – instituce</button>
+          <button type="button" class="manager-sub-nav__btn" id="navUserPersonMethod" data-i18n="user.navPersonMethod">Metodika – osoby</button>
+          <button type="button" class="manager-sub-nav__btn is-active" id="navUserInstForm" data-i18n="user.navInstForm">Check-list institucí</button>
+          <button type="button" class="manager-sub-nav__btn" id="navUserPersonForm" data-i18n="user.navPersonForm">Check-list osob</button>
+          <button type="button" class="manager-sub-nav__btn" id="navUserRequests" data-i18n="user.navRequests">Moje požadavky</button>
+        </nav>
+
+        <div id="userViewInstMethod" class="user-main-view hidden">
+          <section class="card vetting-card">
+            <div class="card-header">
+              <h2 data-i18n="manager.instTitle">Check-list institucí a organizací</h2>
+              <p data-i18n="manager.instLead">Orientační rámec pro prověřování partnerů, institucí a právnických osob v kontextu IRIS UHK.</p>
+            </div>
+            <div class="vetting-content" id="userMethodologyInstMount"></div>
+          </section>
+        </div>
+
+        <div id="userViewPersonMethod" class="user-main-view hidden">
+          <section class="card vetting-card">
+            <div class="card-header">
+              <h2 data-i18n="admin.vettingTitle">Prověrky osob – základy OSINT a Due diligence</h2>
+              <p data-i18n="admin.vettingLead">Interní metodický podklad. Doplňuje obecný rámec institucionální bezpečnosti.</p>
+            </div>
+            <div class="vetting-content" id="userMethodologyPersonMount"></div>
+          </section>
+        </div>
+
+        <div id="userViewInstForm" class="user-main-view">
         <section class="card">
           <div class="card-header">
             <h2 data-i18n="user.intakeTitle">Vyplnění podání</h2>
@@ -213,7 +262,9 @@
             </div>
           </form>
         </section>
+        </div>
 
+        <div id="userViewPersonForm" class="user-main-view hidden">
         <section class="card" id="applicantPersonVettingSection">
           <div class="card-header">
             <h2 data-i18n="user.pvTitle">Podání prověrky fyzické osoby</h2>
@@ -356,18 +407,24 @@
             </fieldset>
 
             <div class="actions form-actions form-actions--intake">
-              <button type="submit" class="btn-primary" id="pvSubmit" data-i18n="user.pvSubmit">Odeslat podání prověrky</button>
+              <button type="button" class="btn-secondary" id="pvSaveDraftButton" data-i18n="user.saveDraft">Uložit rozpracované</button>
+              <button type="button" class="btn-secondary" id="pvLoadDraftButton" data-i18n="user.loadDraft">Načíst rozpracované</button>
+              <button type="submit" class="btn-primary" id="pvSubmit" data-i18n="user.finalizeSubmit">Odeslat definitivně</button>
               <button type="reset" class="btn-secondary" id="pvReset" data-i18n="user.pvReset">Vymazat formulář</button>
             </div>
           </form>
           <p id="pvFormMessage" class="manager-case-form-msg hidden" role="status"></p>
         </section>
+        </div>
 
+        <div id="userViewRequests" class="user-main-view hidden">
         <section class="card">
           <div class="card-header">
-            <h2 data-i18n="user.casesTitle">Moje podání</h2>
-            <p data-i18n="user.casesDesc">Pouze případy pod vaším přihlášeným e-mailem.</p>
+            <h2 data-i18n="user.requestsTitle">Moje požadavky</h2>
+            <p data-i18n="user.requestsDesc">Check-list institucí (případy v IRIS) a check-list osob. Rozpracované koncepty jsou uložené v tomto prohlížeči.</p>
           </div>
+
+          <h3 class="user-requests-subtitle" data-i18n="user.requestsInstSection">Check-list institucí a organizací</h3>
           <div class="table-toolbar table-toolbar--user">
             <input
               type="search"
@@ -379,9 +436,10 @@
             />
           </div>
           <div class="table-wrap">
-            <table class="cases-table cases-table-user" data-i18n-aria="user.casesTitle" aria-label="Moje podání">
+            <table class="cases-table cases-table-user" data-i18n-aria="user.requestsInstSection" aria-label="Check-list institucí">
               <thead>
                 <tr>
+                  <th data-i18n="tbl.typeCol">Typ</th>
                   <th data-i18n="tbl.caseId">Case ID</th>
                   <th data-i18n="tbl.refUid">Referenční ID</th>
                   <th data-i18n="tbl.created">Vytvořeno</th>
@@ -392,12 +450,31 @@
                   <th data-i18n="tbl.next">Další postup</th>
                   <th data-i18n="tbl.iris">Vyjádření IRIS</th>
                   <th data-i18n="tbl.analysis">Analýza</th>
+                  <th data-i18n="tbl.actions">Akce</th>
                 </tr>
               </thead>
               <tbody id="userCasesTableBody"></tbody>
             </table>
           </div>
+
+          <h3 class="user-requests-subtitle user-requests-subtitle--spaced" data-i18n="user.requestsPersonSection">Check-list osob</h3>
+          <div class="table-wrap">
+            <table class="cases-table cases-table-user" data-i18n-aria="user.requestsPersonSection" aria-label="Check-list osob">
+              <thead>
+                <tr>
+                  <th data-i18n="tbl.typeCol">Typ</th>
+                  <th data-i18n="user.parIdCol">ID požadavku</th>
+                  <th data-i18n="user.parSubjectCol">Prověřovaná osoba</th>
+                  <th data-i18n="tbl.status">Stav</th>
+                  <th data-i18n="tbl.created">Datum</th>
+                  <th data-i18n="tbl.actions">Akce</th>
+                </tr>
+              </thead>
+              <tbody id="userPersonRequestsTableBody"></tbody>
+            </table>
+          </div>
         </section>
+        </div>
       </div>
 
       <aside class="sidebar">
@@ -527,6 +604,30 @@
               </tr>
             </thead>
             <tbody id="casesTableBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="managerParListSection" class="card hidden">
+        <div class="card-header">
+          <h2 data-i18n="manager.parListTitle">Evidence prověrek osob (PAR)</h2>
+          <p data-i18n="manager.parListDesc">Záznamy z listu Person_Analysis_Requests. Smazání řádku: účty admin / iris_manager.</p>
+        </div>
+        <p id="managerParListMessage" class="manager-status hidden" role="status"></p>
+        <div class="table-wrap">
+          <table class="cases-table" data-i18n-aria="manager.parListTitle" aria-label="PAR">
+            <thead>
+              <tr>
+                <th data-i18n="user.parIdCol">ID</th>
+                <th data-i18n="manager.parColChannel">Kanál</th>
+                <th data-i18n="tbl.applicant">Podavatel</th>
+                <th data-i18n="user.parSubjectCol">Osoba</th>
+                <th data-i18n="tbl.status">Stav</th>
+                <th data-i18n="tbl.created">Datum</th>
+                <th data-i18n="tbl.actions">Akce</th>
+              </tr>
+            </thead>
+            <tbody id="managerParTableBody"></tbody>
           </table>
         </div>
       </section>
