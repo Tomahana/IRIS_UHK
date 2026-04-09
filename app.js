@@ -27,6 +27,7 @@ const API_URL =
 
 const SESSION_KEY = 'iris_uhk_session';
 const INTAKE_DRAFT_PREFIX = 'iris_intake_draft_v2_';
+const PERSON_VETTING_DRAFT_PREFIX = 'iris_person_vetting_draft_v1_';
 
 const LANG_STORAGE = 'iris_uhk_lang';
 /** @type {'cs' | 'en'} */
@@ -365,6 +366,48 @@ const STRINGS = {
     'user.draftLoaded': 'Načten rozpracovaný koncept.',
     'user.draftNone': 'Není uložen žádný koncept pro tento účet.',
     'user.draftFail': 'Koncept se nepodařilo uložit (blokované úložiště prohlížeče?).',
+    'user.hubLeadApplicant':
+      'Metodické check-listy pro prověřování subjektů. Níže otevřete metodiku, formuláře nebo přehled svých požadavků.',
+    'user.subNavAria': 'Navigace žadatele',
+    'user.navInstMethod': 'Metodika – instituce',
+    'user.navPersonMethod': 'Metodika – osoby',
+    'user.navInstForm': 'Check-list institucí',
+    'user.navPersonForm': 'Check-list osob',
+    'user.navRequests': 'Moje požadavky',
+    'user.requestsTitle': 'Moje požadavky',
+    'user.requestsDesc':
+      'Přehled checklistu institucí (případy v IRIS) a checklistu osob. Rozpracované koncepty (draft) jsou jen v tomto prohlížeči.',
+    'user.requestsInstSection': 'Check-list institucí a organizací',
+    'user.requestsPersonSection': 'Check-list osob',
+    'tbl.typeCol': 'Typ',
+    'tbl.actions': 'Akce',
+    'user.parIdCol': 'ID požadavku',
+    'user.parSubjectCol': 'Prověřovaná osoba',
+    'user.reqTypeInst': 'Check-list institucí',
+    'user.reqTypeInstDraft': 'Koncept (prohlížeč)',
+    'user.reqTypePerson': 'Check-list osob',
+    'user.reqTypePersonDraft': 'Koncept (prohlížeč)',
+    'user.draftRowHintInst': 'Rozpracovaný formulář – uložte nebo odešlete z karty „Check-list institucí“.',
+    'user.draftRowHintPerson': 'Rozpracovaný formulář – uložte nebo odešlete z karty „Check-list osob“.',
+    'user.continueDraft': 'Pokračovat',
+    'user.statusDraft': 'draft',
+    'user.statusSubmitted': 'podáno',
+    'parStatus.new': 'přijato / nový',
+    'parStatus.in_progress': 'zpracovává se',
+    'parStatus.analyzed': 'analyzováno',
+    'parStatus.closed': 'uzavřeno',
+    'parStatus.rejected': 'zamítnuto',
+    'parStatus.cancelled': 'zrušeno',
+    'parStatus.default': 've zpracování',
+    'manager.parListTitle': 'Evidence prověrek osob (PAR)',
+    'manager.parListDesc':
+      'Záznamy z listu Person_Analysis_Requests. Smazání: účty s oprávněním admin / iris_manager.',
+    'manager.parColChannel': 'Kanál',
+    'manager.parDelete': 'Smazat PAR',
+    'admin.parDeleteConfirm': 'Opravdu trvale smazat tento záznam PAR z tabulky?',
+    'admin.parDeleteOk': 'Záznam PAR byl smazán.',
+    'user.personReqEmpty': 'Zatím žádné podané požadavky.',
+    'user.personReqLoadFail': 'Nepodařilo se načíst požadavky na prověrku osob.',
     'admin.deleteSubmission': 'Smazat podání a případ',
     'admin.deleteConfirm':
       'Opravdu trvale smazat tento případ a související řádky (podání, události, notifikace) z tabulky? Akci nelze vrátit.',
@@ -707,6 +750,48 @@ const STRINGS = {
     'user.draftLoaded': 'Draft loaded.',
     'user.draftNone': 'No saved draft for this account.',
     'user.draftFail': 'Could not save draft (browser storage blocked?).',
+    'user.hubLeadApplicant':
+      'Methodology checklists for vetting subjects. Open methodology, forms, or your request overview below.',
+    'user.subNavAria': 'Applicant navigation',
+    'user.navInstMethod': 'Methodology – institutions',
+    'user.navPersonMethod': 'Methodology – persons',
+    'user.navInstForm': 'Institution checklist',
+    'user.navPersonForm': 'Person checklist',
+    'user.navRequests': 'My requests',
+    'user.requestsTitle': 'My requests',
+    'user.requestsDesc':
+      'Institution checklist (IRIS cases) and person checklist. Drafts are stored only in this browser.',
+    'user.requestsInstSection': 'Institution and organisation checklist',
+    'user.requestsPersonSection': 'Person checklist',
+    'tbl.typeCol': 'Type',
+    'tbl.actions': 'Action',
+    'user.parIdCol': 'Request ID',
+    'user.parSubjectCol': 'Subject (person)',
+    'user.reqTypeInst': 'Institution checklist',
+    'user.reqTypeInstDraft': 'Draft (browser)',
+    'user.reqTypePerson': 'Person checklist',
+    'user.reqTypePersonDraft': 'Draft (browser)',
+    'user.draftRowHintInst': 'Draft form – finish or submit from the “Institution checklist” tab.',
+    'user.draftRowHintPerson': 'Draft form – finish or submit from the “Person checklist” tab.',
+    'user.continueDraft': 'Continue',
+    'user.statusDraft': 'draft',
+    'user.statusSubmitted': 'submitted',
+    'parStatus.new': 'received / new',
+    'parStatus.in_progress': 'in progress',
+    'parStatus.analyzed': 'analysed',
+    'parStatus.closed': 'closed',
+    'parStatus.rejected': 'rejected',
+    'parStatus.cancelled': 'cancelled',
+    'parStatus.default': 'in progress',
+    'manager.parListTitle': 'Person vetting records (PAR)',
+    'manager.parListDesc':
+      'Rows from Person_Analysis_Requests. Delete: accounts with admin / iris_manager permission.',
+    'manager.parColChannel': 'Channel',
+    'manager.parDelete': 'Delete PAR',
+    'admin.parDeleteConfirm': 'Permanently delete this PAR row from the sheet?',
+    'admin.parDeleteOk': 'PAR record deleted.',
+    'user.personReqEmpty': 'No submitted requests yet.',
+    'user.personReqLoadFail': 'Could not load person vetting requests.',
     'admin.deleteSubmission': 'Delete submission and case',
     'admin.deleteConfirm':
       'Permanently delete this case and related rows (intake, events, notifications)? This cannot be undone.',
@@ -785,6 +870,24 @@ const applicantPersonVettingForm = document.getElementById('applicantPersonVetti
 const pvSubmit = document.getElementById('pvSubmit');
 const pvFormMessage = document.getElementById('pvFormMessage');
 const pvApplicantEmail = document.getElementById('pv_applicant_email');
+const pvSaveDraftButton = document.getElementById('pvSaveDraftButton');
+const pvLoadDraftButton = document.getElementById('pvLoadDraftButton');
+const userPersonRequestsTableBody = document.getElementById('userPersonRequestsTableBody');
+const userHubBtnInstitutions = document.getElementById('userHubBtnInstitutions');
+const userHubBtnPersons = document.getElementById('userHubBtnPersons');
+const navUserInstMethod = document.getElementById('navUserInstMethod');
+const navUserPersonMethod = document.getElementById('navUserPersonMethod');
+const navUserInstForm = document.getElementById('navUserInstForm');
+const navUserPersonForm = document.getElementById('navUserPersonForm');
+const navUserRequests = document.getElementById('navUserRequests');
+const userViewInstMethod = document.getElementById('userViewInstMethod');
+const userViewPersonMethod = document.getElementById('userViewPersonMethod');
+const userViewInstForm = document.getElementById('userViewInstForm');
+const userViewPersonForm = document.getElementById('userViewPersonForm');
+const userViewRequests = document.getElementById('userViewRequests');
+const managerParListSection = document.getElementById('managerParListSection');
+const managerParTableBody = document.getElementById('managerParTableBody');
+const managerParListMessage = document.getElementById('managerParListMessage');
 
 const statusMessage = document.getElementById('statusMessage');
 const resultDetails = document.getElementById('resultDetails');
@@ -1101,6 +1204,7 @@ function showApp(session) {
       emailInput.title = tester ? '' : t('user.titleEmailReadonly');
     }
     syncApplicantPersonVettingFromSession(session);
+    showUserView('instForm');
     if (resultDetails.classList.contains('hidden')) {
       setStatus(t('user.statusNone'), 'neutral');
     }
@@ -1497,6 +1601,209 @@ function clearIntakeDraftForCurrentUser() {
   }
 }
 
+function getApplicantEmailForDrafts(session) {
+  if (!session) return '';
+  if (session.role === 'user') return String(session.email || '').trim();
+  if (isManagerTesterSession(session)) {
+    return String(
+      (form && form.elements.applicant_email && form.elements.applicant_email.value) ||
+        session.testerApplicantEmail ||
+        session.email ||
+        ''
+    ).trim();
+  }
+  return '';
+}
+
+function readIntakeDraftSavedAt(email) {
+  try {
+    const raw = localStorage.getItem(intakeDraftStorageKey(email));
+    if (!raw) return null;
+    const d = JSON.parse(raw);
+    return d.savedAt || null;
+  } catch {
+    return null;
+  }
+}
+
+function personVettingDraftStorageKey(email) {
+  return PERSON_VETTING_DRAFT_PREFIX + String(email || '').trim().toLowerCase();
+}
+
+function readPersonVettingDraftSavedAt(email) {
+  try {
+    const raw = localStorage.getItem(personVettingDraftStorageKey(email));
+    if (!raw) return null;
+    const d = JSON.parse(raw);
+    return d.savedAt || null;
+  } catch {
+    return null;
+  }
+}
+
+function savePersonVettingDraftToStorage() {
+  const session = getSession();
+  if (!session || (session.role !== 'user' && !isManagerTesterSession(session)) || !applicantPersonVettingForm) {
+    return;
+  }
+  const email = getApplicantEmailForDrafts(session);
+  if (!email) {
+    setPvFormMessage(t('user.draftFail'), true);
+    return;
+  }
+  const fd = new FormData(applicantPersonVettingForm);
+  const fields = {};
+  fd.forEach((value, key) => {
+    if (typeof value === 'string' && key.startsWith('pv_')) {
+      fields[key.replace(/^pv_/, '')] = value;
+    }
+  });
+  const raw = { v: 1, savedAt: new Date().toISOString(), fields };
+  try {
+    localStorage.setItem(personVettingDraftStorageKey(email), JSON.stringify(raw));
+    setPvFormMessage(t('user.draftSaved'), false);
+  } catch (_) {
+    setPvFormMessage(t('user.draftFail'), true);
+  }
+}
+
+function loadPersonVettingDraftFromStorage() {
+  const session = getSession();
+  if (!session || (session.role !== 'user' && !isManagerTesterSession(session)) || !applicantPersonVettingForm) {
+    return;
+  }
+  const email = getApplicantEmailForDrafts(session);
+  let raw;
+  try {
+    raw = localStorage.getItem(personVettingDraftStorageKey(email));
+  } catch (_) {
+    raw = null;
+  }
+  if (!raw) {
+    setPvFormMessage(t('user.draftNone'), false);
+    return;
+  }
+  let d;
+  try {
+    d = JSON.parse(raw);
+  } catch {
+    setPvFormMessage(t('user.draftNone'), false);
+    return;
+  }
+  const f = d.fields || {};
+  const map = [
+    ['applicant_name', 'pv_applicant_name'],
+    ['applicant_email', 'pv_applicant_email'],
+    ['related_case_id', 'pv_related_case_id'],
+    ['related_record_uid', 'pv_related_record_uid'],
+    ['subject_legal_name', 'pv_subject_legal_name'],
+    ['subject_alternate_names', 'pv_subject_alternate_names'],
+    ['subject_dob_or_year', 'pv_subject_dob_or_year'],
+    ['subject_citizenships', 'pv_subject_citizenships'],
+    ['subject_country_residence', 'pv_subject_country_residence'],
+    ['subject_affiliation', 'pv_subject_affiliation'],
+    ['subject_role_in_matter', 'pv_subject_role_in_matter'],
+    ['id_orcid', 'pv_id_orcid'],
+    ['id_scopus_author_id', 'pv_id_scopus'],
+    ['id_wos_researcher_id', 'pv_id_wos'],
+    ['id_google_scholar_url', 'pv_id_scholar'],
+    ['id_linkedin_url', 'pv_id_linkedin'],
+    ['id_institutional_profiles', 'pv_id_inst_profiles'],
+    ['id_other_public_urls', 'pv_id_other_urls'],
+    ['request_summary', 'pv_request_summary'],
+    ['urgency', 'pv_urgency'],
+    ['identifier_source_note', 'pv_identifier_source_note'],
+  ];
+  map.forEach(([k, elId]) => {
+    if (f[k] == null) return;
+    const el = document.getElementById(elId);
+    if (el) el.value = f[k];
+  });
+  setPvFormMessage(t('user.draftLoaded'), false);
+}
+
+function clearPersonVettingDraftForCurrentUser() {
+  const session = getSession();
+  const email = getApplicantEmailForDrafts(session);
+  if (!email) return;
+  try {
+    localStorage.removeItem(personVettingDraftStorageKey(email));
+  } catch (_) {
+    /* ignore */
+  }
+}
+
+function parStatusLabel(st) {
+  const key = String(st || 'new')
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, '_');
+  const tr = t(`parStatus.${key}`);
+  if (tr !== `parStatus.${key}`) return tr;
+  return t('parStatus.default');
+}
+
+let userMethodologyCloned = false;
+function ensureUserMethodologyCloned() {
+  if (userMethodologyCloned) return;
+  const instSrc = document.querySelector('#managerViewInstitutions .vetting-content');
+  const personSrc = document.querySelector('#managerViewPersons .vetting-content');
+  const instMount = document.getElementById('userMethodologyInstMount');
+  const personMount = document.getElementById('userMethodologyPersonMount');
+  if (instSrc && instMount && !instMount.childElementCount) {
+    const c = instSrc.cloneNode(true);
+    c.querySelectorAll('[id]').forEach((el) => el.removeAttribute('id'));
+    instMount.appendChild(c);
+  }
+  if (personSrc && personMount && !personMount.childElementCount) {
+    const c = personSrc.cloneNode(true);
+    c.querySelectorAll('[id]').forEach((el) => el.removeAttribute('id'));
+    personMount.appendChild(c);
+  }
+  userMethodologyCloned = Boolean(
+    instMount && instMount.childElementCount && personMount && personMount.childElementCount
+  );
+}
+
+function updateUserSubNavActive(which) {
+  const w = String(which || 'instForm');
+  const map = [
+    ['instMethod', navUserInstMethod],
+    ['personMethod', navUserPersonMethod],
+    ['instForm', navUserInstForm],
+    ['personForm', navUserPersonForm],
+    ['requests', navUserRequests],
+  ];
+  map.forEach(([key, btn]) => {
+    if (btn) btn.classList.toggle('is-active', key === w);
+  });
+}
+
+let currentUserMainView = 'instForm';
+
+function showUserView(which) {
+  const w = String(which || 'instForm');
+  currentUserMainView = w;
+  const instM = w === 'instMethod';
+  const persM = w === 'personMethod';
+  const instF = w === 'instForm';
+  const persF = w === 'personForm';
+  const req = w === 'requests';
+
+  ensureUserMethodologyCloned();
+  if (userViewInstMethod) userViewInstMethod.classList.toggle('hidden', !instM);
+  if (userViewPersonMethod) userViewPersonMethod.classList.toggle('hidden', !persM);
+  if (userViewInstForm) userViewInstForm.classList.toggle('hidden', !instF);
+  if (userViewPersonForm) userViewPersonForm.classList.toggle('hidden', !persF);
+  if (userViewRequests) userViewRequests.classList.toggle('hidden', !req);
+  updateUserSubNavActive(w);
+  syncMethodologyBodyLang();
+  if (req) {
+    loadUserCases().catch(() => {});
+    loadApplicantPersonRequests().catch(() => {});
+  }
+}
+
 function validateFormData(data) {
   const requiredFields = [
     ['applicant_name', 'validate.applicant_name'],
@@ -1776,22 +2083,32 @@ function renderManagerCases(items) {
     .join('');
 }
 
-function renderUserCases(items) {
-  if (!items || !items.length) {
-    userCasesTableBody.innerHTML = `<tr><td colspan="10" class="empty-row">${escapeHtml(t('user.empty'))}</td></tr>`;
-    return;
+function renderUserInstitutionRequests(items) {
+  if (!userCasesTableBody) return;
+  const session = getSession();
+  const email = getApplicantEmailForDrafts(session);
+  const draftAt = email ? readIntakeDraftSavedAt(email) : null;
+  const rows = [];
+
+  if (draftAt) {
+    rows.push(`<tr class="row-draft">
+      <td>${escapeHtml(t('user.reqTypeInstDraft'))}</td>
+      <td colspan="9">${escapeHtml(t('user.draftRowHintInst'))}</td>
+      <td>${escapeHtml(t('user.statusDraft'))}</td>
+      <td><button type="button" class="btn-secondary btn-compact" data-user-continue-intake-draft="1">${escapeHtml(t('user.continueDraft'))}</button></td>
+    </tr>`);
   }
 
-  userCasesTableBody.innerHTML = items
-    .map((item) => {
-      let rowCls = '';
-      if (isCaseOverdue(item)) rowCls = 'row-overdue';
-      else if (isCaseDueSoon(item)) rowCls = 'row-due-soon';
-      const nextText = nextStepForUser(item);
-      const stmt = cellPreview(item.iris_statement, 120);
-      const ruid = String(item.record_uid || '').trim();
-      return `
+  (items || []).forEach((item) => {
+    let rowCls = '';
+    if (isCaseOverdue(item)) rowCls = 'row-overdue';
+    else if (isCaseDueSoon(item)) rowCls = 'row-due-soon';
+    const nextText = nextStepForUser(item);
+    const stmt = cellPreview(item.iris_statement, 120);
+    const ruid = String(item.record_uid || '').trim();
+    rows.push(`
     <tr class="${rowCls}">
+      <td>${escapeHtml(t('user.reqTypeInst'))}</td>
       <td>${escapeHtml(item.case_id)}</td>
       <td class="cell-record-uid"><code translate="no" title="${escapeAttr(ruid)}">${escapeHtml(ruid || t('common.emDash'))}</code></td>
       <td>${escapeHtml(formatDate(item.created_at))}</td>
@@ -1802,9 +2119,137 @@ function renderUserCases(items) {
       <td title="${escapeAttr(nextText)}">${cellPreview(nextText, 80)}</td>
       <td title="${escapeAttr(String(item.iris_statement || ''))}">${stmt}</td>
       <td>${analysisLinkCell(analysisUrlForItem(item))}</td>
-    </tr>`;
-    })
-    .join('');
+      <td>${escapeHtml(t('common.emDash'))}</td>
+    </tr>`);
+  });
+
+  if (!rows.length) {
+    userCasesTableBody.innerHTML = `<tr><td colspan="12" class="empty-row">${escapeHtml(t('user.empty'))}</td></tr>`;
+    return;
+  }
+  userCasesTableBody.innerHTML = rows.join('');
+}
+
+function renderUserPersonRequests(items) {
+  if (!userPersonRequestsTableBody) return;
+  const session = getSession();
+  const email = getApplicantEmailForDrafts(session);
+  const draftAt = email ? readPersonVettingDraftSavedAt(email) : null;
+  const rows = [];
+
+  if (draftAt) {
+    rows.push(`<tr class="row-draft">
+      <td>${escapeHtml(t('user.reqTypePersonDraft'))}</td>
+      <td colspan="2">${escapeHtml(t('user.draftRowHintPerson'))}</td>
+      <td>${escapeHtml(t('user.statusDraft'))}</td>
+      <td>${escapeHtml(formatDate(draftAt))}</td>
+      <td><button type="button" class="btn-secondary btn-compact" data-user-continue-pv-draft="1">${escapeHtml(t('user.continueDraft'))}</button></td>
+    </tr>`);
+  }
+
+  (items || []).forEach((item) => {
+    const pid = String(item.person_analysis_id || '').trim();
+    rows.push(`<tr>
+      <td>${escapeHtml(t('user.reqTypePerson'))}</td>
+      <td><code translate="no">${escapeHtml(pid || t('common.emDash'))}</code></td>
+      <td>${escapeHtml(item.subject_legal_name || t('common.emDash'))}</td>
+      <td>${escapeHtml(parStatusLabel(item.status))}</td>
+      <td>${escapeHtml(formatDate(item.submitted_at))}</td>
+      <td>${escapeHtml(t('common.emDash'))}</td>
+    </tr>`);
+  });
+
+  if (!rows.length) {
+    userPersonRequestsTableBody.innerHTML = `<tr><td colspan="6" class="empty-row">${escapeHtml(t('user.personReqEmpty'))}</td></tr>`;
+    return;
+  }
+  userPersonRequestsTableBody.innerHTML = rows.join('');
+}
+
+async function loadApplicantPersonRequests() {
+  if (!userPersonRequestsTableBody) return;
+  const session = getSession();
+  const userLike = session && (session.role === 'user' || isManagerTesterSession(session));
+  if (!userLike) return;
+  const em = getApplicantEmailForDrafts(session);
+  if (!em) {
+    renderUserPersonRequests([]);
+    return;
+  }
+  userPersonRequestsTableBody.innerHTML = `<tr><td colspan="6" class="empty-row">${escapeHtml(t('user.loadingRow'))}</td></tr>`;
+  try {
+    const params = new URLSearchParams({
+      action: 'applicant_person_requests',
+      applicant_email: em,
+    });
+    const response = await fetch(`${API_URL}?${params.toString()}`);
+    const data = await response.json();
+    if (!response.ok || !data.ok) {
+      throw new Error(data.message || t('user.personReqLoadFail'));
+    }
+    renderUserPersonRequests(data.items || []);
+  } catch (e) {
+    userPersonRequestsTableBody.innerHTML = `<tr><td colspan="6" class="empty-row">${escapeHtml(e.message || t('user.personReqLoadFail'))}</td></tr>`;
+  }
+}
+
+async function loadManagerPersonAnalysisList() {
+  if (!managerParTableBody) return;
+  const session = getSession();
+  if (!session || session.role !== 'manager' || !session.managerKey || isManagerTesterSession(session)) {
+    if (managerParListSection) managerParListSection.classList.add('hidden');
+    return;
+  }
+  if (!isSessionCanDeleteSubmissions(session)) {
+    if (managerParListSection) managerParListSection.classList.add('hidden');
+    return;
+  }
+  if (managerParListSection) managerParListSection.classList.remove('hidden');
+  managerParTableBody.innerHTML = `<tr><td colspan="7" class="empty-row">${escapeHtml(t('manager.loadingCases'))}</td></tr>`;
+  try {
+    const params = new URLSearchParams({
+      action: 'person_analysis_list',
+      manager_key: session.managerKey,
+    });
+    const response = await fetch(`${API_URL}?${params.toString()}`);
+    const data = await response.json();
+    if (!response.ok || !data.ok) {
+      throw new Error(data.message || t('cases.loadFail'));
+    }
+    const items = data.items || [];
+    if (!items.length) {
+      managerParTableBody.innerHTML = `<tr><td colspan="7" class="empty-row">${escapeHtml(t('user.personReqEmpty'))}</td></tr>`;
+      return;
+    }
+    const canDel = isSessionCanDeleteSubmissions(session);
+    managerParTableBody.innerHTML = items
+      .map((item) => {
+        const pid = escapeHtml(item.person_analysis_id);
+        const delBtn = canDel
+          ? `<button type="button" class="btn-danger btn-compact" data-delete-par-id="${escapeAttr(item.person_analysis_id)}">${escapeHtml(t('manager.parDelete'))}</button>`
+          : escapeHtml(t('common.emDash'));
+        return `<tr>
+          <td><code translate="no">${pid}</code></td>
+          <td>${escapeHtml(item.submission_channel || t('common.emDash'))}</td>
+          <td>${escapeHtml(item.submitter_email || '')}</td>
+          <td>${escapeHtml(item.subject_legal_name || t('common.emDash'))}</td>
+          <td>${escapeHtml(parStatusLabel(item.status))}</td>
+          <td>${escapeHtml(formatDate(item.submitted_at))}</td>
+          <td>${delBtn}</td>
+        </tr>`;
+      })
+      .join('');
+  } catch (e) {
+    managerParTableBody.innerHTML = `<tr><td colspan="7" class="empty-row">${escapeHtml(e.message)}</td></tr>`;
+  }
+}
+
+function setManagerParListMessage(text, isError = false) {
+  if (!managerParListMessage) return;
+  managerParListMessage.textContent = text || '';
+  managerParListMessage.classList.toggle('hidden', !text);
+  managerParListMessage.classList.toggle('manager-status--error', Boolean(isError));
+  managerParListMessage.classList.toggle('manager-status--success', Boolean(text) && !isError);
 }
 
 async function loadDashboard() {
@@ -1872,7 +2317,8 @@ async function loadManagerCases() {
 }
 
 async function loadUserCases() {
-  userCasesTableBody.innerHTML = `<tr><td colspan="10" class="empty-row">${escapeHtml(t('user.loadingRow'))}</td></tr>`;
+  if (!userCasesTableBody) return;
+  userCasesTableBody.innerHTML = `<tr><td colspan="12" class="empty-row">${escapeHtml(t('user.loadingRow'))}</td></tr>`;
 
   const params = buildCasesParams();
   const response = await fetch(`${API_URL}?${params.toString()}`);
@@ -1882,7 +2328,7 @@ async function loadUserCases() {
     throw new Error(data.message || t('cases.userLoadFail'));
   }
 
-  renderUserCases(data.items || []);
+  renderUserInstitutionRequests(data.items || []);
 }
 
 function setManagerStatus(message, isError = false) {
@@ -1903,20 +2349,25 @@ async function refreshForRole() {
     if (session.role === 'manager') {
       if (isManagerTesterSession(session)) {
         await loadUserCases();
+        await loadApplicantPersonRequests();
       } else {
         await loadDashboard();
         await loadManagerCases();
+        await loadManagerPersonAnalysisList();
       }
     } else {
       await loadUserCases();
+      await loadApplicantPersonRequests();
     }
   } catch (error) {
     if (session.role === 'manager' && !isManagerTesterSession(session)) {
       setManagerStatus(error.message || t('cases.loadFail'), true);
     } else {
-      userCasesTableBody.innerHTML = `<tr><td colspan="10" class="empty-row">${escapeHtml(
-        error.message || t('cases.userLoadFail')
-      )}</td></tr>`;
+      if (userCasesTableBody) {
+        userCasesTableBody.innerHTML = `<tr><td colspan="12" class="empty-row">${escapeHtml(
+          error.message || t('cases.userLoadFail')
+        )}</td></tr>`;
+      }
     }
   }
 }
@@ -2040,6 +2491,112 @@ if (form.elements.applicant_email) {
 }
 if (pvApplicantEmail) {
   pvApplicantEmail.addEventListener('blur', persistTesterApplicantEmailFromPv);
+}
+
+if (userHubBtnInstitutions) {
+  userHubBtnInstitutions.addEventListener('click', (ev) => {
+    ev.preventDefault();
+    showUserView('instMethod');
+  });
+}
+if (userHubBtnPersons) {
+  userHubBtnPersons.addEventListener('click', (ev) => {
+    ev.preventDefault();
+    showUserView('personMethod');
+  });
+}
+if (navUserInstMethod) {
+  navUserInstMethod.addEventListener('click', (ev) => {
+    ev.preventDefault();
+    showUserView('instMethod');
+  });
+}
+if (navUserPersonMethod) {
+  navUserPersonMethod.addEventListener('click', (ev) => {
+    ev.preventDefault();
+    showUserView('personMethod');
+  });
+}
+if (navUserInstForm) {
+  navUserInstForm.addEventListener('click', (ev) => {
+    ev.preventDefault();
+    showUserView('instForm');
+  });
+}
+if (navUserPersonForm) {
+  navUserPersonForm.addEventListener('click', (ev) => {
+    ev.preventDefault();
+    showUserView('personForm');
+  });
+}
+if (navUserRequests) {
+  navUserRequests.addEventListener('click', (ev) => {
+    ev.preventDefault();
+    showUserView('requests');
+  });
+}
+
+if (userCasesTableBody) {
+  userCasesTableBody.addEventListener('click', (ev) => {
+    if (!ev.target.closest('[data-user-continue-intake-draft]')) return;
+    showUserView('instForm');
+    loadIntakeDraftFromStorage();
+  });
+}
+if (userPersonRequestsTableBody) {
+  userPersonRequestsTableBody.addEventListener('click', (ev) => {
+    if (!ev.target.closest('[data-user-continue-pv-draft]')) return;
+    showUserView('personForm');
+    loadPersonVettingDraftFromStorage();
+  });
+}
+
+if (pvSaveDraftButton) {
+  pvSaveDraftButton.addEventListener('click', (ev) => {
+    ev.preventDefault();
+    savePersonVettingDraftToStorage();
+  });
+}
+if (pvLoadDraftButton) {
+  pvLoadDraftButton.addEventListener('click', (ev) => {
+    ev.preventDefault();
+    loadPersonVettingDraftFromStorage();
+  });
+}
+
+if (managerParTableBody) {
+  managerParTableBody.addEventListener('click', async (ev) => {
+    const btn = ev.target.closest('[data-delete-par-id]');
+    if (!btn) return;
+    const session = getSession();
+    if (!isSessionCanDeleteSubmissions(session) || !session.managerKey) return;
+    const id = btn.getAttribute('data-delete-par-id');
+    if (!id || !window.confirm(t('admin.parDeleteConfirm'))) return;
+    btn.disabled = true;
+    setManagerParListMessage('', false);
+    try {
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({
+          action: 'delete_person_analysis',
+          manager_key: session.managerKey,
+          admin_email: session.email,
+          person_analysis_id: id,
+        }),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || !data.ok) {
+        throw new Error(data.message || t('admin.deleteFail'));
+      }
+      setManagerParListMessage(data.message || t('admin.parDeleteOk'), false);
+      await loadManagerPersonAnalysisList();
+    } catch (e) {
+      setManagerParListMessage(e.message || t('admin.deleteFail'), true);
+    } finally {
+      btn.disabled = false;
+    }
+  });
 }
 
 if (btnEnterTesterMode) {
@@ -2222,6 +2779,10 @@ if (applicantPersonVettingForm && pvSubmit) {
       setPvFormMessage(t('user.pvOk', { id: pid || '—' }), false);
       applicantPersonVettingForm.reset();
       syncApplicantPersonVettingFromSession(getSession());
+      clearPersonVettingDraftForCurrentUser();
+      if (currentUserMainView === 'requests') {
+        loadApplicantPersonRequests().catch(() => {});
+      }
     } catch (err) {
       setPvFormMessage(err.message || t('user.pvFail'), true);
     } finally {
