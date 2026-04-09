@@ -366,14 +366,17 @@ const STRINGS = {
     'user.draftLoaded': 'Načten rozpracovaný koncept.',
     'user.draftNone': 'Není uložen žádný koncept pro tento účet.',
     'user.draftFail': 'Koncept se nepodařilo uložit (blokované úložiště prohlížeče?).',
+    'user.hubTitle': 'Rozcestník',
     'user.hubLeadApplicant':
-      'Metodické check-listy pro prověřování subjektů. Níže otevřete metodiku, formuláře nebo přehled svých požadavků.',
+      'Metodické check-listy pro prověřování subjektů. Kachlíky níže otevřou metodiku; v liště najdete také formuláře a přehled svých požadavků.',
     'user.subNavAria': 'Navigace žadatele',
     'user.navInstMethod': 'Metodika – instituce',
     'user.navPersonMethod': 'Metodika – osoby',
-    'user.navInstForm': 'Check-list institucí',
-    'user.navPersonForm': 'Check-list osob',
+    'user.navInstForm': 'Check-list institucí (formulář)',
+    'user.navPersonForm': 'Check-list osob (formulář)',
     'user.navRequests': 'Moje požadavky',
+    'user.personMethodLead':
+      'Orientační metodický podklad pro žadatele. Doplňuje rámec institucionální bezpečnosti; nenahrazuje právní posouzení ani interní směrnice Ústavu.',
     'user.requestsTitle': 'Moje požadavky',
     'user.requestsDesc':
       'Přehled checklistu institucí (případy v IRIS) a checklistu osob. Rozpracované koncepty (draft) jsou jen v tomto prohlížeči.',
@@ -750,14 +753,17 @@ const STRINGS = {
     'user.draftLoaded': 'Draft loaded.',
     'user.draftNone': 'No saved draft for this account.',
     'user.draftFail': 'Could not save draft (browser storage blocked?).',
+    'user.hubTitle': 'Directory',
     'user.hubLeadApplicant':
-      'Methodology checklists for vetting subjects. Open methodology, forms, or your request overview below.',
+      'Methodology checklists for vetting subjects. Tiles below open the methodology; the bar links to forms and your requests.',
     'user.subNavAria': 'Applicant navigation',
     'user.navInstMethod': 'Methodology – institutions',
-    'user.navPersonMethod': 'Methodology – persons',
-    'user.navInstForm': 'Institution checklist',
-    'user.navPersonForm': 'Person checklist',
+    'user.navPersonMethod': 'Methodology – individuals',
+    'user.navInstForm': 'Institution checklist (form)',
+    'user.navPersonForm': 'Person checklist (form)',
     'user.navRequests': 'My requests',
+    'user.personMethodLead':
+      'Orientation methodology for applicants. Complements institutional security; not legal advice or a substitute for university policies.',
     'user.requestsTitle': 'My requests',
     'user.requestsDesc':
       'Institution checklist (IRIS cases) and person checklist. Drafts are stored only in this browser.',
@@ -803,10 +809,42 @@ const STRINGS = {
   },
 };
 
+/**
+ * Záložní řetězce pro rozcestník a navigaci žadatele – použijí se, pokud v nasazeném STRINGS
+ * chybí novější klíče (jinak by se na stránce zobrazoval samotný klíč).
+ */
+const I18N_FALLBACK_CS = {
+  'user.hubTitle': 'Rozcestník',
+  'user.hubLeadApplicant':
+    'Metodické check-listy pro prověřování subjektů. Kachlíky níže otevřou metodiku; v liště najdete také formuláře a přehled svých požadavků.',
+  'user.navInstMethod': 'Metodika – instituce',
+  'user.navPersonMethod': 'Metodika – osoby',
+  'user.navInstForm': 'Check-list institucí (formulář)',
+  'user.navPersonForm': 'Check-list osob (formulář)',
+  'user.navRequests': 'Moje požadavky',
+  'user.personMethodLead':
+    'Orientační metodický podklad pro žadatele. Doplňuje rámec institucionální bezpečnosti; nenahrazuje právní posouzení ani interní směrnice Ústavu.',
+};
+const I18N_FALLBACK_EN = {
+  'user.hubTitle': 'Directory',
+  'user.hubLeadApplicant':
+    'Methodology checklists for vetting subjects. Tiles below open the methodology; the bar links to forms and your requests.',
+  'user.navInstMethod': 'Methodology – institutions',
+  'user.navPersonMethod': 'Methodology – individuals',
+  'user.navInstForm': 'Institution checklist (form)',
+  'user.navPersonForm': 'Person checklist (form)',
+  'user.navRequests': 'My requests',
+  'user.personMethodLead':
+    'Orientation methodology for applicants. Complements institutional security; not legal advice or a substitute for university policies.',
+};
+
 function t(key, vars) {
   let s = STRINGS[currentLang]?.[key];
   if (s === undefined || s === '') s = STRINGS.cs[key];
-  if (s === undefined) s = key;
+  if (s === undefined || s === '') {
+    s = currentLang === 'en' ? I18N_FALLBACK_EN[key] : I18N_FALLBACK_CS[key];
+  }
+  if (s === undefined || s === '') s = key;
   if (vars && typeof s === 'string') {
     Object.entries(vars).forEach(([k, v]) => {
       s = s.split(`{${k}}`).join(String(v));
@@ -1212,6 +1250,8 @@ function showApp(session) {
     layoutUser.classList.add('hidden');
     layoutManager.classList.remove('hidden');
   }
+
+  applyStaticI18n();
 }
 
 function setTab(tab) {
