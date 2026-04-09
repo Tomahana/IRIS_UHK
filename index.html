@@ -7,7 +7,7 @@
   <link rel="icon" href="https://www.uhk.cz/img/favicon.ico" />
   <link rel="preconnect" href="https://www.uhk.cz" crossorigin />
   <!-- Styl je v souboru style.css ve stejné složce — při ručním vkládání do jiného systému zkopírujte obsah obou souborů. ?v= měňte po úpravách CSS (prohlížeč jinak drží starou verzi). -->
-  <link rel="stylesheet" href="style.css?v=10" />
+  <link rel="stylesheet" href="style.css?v=12" />
 </head>
 <body>
   <!-- Loga: uhk-logo.jpg a uhk-logo-small.jpg ve stejné složce jako index (viz GitHub IRIS_UHK). -->
@@ -214,6 +214,155 @@
           </form>
         </section>
 
+        <section class="card" id="applicantPersonVettingSection">
+          <div class="card-header">
+            <h2 data-i18n="user.pvTitle">Podání prověrky fyzické osoby</h2>
+            <p data-i18n="user.pvLead">
+              Žádost o zahájení / zařazení prověrky fyzické osoby v režimu IRIS. Vyplňte známé veřejné údaje o prověřované osobě a stručný popis věci. Odesláním souhlasíte, že údaje zpracovává Ústav v souladu s účelem prověrky.
+            </p>
+            <p class="field-hint" data-i18n="user.pvHintOsint">
+              Uvádějte zejména informace legálně dostupné z otevřených zdrojů (profily, publikace, identifikátory výzkumné aktivity). Citlivé údaje nad rámec běžně zveřejňovaných zde nevyplňujte.
+            </p>
+          </div>
+          <form id="applicantPersonVettingForm">
+            <fieldset class="fieldset full-width">
+              <legend data-i18n="user.pvLegendRequester">Žadatel</legend>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="pv_applicant_name" data-i18n="user.pvLblRequesterName">Jméno a příjmení žadatele *</label>
+                  <input type="text" id="pv_applicant_name" name="pv_applicant_name" required autocomplete="name" />
+                </div>
+                <div class="form-group">
+                  <label for="pv_applicant_email" data-i18n="user.pvLblRequesterEmail">E-mail žadatele *</label>
+                  <input
+                    type="email"
+                    id="pv_applicant_email"
+                    name="pv_applicant_email"
+                    required
+                    readonly
+                    class="input-readonly"
+                    data-i18n-title="user.titleEmailReadonly"
+                    title="E-mail je vázán na přihlášení"
+                  />
+                </div>
+              </div>
+            </fieldset>
+
+            <fieldset class="fieldset full-width">
+              <legend data-i18n="user.pvLegendLink">Vazba na stávající případ (nepovinné)</legend>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="pv_related_case_id" data-i18n="manager.paLblCaseId">Case ID</label>
+                  <input type="text" id="pv_related_case_id" name="pv_related_case_id" autocomplete="off" data-i18n-placeholder="manager.paPhCaseId" placeholder="např. CASE-2026-042" />
+                </div>
+                <div class="form-group">
+                  <label for="pv_related_record_uid" data-i18n="manager.paLblRecordUid">Referenční ID</label>
+                  <input type="text" id="pv_related_record_uid" name="pv_related_record_uid" autocomplete="off" />
+                </div>
+              </div>
+            </fieldset>
+
+            <fieldset class="fieldset full-width">
+              <legend data-i18n="manager.paLegendSubject">Prověřovaná osoba</legend>
+              <div class="form-grid">
+                <div class="form-group full-width">
+                  <label for="pv_subject_legal_name" data-i18n="manager.paLblLegalName">Jméno a příjmení (oficiální zápis) *</label>
+                  <input type="text" id="pv_subject_legal_name" name="pv_subject_legal_name" required autocomplete="off" />
+                </div>
+                <div class="form-group full-width">
+                  <label for="pv_subject_alternate_names" data-i18n="manager.paLblAltNames">Alternativní zápisy / příjmení / transliterace</label>
+                  <input type="text" id="pv_subject_alternate_names" name="pv_subject_alternate_names" autocomplete="off" />
+                </div>
+                <div class="form-group">
+                  <label for="pv_subject_dob_or_year" data-i18n="manager.paLblDob">Rok nebo datum narození (pokud je veřejně známé)</label>
+                  <input type="text" id="pv_subject_dob_or_year" name="pv_subject_dob_or_year" autocomplete="off" />
+                </div>
+                <div class="form-group">
+                  <label for="pv_subject_citizenships" data-i18n="manager.paLblCitizenship">Státní příslušnost (veřejně uváděná)</label>
+                  <input type="text" id="pv_subject_citizenships" name="pv_subject_citizenships" autocomplete="off" />
+                </div>
+                <div class="form-group">
+                  <label for="pv_subject_country_residence" data-i18n="manager.paLblResidence">Země / region obvyklého působení</label>
+                  <input type="text" id="pv_subject_country_residence" name="pv_subject_country_residence" autocomplete="off" />
+                </div>
+                <div class="form-group full-width">
+                  <label for="pv_subject_affiliation" data-i18n="manager.paLblAffiliation">Instituce / zaměstnavatel v kontextu věci</label>
+                  <input type="text" id="pv_subject_affiliation" name="pv_subject_affiliation" autocomplete="organization" />
+                </div>
+                <div class="form-group full-width">
+                  <label for="pv_subject_role_in_matter" data-i18n="manager.paLblRole">Role vůči UHK / vůči spolupráci</label>
+                  <input type="text" id="pv_subject_role_in_matter" name="pv_subject_role_in_matter" autocomplete="off" />
+                </div>
+              </div>
+            </fieldset>
+
+            <fieldset class="fieldset full-width">
+              <legend data-i18n="manager.paLegendIds">Veřejné identifikátory a profily (OSINT)</legend>
+              <p class="field-hint" data-i18n="manager.paHintIds">
+                Typicky dohledatelné: ORCID, Scopus Author ID, ResearcherID (WoS), Google Scholar, LinkedIn, oficiální profil na webu instituce.
+              </p>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="pv_id_orcid" data-i18n="manager.paLblOrcid">ORCID</label>
+                  <input type="text" id="pv_id_orcid" name="pv_id_orcid" placeholder="0000-0001-2345-6789" autocomplete="off" />
+                </div>
+                <div class="form-group">
+                  <label for="pv_id_scopus" data-i18n="manager.paLblScopus">Scopus Author ID</label>
+                  <input type="text" id="pv_id_scopus" name="pv_id_scopus_author_id" autocomplete="off" />
+                </div>
+                <div class="form-group">
+                  <label for="pv_id_wos" data-i18n="manager.paLblWos">Web of Science ResearcherID</label>
+                  <input type="text" id="pv_id_wos" name="pv_id_wos_researcher_id" autocomplete="off" />
+                </div>
+                <div class="form-group full-width">
+                  <label for="pv_id_scholar" data-i18n="manager.paLblScholar">URL profilu Google Scholar</label>
+                  <input type="url" id="pv_id_scholar" name="pv_id_google_scholar_url" data-i18n-placeholder="user.phUrl" placeholder="https://…" />
+                </div>
+                <div class="form-group full-width">
+                  <label for="pv_id_linkedin" data-i18n="manager.paLblLinkedin">URL veřejného profilu LinkedIn</label>
+                  <input type="url" id="pv_id_linkedin" name="pv_id_linkedin_url" data-i18n-placeholder="user.phUrl" placeholder="https://…" />
+                </div>
+                <div class="form-group full-width">
+                  <label for="pv_id_inst_profiles" data-i18n="manager.paLblInstProfiles">URL institucionálních profilů (jeden na řádek)</label>
+                  <textarea id="pv_id_inst_profiles" name="pv_id_institutional_profiles" rows="3"></textarea>
+                </div>
+                <div class="form-group full-width">
+                  <label for="pv_id_other_urls" data-i18n="manager.paLblOtherUrls">Další veřejné URL (jedna na řádek)</label>
+                  <textarea id="pv_id_other_urls" name="pv_id_other_public_urls" rows="2"></textarea>
+                </div>
+              </div>
+            </fieldset>
+
+            <fieldset class="fieldset full-width">
+              <legend data-i18n="manager.paLegendRequest">Žádost</legend>
+              <div class="form-grid">
+                <div class="form-group full-width">
+                  <label for="pv_request_summary" data-i18n="user.pvLblSummary">Důvod a rozsah požadované prověrky *</label>
+                  <textarea id="pv_request_summary" name="pv_request_summary" rows="4" required></textarea>
+                </div>
+                <div class="form-group">
+                  <label for="pv_urgency" data-i18n="manager.paLblUrgency">Důležitost / naléhavost</label>
+                  <select id="pv_urgency" name="pv_urgency">
+                    <option value="low" data-i18n-opt="manager.paUrgLow">Nízká</option>
+                    <option value="medium" selected data-i18n-opt="manager.paUrgMed">Střední</option>
+                    <option value="high" data-i18n-opt="manager.paUrgHigh">Vysoká</option>
+                  </select>
+                </div>
+                <div class="form-group full-width">
+                  <label for="pv_identifier_source_note" data-i18n="manager.paLblIdSource">Odkud pocházejí uvedené identifikátory</label>
+                  <textarea id="pv_identifier_source_note" name="pv_identifier_source_note" rows="2"></textarea>
+                </div>
+              </div>
+            </fieldset>
+
+            <div class="actions form-actions form-actions--intake">
+              <button type="submit" class="btn-primary" id="pvSubmit" data-i18n="user.pvSubmit">Odeslat podání prověrky</button>
+              <button type="reset" class="btn-secondary" id="pvReset" data-i18n="user.pvReset">Vymazat formulář</button>
+            </div>
+          </form>
+          <p id="pvFormMessage" class="manager-case-form-msg hidden" role="status"></p>
+        </section>
+
         <section class="card">
           <div class="card-header">
             <h2 data-i18n="user.casesTitle">Moje podání</h2>
@@ -308,6 +457,10 @@
             <span class="manager-hub-tile__title" data-i18n="manager.hubPersonsTitle">Check-list osob</span>
             <span class="manager-hub-tile__desc" data-i18n="manager.hubPersonsDesc">Základy prověrky fyzických osob (OSINT, due diligence).</span>
           </button>
+          <button type="button" class="manager-hub-tile" id="hubBtnPersonAnalysis">
+            <span class="manager-hub-tile__title" data-i18n="manager.hubPersonAnalysisTitle">Podněty k analýze osob</span>
+            <span class="manager-hub-tile__desc" data-i18n="manager.hubPersonAnalysisDesc">Formulář pro zadání prověřované osoby a veřejných identifikátorů do evidence.</span>
+          </button>
         </div>
       </section>
 
@@ -315,6 +468,7 @@
         <button type="button" class="manager-sub-nav__btn is-active" id="navManagerDashboard" data-i18n="admin.navIris">Přehled IRIS</button>
         <button type="button" class="manager-sub-nav__btn" id="navManagerInstitutions" data-i18n="manager.navInstitutions">Instituce a organizace</button>
         <button type="button" class="manager-sub-nav__btn" id="navManagerPersons" data-i18n="manager.navPersons">Osoby</button>
+        <button type="button" class="manager-sub-nav__btn" id="navManagerPersonAnalysis" data-i18n="manager.navPersonAnalysis">Podněty k analýze</button>
       </nav>
 
       <div id="managerViewDashboard">
@@ -608,6 +762,141 @@
               </div>
             </div>
           </div>
+        </section>
+      </div>
+
+      <div id="managerViewPersonAnalysis" class="manager-view-person-analysis hidden">
+        <section class="card">
+          <div class="card-header">
+            <h2 data-i18n="manager.paTitle">Podněty k analýze osob (správce)</h2>
+            <p data-i18n="manager.paLead">
+              Interní záznam pro koordinaci analýzy fyzické osoby (stejná evidence jako podání žadatele; rozlišení ve sloupci submission_channel). Žadatelé používají sekci „Podání prověrky fyzické osoby“ v přihlášené části.
+            </p>
+            <p class="field-hint" data-i18n="manager.paHintIdentifiers">
+              Vyplňte pouze údaje legálně dostupné z otevřených zdrojů (metodika OSINT). Citlivé osobní údaje nad rámec veřejného profilu zde neuvádějte.
+            </p>
+          </div>
+          <form id="personAnalysisForm">
+            <fieldset class="fieldset full-width">
+              <legend data-i18n="manager.paLegendLink">Vazba na případ (nepovinné)</legend>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="pa_related_case_id" data-i18n="manager.paLblCaseId">Case ID</label>
+                  <input
+                    type="text"
+                    id="pa_related_case_id"
+                    name="related_case_id"
+                    autocomplete="off"
+                    data-i18n-placeholder="manager.paPhCaseId"
+                    placeholder="např. CASE-2026-042"
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="pa_related_record_uid" data-i18n="manager.paLblRecordUid">Referenční ID</label>
+                  <input type="text" id="pa_related_record_uid" name="related_record_uid" autocomplete="off" />
+                </div>
+              </div>
+            </fieldset>
+
+            <fieldset class="fieldset full-width">
+              <legend data-i18n="manager.paLegendSubject">Prověřovaná osoba</legend>
+              <div class="form-grid">
+                <div class="form-group full-width">
+                  <label for="pa_subject_legal_name" data-i18n="manager.paLblLegalName">Jméno a příjmení (oficiální zápis) *</label>
+                  <input type="text" id="pa_subject_legal_name" name="subject_legal_name" required autocomplete="name" />
+                </div>
+                <div class="form-group full-width">
+                  <label for="pa_subject_alternate_names" data-i18n="manager.paLblAltNames">Alternativní zápisy / příjmení / transliterace</label>
+                  <input type="text" id="pa_subject_alternate_names" name="subject_alternate_names" autocomplete="off" />
+                </div>
+                <div class="form-group">
+                  <label for="pa_subject_dob_or_year" data-i18n="manager.paLblDob">Rok nebo datum narození (pokud je veřejně známé)</label>
+                  <input type="text" id="pa_subject_dob_or_year" name="subject_dob_or_year" autocomplete="bday" />
+                </div>
+                <div class="form-group">
+                  <label for="pa_subject_citizenships" data-i18n="manager.paLblCitizenship">Státní příslušnost (veřejně uváděná)</label>
+                  <input type="text" id="pa_subject_citizenships" name="subject_citizenships" autocomplete="off" />
+                </div>
+                <div class="form-group">
+                  <label for="pa_subject_country_residence" data-i18n="manager.paLblResidence">Země / region obvyklého působení</label>
+                  <input type="text" id="pa_subject_country_residence" name="subject_country_residence" autocomplete="off" />
+                </div>
+                <div class="form-group full-width">
+                  <label for="pa_subject_affiliation" data-i18n="manager.paLblAffiliation">Instituce / zaměstnavatel v kontextu věci</label>
+                  <input type="text" id="pa_subject_affiliation" name="subject_affiliation" autocomplete="organization" />
+                </div>
+                <div class="form-group full-width">
+                  <label for="pa_subject_role_in_matter" data-i18n="manager.paLblRole">Role vůči UHK (např. hostující výzkumník, řešitel, expert)</label>
+                  <input type="text" id="pa_subject_role_in_matter" name="subject_role_in_matter" autocomplete="off" />
+                </div>
+              </div>
+            </fieldset>
+
+            <fieldset class="fieldset full-width">
+              <legend data-i18n="manager.paLegendIds">Veřejné identifikátory a profily (OSINT)</legend>
+              <p class="field-hint" data-i18n="manager.paHintIds">
+                Typicky dohledatelné: ORCID, Scopus Author ID, ResearcherID (WoS), Google Scholar, LinkedIn, oficiální profil na webu instituce.
+              </p>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="pa_id_orcid" data-i18n="manager.paLblOrcid">ORCID</label>
+                  <input type="text" id="pa_id_orcid" name="id_orcid" placeholder="0000-0001-2345-6789" autocomplete="off" />
+                </div>
+                <div class="form-group">
+                  <label for="pa_id_scopus" data-i18n="manager.paLblScopus">Scopus Author ID</label>
+                  <input type="text" id="pa_id_scopus" name="id_scopus_author_id" autocomplete="off" />
+                </div>
+                <div class="form-group">
+                  <label for="pa_id_wos" data-i18n="manager.paLblWos">Web of Science ResearcherID</label>
+                  <input type="text" id="pa_id_wos" name="id_wos_researcher_id" autocomplete="off" />
+                </div>
+                <div class="form-group full-width">
+                  <label for="pa_id_scholar" data-i18n="manager.paLblScholar">URL profilu Google Scholar</label>
+                  <input type="url" id="pa_id_scholar" name="id_google_scholar_url" data-i18n-placeholder="user.phUrl" placeholder="https://…" />
+                </div>
+                <div class="form-group full-width">
+                  <label for="pa_id_linkedin" data-i18n="manager.paLblLinkedin">URL veřejného profilu LinkedIn</label>
+                  <input type="url" id="pa_id_linkedin" name="id_linkedin_url" data-i18n-placeholder="user.phUrl" placeholder="https://…" />
+                </div>
+                <div class="form-group full-width">
+                  <label for="pa_id_inst_profiles" data-i18n="manager.paLblInstProfiles">URL institucionálních profilů (jeden na řádek)</label>
+                  <textarea id="pa_id_inst_profiles" name="id_institutional_profiles" rows="3"></textarea>
+                </div>
+                <div class="form-group full-width">
+                  <label for="pa_id_other_urls" data-i18n="manager.paLblOtherUrls">Další veřejné URL (jedna na řádek)</label>
+                  <textarea id="pa_id_other_urls" name="id_other_public_urls" rows="2"></textarea>
+                </div>
+              </div>
+            </fieldset>
+
+            <fieldset class="fieldset full-width">
+              <legend data-i18n="manager.paLegendRequest">Podnět</legend>
+              <div class="form-grid">
+                <div class="form-group full-width">
+                  <label for="pa_request_summary" data-i18n="manager.paLblSummary">Co má být ověřeno / kontext a cíl analýzy *</label>
+                  <textarea id="pa_request_summary" name="request_summary" rows="4" required></textarea>
+                </div>
+                <div class="form-group">
+                  <label for="pa_urgency" data-i18n="manager.paLblUrgency">Důležitost / naléhavost</label>
+                  <select id="pa_urgency" name="urgency">
+                    <option value="low" data-i18n-opt="manager.paUrgLow">Nízká</option>
+                    <option value="medium" selected data-i18n-opt="manager.paUrgMed">Střední</option>
+                    <option value="high" data-i18n-opt="manager.paUrgHigh">Vysoká</option>
+                  </select>
+                </div>
+                <div class="form-group full-width">
+                  <label for="pa_identifier_source_note" data-i18n="manager.paLblIdSource">Odkud pocházejí identifikátory (publikace, smlouva, web UHK, …)</label>
+                  <textarea id="pa_identifier_source_note" name="identifier_source_note" rows="2"></textarea>
+                </div>
+              </div>
+            </fieldset>
+
+            <div class="actions form-actions form-actions--intake">
+              <button type="submit" class="btn-primary" id="personAnalysisSubmit" data-i18n="manager.paSubmit">Odeslat do evidence</button>
+              <button type="reset" class="btn-secondary" id="personAnalysisReset" data-i18n="manager.paReset">Vymazat formulář</button>
+            </div>
+          </form>
+          <p id="personAnalysisFormMessage" class="manager-case-form-msg hidden" role="status"></p>
         </section>
       </div>
 
