@@ -7,7 +7,7 @@
   <link rel="icon" href="https://www.uhk.cz/img/favicon.ico" />
   <link rel="preconnect" href="https://www.uhk.cz" crossorigin />
   <!-- Styl je v souboru style.css ve stejné složce — při ručním vkládání do jiného systému zkopírujte obsah obou souborů. ?v= měňte po úpravách CSS (prohlížeč jinak drží starou verzi). -->
-  <link rel="stylesheet" href="style.css?v=14" />
+  <link rel="stylesheet" href="style.css?v=16" />
 </head>
 <body>
   <!-- Loga: uhk-logo.jpg a uhk-logo-small.jpg ve stejné složce jako index (viz GitHub IRIS_UHK). -->
@@ -165,7 +165,12 @@
               <h2 data-i18n="manager.instTitle">Check-list institucí a organizací</h2>
               <p data-i18n="manager.instLead">Orientační rámec pro prověřování partnerů, institucí a právnických osob v kontextu IRIS UHK.</p>
             </div>
-            <div class="vetting-content" id="userMethodologyInstMount"></div>
+            <details class="methodology-details">
+              <summary class="methodology-details__summary">
+                <span data-i18n="methodology.applicantInstSummary">Chcete zobrazit metodické pokyny pro žadatele? (check-list institucí)</span>
+              </summary>
+              <div class="vetting-content methodology-details__body" id="userMethodologyInstMount"></div>
+            </details>
           </section>
         </div>
 
@@ -177,7 +182,12 @@
                 Orientační metodický podklad pro žadatele. Doplňuje rámec institucionální bezpečnosti; nenahrazuje právní posouzení ani interní směrnice Ústavu.
               </p>
             </div>
-            <div class="vetting-content" id="userMethodologyPersonMount"></div>
+            <details class="methodology-details">
+              <summary class="methodology-details__summary">
+                <span data-i18n="methodology.applicantPersonSummary">Chcete zobrazit metodické pokyny pro žadatele? (check-list osob)</span>
+              </summary>
+              <div class="vetting-content methodology-details__body" id="userMethodologyPersonMount"></div>
+            </details>
           </section>
         </div>
 
@@ -641,7 +651,11 @@
             <h2 data-i18n="manager.instTitle">Check-list institucí a organizací</h2>
             <p data-i18n="manager.instLead">Orientační rámec pro prověřování partnerů, institucí a právnických osob v kontextu IRIS UHK. Doplňuje vstupní checklist; nenahrazuje právní posouzení.</p>
           </div>
-          <div class="vetting-content">
+          <details class="methodology-details">
+            <summary class="methodology-details__summary">
+              <span data-i18n="methodology.managerInstSummary">Chcete zobrazit metodické pokyny pro správce IRIS? (check-list institucí)</span>
+            </summary>
+            <div class="vetting-content methodology-details__body">
             <div class="vetting-body-lang" data-iris-lang="cs" id="institutionsBodyCs">
               <div class="vetting-block">
                 <h3>1. Identifikace a právní subjektivita</h3>
@@ -693,6 +707,7 @@
               </div>
             </div>
           </div>
+          </details>
         </section>
       </div>
 
@@ -702,7 +717,11 @@
             <h2 data-i18n="admin.vettingTitle">Prověrky osob – základy OSINT a Due diligence</h2>
             <p data-i18n="admin.vettingLead">Interní metodický podklad pro administrátory IRIS. Doplňuje obecný rámec institucionální bezpečnosti; nenahrazuje právní posouzení ani interní směrnice Ústavu.</p>
           </div>
-          <div class="vetting-content">
+          <details class="methodology-details">
+            <summary class="methodology-details__summary">
+              <span data-i18n="methodology.managerPersonSummary">Chcete zobrazit metodické pokyny pro správce IRIS? (check-list osob)</span>
+            </summary>
+            <div class="vetting-content methodology-details__body">
             <!-- Metodika je zde v HTML (CS/EN); přepíná ji app.js podle jazyka. -->
             <div class="vetting-body-lang" data-iris-lang="cs" id="vettingBodyCs">
               <div class="vetting-block">
@@ -865,6 +884,7 @@
               </div>
             </div>
           </div>
+          </details>
         </section>
       </div>
 
@@ -1079,6 +1099,24 @@
                 <input type="date" id="managerNextAnalysisDue" />
               </div>
             </fieldset>
+
+            <fieldset class="fieldset full-width manager-prompt-fieldset">
+              <legend data-i18n="manager.promptSectionTitle">Asistence LLM (kopírování promptu)</legend>
+              <p class="field-hint" data-i18n="manager.promptSectionHint">
+                Vygeneruje text do schránky z údajů případu a otevřeného panelu. Vložte do ChatGPT / Claude a doplňte vlastní zjištění.
+              </p>
+              <div class="manager-prompt-actions" role="group">
+                <button type="button" class="btn-secondary btn-compact" id="managerPromptGptBtn" data-i18n="manager.promptGpt">
+                  Prompt pro ChatGPT (předběžná prověrka)
+                </button>
+                <button type="button" class="btn-secondary btn-compact" id="managerPromptClaudeBtn" data-i18n="manager.promptClaude">
+                  Prompt pro Claude (finální analytická zpráva)
+                </button>
+                <button type="button" class="btn-secondary btn-compact" id="managerPromptClaudeSanctionsBtn" data-i18n="manager.promptClaudeSanctions">
+                  Prompt pro Claude (sankční prověrka)
+                </button>
+              </div>
+            </fieldset>
           </div>
           <div class="manager-case-actions">
             <button type="button" class="btn-primary" id="managerCaseSave" data-i18n="manager.save">Uložit změny</button>
@@ -1090,6 +1128,7 @@
     </div>
   </div>
 
-  <script src="app.js?v=15"></script>
+  <script src="iris-prompts.js?v=1"></script>
+  <script src="app.js?v=16"></script>
 </body>
 </html>
