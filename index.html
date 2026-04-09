@@ -7,7 +7,7 @@
   <link rel="icon" href="https://www.uhk.cz/img/favicon.ico" />
   <link rel="preconnect" href="https://www.uhk.cz" crossorigin />
   <!-- Styl je v souboru style.css ve stejné složce — při ručním vkládání do jiného systému zkopírujte obsah obou souborů. ?v= měňte po úpravách CSS (prohlížeč jinak drží starou verzi). -->
-  <link rel="stylesheet" href="style.css?v=16" />
+  <link rel="stylesheet" href="style.css?v=18" />
 </head>
 <body>
   <!-- Loga: uhk-logo.jpg a uhk-logo-small.jpg ve stejné složce jako index (viz GitHub IRIS_UHK). -->
@@ -1100,23 +1100,23 @@
               </div>
             </fieldset>
 
-            <fieldset class="fieldset full-width manager-prompt-fieldset">
-              <legend data-i18n="manager.promptSectionTitle">Asistence LLM (kopírování promptu)</legend>
-              <p class="field-hint" data-i18n="manager.promptSectionHint">
-                Vygeneruje text do schránky z údajů případu a otevřeného panelu. Vložte do ChatGPT / Claude a doplňte vlastní zjištění.
+            <div class="manager-prompt-block" role="region" aria-labelledby="managerPromptBlockTitle">
+              <h4 class="manager-prompt-block__title" id="managerPromptBlockTitle">Prompt pro AI (ChatGPT / Claude)</h4>
+              <p class="field-hint manager-prompt-block__lead" id="managerPromptBlockLead">
+                Otevře okno s celým textem promptu. Do textu se doplní údaje případu z tabulky i z polí tohoto panelu (i před uložením).
               </p>
               <div class="manager-prompt-actions" role="group">
-                <button type="button" class="btn-secondary btn-compact" id="managerPromptGptBtn" data-i18n="manager.promptGpt">
-                  Prompt pro ChatGPT (předběžná prověrka)
+                <button type="button" class="btn-secondary btn-compact" id="managerPromptGptBtn">
+                  ChatGPT – předběžná prověrka partnera
                 </button>
-                <button type="button" class="btn-secondary btn-compact" id="managerPromptClaudeBtn" data-i18n="manager.promptClaude">
-                  Prompt pro Claude (finální analytická zpráva)
+                <button type="button" class="btn-secondary btn-compact" id="managerPromptClaudeBtn">
+                  Claude – finální analytická zpráva
                 </button>
-                <button type="button" class="btn-secondary btn-compact" id="managerPromptClaudeSanctionsBtn" data-i18n="manager.promptClaudeSanctions">
-                  Prompt pro Claude (sankční prověrka)
+                <button type="button" class="btn-secondary btn-compact" id="managerPromptClaudeSanctionsBtn">
+                  Claude – sankční screening
                 </button>
               </div>
-            </fieldset>
+            </div>
           </div>
           <div class="manager-case-actions">
             <button type="button" class="btn-primary" id="managerCaseSave" data-i18n="manager.save">Uložit změny</button>
@@ -1128,7 +1128,28 @@
     </div>
   </div>
 
+  <dialog id="managerPromptDialog" class="iris-prompt-dialog" aria-labelledby="managerPromptDialogTitle">
+    <div class="iris-prompt-dialog__inner">
+      <h3 class="iris-prompt-dialog__title" id="managerPromptDialogTitle">Prompt</h3>
+      <textarea
+        id="managerPromptDialogText"
+        class="iris-prompt-dialog__textarea"
+        readonly
+        rows="16"
+        spellcheck="false"
+        aria-label="Text promptu"
+      ></textarea>
+      <p class="field-hint iris-prompt-dialog__tip" id="managerPromptDialogTip">
+        Označte celý text (Ctrl+A) a zkopírujte, nebo použijte tlačítko níže.
+      </p>
+      <div class="iris-prompt-dialog__actions">
+        <button type="button" class="btn-primary" id="managerPromptDialogCopyBtn">Kopírovat do schránky</button>
+        <button type="button" class="btn-secondary" id="managerPromptDialogCloseBtn">Zavřít</button>
+      </div>
+    </div>
+  </dialog>
+
   <script src="iris-prompts.js?v=1"></script>
-  <script src="app.js?v=17"></script>
+  <script src="app.js?v=18"></script>
 </body>
 </html>
