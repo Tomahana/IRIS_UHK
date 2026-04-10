@@ -585,7 +585,7 @@
                 <th data-i18n="tbl.partner">Partner</th>
                 <th data-i18n="tbl.status">Stav</th>
                 <th data-i18n="tbl.priority">Priorita</th>
-                <th data-i18n="tbl.risk">Riziko</th>
+                <th data-i18n="tbl.risk" data-i18n-title="manager.riskColHint" title="">Riziko</th>
                 <th aria-hidden="true"></th>
               </tr>
             </thead>
@@ -1006,15 +1006,16 @@
           <div class="manager-workflow-suggest" id="managerWorkflowSuggest" aria-live="polite"></div>
 
           <div class="manager-quick-actions" role="group">
-            <button type="button" class="btn-secondary btn-compact" id="managerQuickClose" data-i18n="manager.quickClose">Uzavřít případ</button>
-            <button type="button" class="btn-secondary btn-compact" id="managerQuickAnalysis" data-i18n="manager.quickAnalysis">Posunout k analýze</button>
-            <button type="button" class="btn-secondary btn-compact" id="managerQuickDeep" data-i18n="manager.quickDeep">Posunout k hluboké analýze (DD)</button>
+            <button type="button" class="btn-secondary btn-compact" id="managerQuickClose" data-manager-quick="close" data-i18n="manager.quickClose">Uzavřít případ</button>
+            <button type="button" class="btn-secondary btn-compact" id="managerQuickAnalysis" data-manager-quick="analysis" data-i18n="manager.quickAnalysis">Posunout k analýze</button>
+            <button type="button" class="btn-secondary btn-compact" id="managerQuickDeep" data-manager-quick="deep" data-i18n="manager.quickDeep">Posunout k hluboké analýze (DD)</button>
           </div>
+          <p id="managerQuickActionFeedback" class="manager-quick-action-feedback hidden" role="status" aria-live="polite"></p>
 
           <fieldset class="fieldset full-width manager-risk-fieldset">
             <legend id="irisMgrRiskLegend">Vyhodnocení rizika po prověrce</legend>
             <p class="field-hint" id="irisMgrRiskHint">
-              Po interní prověrce můžete upravit údaje z checklistu. Hodnota v sloupci „Riziko“ v přehledu odpovídá zvolené úrovni níže.
+              Po interní prověrce můžete upravit údaje z checklistu. Sloupec Riziko v přehledu se po uložení barevně zvýrazní podle zvolené úrovně.
             </p>
             <div class="manager-case-grid">
               <div class="form-group">
@@ -1037,6 +1038,67 @@
                 <label for="managerCaseFinalOutcome" id="irisMgrRiskLblFinal">Závěr IRIS po prověrce</label>
                 <textarea id="managerCaseFinalOutcome" rows="3" placeholder="Stručný závěr pro evidenci (sloupec final_outcome v listu Cases)."></textarea>
               </div>
+              <div class="form-group full-width">
+                <p class="field-hint" data-i18n="manager.riskDomainsHint">
+                  Riziko podle oblastí (správce) – uloží se do sloupců v listu Cases.
+                </p>
+              </div>
+              <div class="manager-risk-domains-grid">
+                <div class="form-group">
+                  <label for="managerRiskReputational" data-i18n="manager.lblRiskReputational">Reputační riziko</label>
+                  <select id="managerRiskReputational">
+                    <option value="nehodnoceno" data-i18n-opt="manager.riskNA">nehodnoceno</option>
+                    <option value="nízké" data-i18n-opt="manager.riskLow">nízké</option>
+                    <option value="střední" data-i18n-opt="manager.riskMed">střední</option>
+                    <option value="vysoké" data-i18n-opt="manager.riskHigh">vysoké</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="managerRiskLegal" data-i18n="manager.lblRiskLegal">Právní riziko</label>
+                  <select id="managerRiskLegal">
+                    <option value="nehodnoceno" data-i18n-opt="manager.riskNA">nehodnoceno</option>
+                    <option value="nízké" data-i18n-opt="manager.riskLow">nízké</option>
+                    <option value="střední" data-i18n-opt="manager.riskMed">střední</option>
+                    <option value="vysoké" data-i18n-opt="manager.riskHigh">vysoké</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="managerRiskFinancial" data-i18n="manager.lblRiskFinancial">Finanční riziko</label>
+                  <select id="managerRiskFinancial">
+                    <option value="nehodnoceno" data-i18n-opt="manager.riskNA">nehodnoceno</option>
+                    <option value="nízké" data-i18n-opt="manager.riskLow">nízké</option>
+                    <option value="střední" data-i18n-opt="manager.riskMed">střední</option>
+                    <option value="vysoké" data-i18n-opt="manager.riskHigh">vysoké</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="managerRiskSecurity" data-i18n="manager.lblRiskSecurity">Bezpečnostní riziko</label>
+                  <select id="managerRiskSecurity">
+                    <option value="nehodnoceno" data-i18n-opt="manager.riskNA">nehodnoceno</option>
+                    <option value="nízké" data-i18n-opt="manager.riskLow">nízké</option>
+                    <option value="střední" data-i18n-opt="manager.riskMed">střední</option>
+                    <option value="vysoké" data-i18n-opt="manager.riskHigh">vysoké</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="managerRiskEthical" data-i18n="manager.lblRiskEthical">Etické riziko</label>
+                  <select id="managerRiskEthical">
+                    <option value="nehodnoceno" data-i18n-opt="manager.riskNA">nehodnoceno</option>
+                    <option value="nízké" data-i18n-opt="manager.riskLow">nízké</option>
+                    <option value="střední" data-i18n-opt="manager.riskMed">střední</option>
+                    <option value="vysoké" data-i18n-opt="manager.riskHigh">vysoké</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="managerRiskOther" data-i18n="manager.lblRiskOther">Jiné riziko (IP / compliance / GDPR)</label>
+                  <select id="managerRiskOther">
+                    <option value="nehodnoceno" data-i18n-opt="manager.riskNA">nehodnoceno</option>
+                    <option value="nízké" data-i18n-opt="manager.riskLow">nízké</option>
+                    <option value="střední" data-i18n-opt="manager.riskMed">střední</option>
+                    <option value="vysoké" data-i18n-opt="manager.riskHigh">vysoké</option>
+                  </select>
+                </div>
+              </div>
             </div>
           </fieldset>
 
@@ -1057,6 +1119,15 @@
             <div class="form-group">
               <label for="managerCaseDue" data-i18n="manager.lblDue">Termín / lhůta (další milník)</label>
               <input type="datetime-local" id="managerCaseDue" />
+            </div>
+            <div class="form-group full-width">
+              <fieldset class="fieldset full-width manager-milestones-fieldset">
+                <legend data-i18n="manager.milestonesLegend">Procesní milníky (návrh dle metodiky)</legend>
+                <p class="field-hint" data-i18n="manager.milestonesHint">
+                  Orientační termíny – upravte podle případu. Pole výše předvyplní nejbližší milník, pokud v evidenci chybí termín.
+                </p>
+                <ul id="managerMilestonesList" class="manager-milestones-list"></ul>
+              </fieldset>
             </div>
             <div class="form-group full-width">
               <label for="managerCaseNextStep" data-i18n="manager.lblNext">Další postup pro žadatele (co a kdy očekávat)</label>
@@ -1154,6 +1225,6 @@
   </dialog>
 
   <script src="iris-prompts.js?v=1"></script>
-  <script src="app.js?v=22"></script>
+  <script src="app.js?v=23"></script>
 </body>
 </html>
