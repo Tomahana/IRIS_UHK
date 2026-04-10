@@ -124,6 +124,7 @@ const STRINGS = {
     'user.workflowDeadlinesVal': 'u každého případu v tabulce; dle metodiky IRIS',
     'tbl.caseId': 'Case ID',
     'tbl.refUid': 'Referenční ID',
+    'tbl.refUidShort': 'Ref. ID',
     'tbl.created': 'Vytvořeno',
     'tbl.name': 'Název',
     'tbl.partner': 'Partner',
@@ -280,6 +281,36 @@ const STRINGS = {
     'manager.quickClose': 'Uzavřít případ',
     'manager.quickAnalysis': 'Posunout k analýze',
     'manager.quickDeep': 'Posunout k hluboké analýze (DD)',
+    'manager.riskFieldsetLegend': 'Vyhodnocení rizika po prověrce',
+    'manager.riskFieldsetHint':
+      'Po interní prověrce můžete upravit údaje z checklistu. Hodnota v sloupci „Riziko“ v přehledu odpovídá zvolené úrovni níže.',
+    'manager.lblRiskLevel': 'Úroveň rizika',
+    'manager.lblPreliminaryScore': 'Skóre z checklistu (0–99)',
+    'manager.phRiskScore': 'např. 6',
+    'manager.lblPreliminaryResult': 'Předběžné vyhodnocení (automatický text z podání)',
+    'manager.phPreliminaryResult': 'Text z podání; po prověrce ho můžete upravit.',
+    'manager.lblFinalOutcome': 'Závěr IRIS po prověrce',
+    'manager.phFinalOutcome': 'Stručný závěr pro evidenci (sloupec final_outcome v listu Cases).',
+    'manager.riskLow': 'nízké',
+    'manager.riskMed': 'střední',
+    'manager.riskHigh': 'vysoké',
+    'manager.riskNA': 'nehodnoceno',
+    'manager.quickActionDone': 'Stav, další postup a termín byly nastaveny. Uložte změny tlačítkem „Uložit změny“.',
+    'manager.milestonesLegend': 'Procesní milníky (návrh dle metodiky)',
+    'manager.milestonesHint':
+      'Orientační termíny – upravte podle případu. Pole „Termín / lhůta“ se předvyplní nejbližším milníkem, pokud v evidenci chybí termín.',
+    'manager.milestoneClosure': 'Cílový termín uzavření / rozhodnutí (orientačně)',
+    'manager.milestoneRecurrence': 'Opakovaná kontrola / obnova analýzy',
+    'manager.milestoneDeep': 'Hlubší due diligence (DD)',
+    'manager.milestoneSuggested': 'návrh data',
+    'manager.riskDomainsHint': 'Odhad rizika podle oblastí pro správu případu (uloží se do listu Cases).',
+    'manager.lblRiskReputational': 'Reputační riziko',
+    'manager.lblRiskLegal': 'Právní riziko',
+    'manager.lblRiskFinancial': 'Finanční riziko',
+    'manager.lblRiskSecurity': 'Bezpečnostní riziko',
+    'manager.lblRiskEthical': 'Etické riziko',
+    'manager.lblRiskOther': 'Jiné riziko (IP / compliance / GDPR)',
+    'manager.riskColHint': 'Barva odpovídá uložené úrovni rizika v panelu Úprava případu (po uložení a obnovení seznamu).',
     'methodology.applicantInstSummary':
       'Chcete zobrazit metodické pokyny pro žadatele? (check-list institucí a organizací)',
     'methodology.applicantPersonSummary':
@@ -544,6 +575,7 @@ const STRINGS = {
     'user.workflowDeadlinesVal': 'per case in the table; per IRIS methodology',
     'tbl.caseId': 'Case ID',
     'tbl.refUid': 'Reference ID',
+    'tbl.refUidShort': 'Ref. ID',
     'tbl.created': 'Created',
     'tbl.name': 'Title',
     'tbl.partner': 'Partner',
@@ -700,6 +732,37 @@ const STRINGS = {
     'manager.quickClose': 'Close case',
     'manager.quickAnalysis': 'Move to analysis',
     'manager.quickDeep': 'Move to deep analysis (DD)',
+    'manager.riskFieldsetLegend': 'Risk assessment after vetting',
+    'manager.riskFieldsetHint':
+      'After internal vetting you can adjust checklist values. The Risk column in the case list matches the level selected below.',
+    'manager.lblRiskLevel': 'Risk level',
+    'manager.lblPreliminaryScore': 'Checklist score (0–99)',
+    'manager.phRiskScore': 'e.g. 6',
+    'manager.lblPreliminaryResult': 'Preliminary outcome (auto-generated from submission)',
+    'manager.phPreliminaryResult': 'From the submission; you can edit after review.',
+    'manager.lblFinalOutcome': 'IRIS conclusion after vetting',
+    'manager.phFinalOutcome': 'Short conclusion for the register (final_outcome column in Cases).',
+    'manager.riskLow': 'Low',
+    'manager.riskMed': 'Medium',
+    'manager.riskHigh': 'High',
+    'manager.riskNA': 'Not assessed',
+    'manager.quickActionDone':
+      'Status, next steps, and due date were set. Save with “Save changes” to persist.',
+    'manager.milestonesLegend': 'Process milestones (methodology suggestion)',
+    'manager.milestonesHint':
+      'Indicative dates — adjust per case. The due field is prefilled with the nearest milestone when no due date is stored.',
+    'manager.milestoneClosure': 'Target closure / decision (indicative)',
+    'manager.milestoneRecurrence': 'Recurrent review / analysis renewal',
+    'manager.milestoneDeep': 'Deep due diligence (DD)',
+    'manager.milestoneSuggested': 'suggested date',
+    'manager.riskDomainsHint': 'Per-domain risk for case management (saved to the Cases sheet).',
+    'manager.lblRiskReputational': 'Reputational risk',
+    'manager.lblRiskLegal': 'Legal risk',
+    'manager.lblRiskFinancial': 'Financial risk',
+    'manager.lblRiskSecurity': 'Security risk',
+    'manager.lblRiskEthical': 'Ethical risk',
+    'manager.lblRiskOther': 'Other risk (IP / compliance / GDPR)',
+    'manager.riskColHint': 'Colour reflects the saved risk level in Edit case (after save and refresh).',
     'methodology.applicantInstSummary':
       'Show applicant methodology? (institutions and organisations checklist)',
     'methodology.applicantPersonSummary': 'Show applicant methodology? (natural persons checklist)',
@@ -879,6 +942,20 @@ const STRINGS = {
  * chybí novější klíče (jinak by se na stránce zobrazoval samotný klíč).
  */
 const I18N_FALLBACK_CS = {
+  'tbl.refUidShort': 'Ref. ID',
+  'manager.riskFieldsetLegend': 'Vyhodnocení rizika po prověrce',
+  'manager.riskFieldsetHint':
+    'Po interní prověrce můžete upravit údaje z checklistu. Hodnota v sloupci „Riziko“ v přehledu odpovídá zvolené úrovni níže.',
+  'manager.lblRiskLevel': 'Úroveň rizika',
+  'manager.lblPreliminaryScore': 'Skóre z checklistu (0–99)',
+  'manager.phRiskScore': 'např. 6',
+  'manager.lblPreliminaryResult': 'Předběžné vyhodnocení (automatický text z podání)',
+  'manager.phPreliminaryResult': 'Text z podání; po prověrce ho můžete upravit.',
+  'manager.lblFinalOutcome': 'Závěr IRIS po prověrce',
+  'manager.phFinalOutcome': 'Stručný závěr pro evidenci (sloupec final_outcome v listu Cases).',
+  'manager.riskLow': 'nízké',
+  'manager.riskMed': 'střední',
+  'manager.riskHigh': 'vysoké',
   'manager.hubLeadAdmin':
     'Přehled případů IRIS a evidence prověrek osob (PAR). Pracujte ve správě případů a v tabulce PAR podle oprávnění účtu.',
   'manager.hubDashTileTitle': 'Přehled případů (IRIS)',
@@ -924,6 +1001,20 @@ const I18N_FALLBACK_CS = {
   'manager.promptNeedCase': 'Nejprve otevřete případ v tabulce (tlačítko Spravovat).',
 };
 const I18N_FALLBACK_EN = {
+  'tbl.refUidShort': 'Ref. ID',
+  'manager.riskFieldsetLegend': 'Risk assessment after vetting',
+  'manager.riskFieldsetHint':
+    'After internal vetting you can adjust checklist values. The Risk column in the case list matches the level selected below.',
+  'manager.lblRiskLevel': 'Risk level',
+  'manager.lblPreliminaryScore': 'Checklist score (0–99)',
+  'manager.phRiskScore': 'e.g. 6',
+  'manager.lblPreliminaryResult': 'Preliminary outcome (auto-generated from submission)',
+  'manager.phPreliminaryResult': 'From the submission; you can edit after review.',
+  'manager.lblFinalOutcome': 'IRIS conclusion after vetting',
+  'manager.phFinalOutcome': 'Short conclusion for the register (final_outcome column in Cases).',
+  'manager.riskLow': 'Low',
+  'manager.riskMed': 'Medium',
+  'manager.riskHigh': 'High',
   'manager.hubLeadAdmin':
     'IRIS case overview and person vetting records (PAR). Work in case management and the PAR table according to your account permissions.',
   'manager.hubDashTileTitle': 'Case overview (IRIS)',
@@ -981,6 +1072,67 @@ function t(key, vars) {
   return s;
 }
 
+/**
+ * Texty bloku „riziko po prověrce“ ve správci – přes getElementById (ne data-i18n),
+ * aby se při jakékoli chybě v STRINGS/t() nikdy nevypsaly klíče.
+ */
+const IRIS_MGR_RISK_LABELS = {
+  cs: {
+    legend: 'Vyhodnocení rizika po prověrce',
+    hint:
+      'Po interní prověrce můžete upravit údaje z checklistu. Sloupec Riziko v přehledu se po uložení barevně zvýrazní podle zvolené úrovně.',
+    lblLevel: 'Úroveň rizika',
+    lblScore: 'Skóre z checklistu (0–99)',
+    phScore: 'např. 6',
+    lblPrelim: 'Předběžné vyhodnocení (automatický text z podání)',
+    phPrelim: 'Text z podání; po prověrce ho můžete upravit.',
+    lblFinal: 'Závěr IRIS po prověrce',
+    phFinal: 'Stručný závěr pro evidenci (sloupec final_outcome v listu Cases).',
+    riskLow: 'nízké',
+    riskMed: 'střední',
+    riskHigh: 'vysoké',
+  },
+  en: {
+    legend: 'Risk assessment after vetting',
+    hint:
+      'After internal vetting you can adjust checklist values. The Risk column is colour-highlighted after save to match the level below.',
+    lblLevel: 'Risk level',
+    lblScore: 'Checklist score (0–99)',
+    phScore: 'e.g. 6',
+    lblPrelim: 'Preliminary outcome (auto-generated from submission)',
+    phPrelim: 'From the submission; you can edit after review.',
+    lblFinal: 'IRIS conclusion after vetting',
+    phFinal: 'Short conclusion for the register (final_outcome column in Cases).',
+    riskLow: 'Low',
+    riskMed: 'Medium',
+    riskHigh: 'High',
+  },
+};
+
+function applyManagerRiskFieldsetLabels() {
+  const L = IRIS_MGR_RISK_LABELS[currentLang] || IRIS_MGR_RISK_LABELS.cs;
+  const setText = (id, text) => {
+    const n = document.getElementById(id);
+    if (n && text != null) n.textContent = text;
+  };
+  const setPh = (id, text) => {
+    const n = document.getElementById(id);
+    if (n && 'placeholder' in n && text != null) n.placeholder = text;
+  };
+  setText('irisMgrRiskLegend', L.legend);
+  setText('irisMgrRiskHint', L.hint);
+  setText('irisMgrRiskLblLevel', L.lblLevel);
+  setText('irisMgrRiskLblScore', L.lblScore);
+  setText('irisMgrRiskLblPrelim', L.lblPrelim);
+  setText('irisMgrRiskLblFinal', L.lblFinal);
+  setPh('managerCaseRiskScore', L.phScore);
+  setPh('managerCasePreliminaryResult', L.phPrelim);
+  setPh('managerCaseFinalOutcome', L.phFinal);
+  setText('irisMgrRiskOptLow', L.riskLow);
+  setText('irisMgrRiskOptMed', L.riskMed);
+  setText('irisMgrRiskOptHigh', L.riskHigh);
+}
+
 /** Metodické stránky v index.html (data-iris-lang); přepíná se jazykem. */
 function syncMethodologyBodyLang() {
   document.querySelectorAll('[data-iris-lang]').forEach((el) => {
@@ -1019,6 +1171,7 @@ function applyStaticI18n() {
     if (key) opt.textContent = t(key);
   });
   syncMethodologyBodyLang();
+  applyManagerRiskFieldsetLabels();
   refreshManagerPromptUi();
 }
 
@@ -1027,6 +1180,13 @@ const MANAGER_FALLBACK_CODE = '';
 const MANAGER_STATIC_KEY = '';
 /** U PIN přihlášení: zda zobrazit admin sekci Prověrky (bez ověření z listu Users). */
 const MANAGER_PIN_AS_ADMIN = false;
+
+function resolveManagerKeyForRequest(session) {
+  if (!session) return '';
+  const mk = String(session.managerKey || '').trim();
+  if (mk) return mk;
+  return String(MANAGER_STATIC_KEY || '').trim();
+}
 
 const form = document.getElementById('intakeForm');
 const submitButton = document.getElementById('submitButton');
@@ -1135,15 +1295,24 @@ const managerReminderBanner = document.getElementById('managerReminderBanner');
 const statAnalysisOverdue = document.getElementById('statAnalysisOverdue');
 const statAnalysisSoon = document.getElementById('statAnalysisSoon');
 const managerWorkflowSuggest = document.getElementById('managerWorkflowSuggest');
-const managerQuickClose = document.getElementById('managerQuickClose');
-const managerQuickAnalysis = document.getElementById('managerQuickAnalysis');
-const managerQuickDeep = document.getElementById('managerQuickDeep');
 const managerAnalysisSubject = document.getElementById('managerAnalysisSubject');
 const managerAnalysisScope = document.getElementById('managerAnalysisScope');
 const managerAnalysisConclusion = document.getElementById('managerAnalysisConclusion');
 const managerAnalysisRecs = document.getElementById('managerAnalysisRecs');
 const managerAnalysisRecurrence = document.getElementById('managerAnalysisRecurrence');
 const managerNextAnalysisDue = document.getElementById('managerNextAnalysisDue');
+const managerCaseRiskLevel = document.getElementById('managerCaseRiskLevel');
+const managerCaseRiskScore = document.getElementById('managerCaseRiskScore');
+const managerCasePreliminaryResult = document.getElementById('managerCasePreliminaryResult');
+const managerCaseFinalOutcome = document.getElementById('managerCaseFinalOutcome');
+const managerQuickActionFeedback = document.getElementById('managerQuickActionFeedback');
+const managerMilestonesList = document.getElementById('managerMilestonesList');
+const managerRiskReputational = document.getElementById('managerRiskReputational');
+const managerRiskLegal = document.getElementById('managerRiskLegal');
+const managerRiskFinancial = document.getElementById('managerRiskFinancial');
+const managerRiskSecurity = document.getElementById('managerRiskSecurity');
+const managerRiskEthical = document.getElementById('managerRiskEthical');
+const managerRiskOther = document.getElementById('managerRiskOther');
 
 const btnEnterTesterMode = document.getElementById('btnEnterTesterMode');
 const btnExitTesterMode = document.getElementById('btnExitTesterMode');
@@ -1275,7 +1444,7 @@ function enterTesterMode() {
   setSession({
     email: session.email,
     role: 'manager',
-    managerKey: session.managerKey || '',
+    managerKey: resolveManagerKeyForRequest(session) || '',
     isAdmin: session.isAdmin === true,
     canDeleteSubmissions: session.canDeleteSubmissions === true,
     viewAs: 'tester',
@@ -1291,7 +1460,7 @@ function exitTesterMode() {
   setSession({
     email: session.email,
     role: 'manager',
-    managerKey: session.managerKey || '',
+    managerKey: resolveManagerKeyForRequest(session) || '',
     isAdmin: session.isAdmin === true,
     canDeleteSubmissions: session.canDeleteSubmissions === true,
   });
@@ -1306,6 +1475,18 @@ function getSession() {
     const s = JSON.parse(raw);
     if (!s || !s.email || !s.role) return null;
     if (s.role !== 'user' && s.role !== 'manager') return null;
+    if (s.role === 'manager') {
+      const mk = String(s.managerKey || '').trim();
+      const stat = String(MANAGER_STATIC_KEY || '').trim();
+      if (!mk && stat) {
+        s.managerKey = stat;
+        try {
+          sessionStorage.setItem(SESSION_KEY, JSON.stringify(s));
+        } catch (_) {
+          /* ignore */
+        }
+      }
+    }
     return s;
   } catch {
     return null;
@@ -2019,6 +2200,174 @@ function addCalendarDays(base, days) {
   return d;
 }
 
+function parseCaseDateValue(v) {
+  if (v === undefined || v === null || v === '') return null;
+  const d = new Date(v);
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+
+const MANAGER_RISK_DIM_VALUES = ['nízké', 'střední', 'vysoké', 'nehodnoceno'];
+
+function setManagerRiskDimensionSelect(el, stored) {
+  if (!el) return;
+  const raw = String(stored || '').trim();
+  el.value = MANAGER_RISK_DIM_VALUES.includes(raw) ? raw : 'nehodnoceno';
+}
+
+function riskLevelCellClass(label) {
+  const n = String(label || '')
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
+  if (n === 'nizke') return 'cell-risk--low';
+  if (n === 'stredni') return 'cell-risk--med';
+  if (n === 'vysoke') return 'cell-risk--high';
+  return 'cell-risk--none';
+}
+
+function riskLevelCellHtml(item) {
+  const label = String(item.risk_level || '').trim();
+  const shown = label || t('common.emDash');
+  const cls = riskLevelCellClass(label);
+  return `<td class="cell-risk ${cls}"><span class="cell-risk-inner">${escapeHtml(shown)}</span></td>`;
+}
+
+function computeMilestoneSuggestions(item) {
+  const created = parseCaseDateValue(item.created_at) || new Date();
+  const closure = addCalendarDays(created, 45);
+  const existingNext = parseCaseDateValue(item.next_analysis_due);
+  const recurring = existingNext || addCalendarDays(created, 365);
+  const deep = addCalendarDays(new Date(), 21);
+  const now = Date.now();
+  const candidates = [
+    { key: 'closure', label: t('manager.milestoneClosure'), date: closure },
+    { key: 'recurring', label: t('manager.milestoneRecurrence'), date: recurring },
+    { key: 'deep', label: t('manager.milestoneDeep'), date: deep },
+  ];
+  let nearest = candidates[0];
+  let minDelta = Math.abs(nearest.date.getTime() - now);
+  candidates.forEach((c) => {
+    const d = Math.abs(c.date.getTime() - now);
+    if (d < minDelta) {
+      minDelta = d;
+      nearest = c;
+    }
+  });
+  return { closure, recurring, deep, nearest, candidates };
+}
+
+function renderManagerMilestones(item) {
+  if (!managerMilestonesList) return;
+  const m = computeMilestoneSuggestions(item);
+  const sug = escapeHtml(t('manager.milestoneSuggested'));
+  managerMilestonesList.innerHTML = m.candidates
+    .map(
+      (c) =>
+        `<li><strong>${escapeHtml(c.label)}</strong> — ${escapeHtml(formatDateOnly(c.date.toISOString()))} <span class="manager-milestone-hint">(${sug})</span></li>`,
+    )
+    .join('');
+}
+
+function buildPreliminaryFromIntake(item) {
+  let p = String(item.preliminary_result || '').trim();
+  if (p) return p;
+  const L = currentLang === 'en';
+  const score = item.preliminary_risk_score;
+  const flags = String(item.intake_auto_flags || '').trim();
+  const cat = String(item.intake_country_risk_category || '').trim();
+  const parts = [];
+  if (score !== undefined && score !== null && String(score).trim() !== '') {
+    parts.push((L ? 'Score (checklist): ' : 'Skóre (check-list): ') + String(score).trim());
+  }
+  if (flags) parts.push((L ? 'Auto flags: ' : 'Automatické indikátory: ') + flags);
+  if (cat) parts.push((L ? 'Country risk category: ' : 'Kategorie země: ') + cat);
+  const outline = parts.join('\n');
+  if (outline) return outline;
+  return String(item.intake_intent_description || item.description || '').trim();
+}
+
+function composeAnalysisDraftFromCase(item) {
+  const L = currentLang === 'en';
+  const partner = String(item.partner_name || '').trim();
+  const country = String(item.partner_country || '').trim();
+  const title = String(item.title || '').trim();
+  const subject = [partner, title].filter(Boolean).join(' – ') || title || partner;
+
+  const scopeParts = [];
+  if (item.intake_cooperation_type) {
+    scopeParts.push(`${L ? 'Cooperation type' : 'Typ spolupráce'}: ${item.intake_cooperation_type}`);
+  }
+  if (item.intake_cooperation_stage) {
+    scopeParts.push(`${L ? 'Stage' : 'Fáze spolupráce'}: ${item.intake_cooperation_stage}`);
+  }
+  if (partner || country) {
+    scopeParts.push(`${L ? 'Partner' : 'Partner'}: ${partner || '—'} (${country || '—'})`);
+  }
+  const intent = String(item.intake_intent_description || item.description || '').trim();
+  if (intent) {
+    scopeParts.push(`${L ? 'Intended cooperation (intake)' : 'Záměr spolupráce (check-list)'}:\n${intent}`);
+  }
+  const flagRows = [
+    ['intake_external_funding', L ? 'External funding' : 'Externí financování'],
+    ['intake_access_to_uhk_systems', L ? 'Access to UHK systems' : 'Přístup k systémům UHK'],
+    ['intake_sharing_data_knowhow', L ? 'Data / know-how sharing' : 'Sdílení dat / know-how'],
+    ['intake_sensitive_outputs', L ? 'Sensitive outputs' : 'Citlivé výstupy'],
+    ['intake_transfer_outside_eu', L ? 'Transfer outside EU' : 'Přenos mimo EU'],
+    ['intake_training_or_technical_assistance', L ? 'Training / technical assistance' : 'Školení / technická asistence'],
+    [
+      'intake_involves_doctoral_students_or_infrastructure',
+      L ? 'Doctoral students / infrastructure' : 'Doktorandi / infrastruktura',
+    ],
+  ];
+  const flags = [];
+  flagRows.forEach(([k, lab]) => {
+    const v = item[k];
+    if (v !== undefined && v !== null && String(v).trim() !== '') {
+      flags.push(`${lab}: ${String(v).trim()}`);
+    }
+  });
+  if (flags.length) {
+    scopeParts.push(`${L ? 'Checklist indicators' : 'Indikátory check-listu'}:\n${flags.join('\n')}`);
+  }
+  if (item.intake_country_risk_category) {
+    scopeParts.push(
+      `${L ? 'Country risk category' : 'Kategorie rizika země'}: ${item.intake_country_risk_category}`,
+    );
+  }
+  if (item.intake_country_matches) {
+    scopeParts.push(`${L ? 'Country matches' : 'Shody země'}: ${item.intake_country_matches}`);
+  }
+  if (item.intake_auto_flags) {
+    scopeParts.push(`${L ? 'Automatic flags' : 'Automatické příznaky'}: ${item.intake_auto_flags}`);
+  }
+
+  return {
+    subject: subject || (L ? 'IRIS case review' : 'Prověrka případu IRIS'),
+    scope: scopeParts.join('\n\n'),
+    conclusion: String(item.preliminary_result || '').trim(),
+    recs: String(item.conditions_summary || '').trim(),
+    recurrence: String(item.analysis_recurrence_note || '').trim(),
+  };
+}
+
+function getManagerPanelCaseSnapshot() {
+  const id = managerEditCaseId.value.trim();
+  const base = managerCasesCache.find((c) => String(c.case_id) === id) || {};
+  let dueIso = base.due_date;
+  const dueVal = managerCaseDue && managerCaseDue.value;
+  if (dueVal) {
+    const d = new Date(dueVal);
+    if (!Number.isNaN(d.getTime())) dueIso = d.toISOString();
+  }
+  return {
+    ...base,
+    status: managerCaseStatus ? managerCaseStatus.value : base.status,
+    next_step_note: managerCaseNextStep ? managerCaseNextStep.value : base.next_step_note,
+    due_date: dueIso,
+  };
+}
+
 function dateInputFromCellValue(value) {
   if (!value) return '';
   const d = new Date(value);
@@ -2058,19 +2407,36 @@ function renderManagerWorkflowSuggest(item) {
 }
 
 function applyManagerQuickAction(kind) {
+  if (!managerCaseStatus) return;
   if (kind === 'close') {
     managerCaseStatus.value = 'closed';
-    managerCaseNextStep.value = t('manager.preset.close');
-    managerCaseDue.value = '';
+    if (managerCaseNextStep) managerCaseNextStep.value = t('manager.preset.close');
+    if (managerCaseDue) managerCaseDue.value = '';
   } else if (kind === 'analysis') {
     managerCaseStatus.value = 'analysis_in_progress';
-    managerCaseNextStep.value = t('manager.preset.analysis');
-    managerCaseDue.value = toDatetimeLocalValue(addCalendarDays(new Date(), 14));
+    if (managerCaseNextStep) managerCaseNextStep.value = t('manager.preset.analysis');
+    if (managerCaseDue) managerCaseDue.value = toDatetimeLocalValue(addCalendarDays(new Date(), 14));
   } else if (kind === 'deep') {
     managerCaseStatus.value = 'dd_in_progress';
-    managerCaseNextStep.value = t('manager.preset.deep');
-    managerCaseDue.value = toDatetimeLocalValue(addCalendarDays(new Date(), 21));
+    if (managerCaseNextStep) managerCaseNextStep.value = t('manager.preset.deep');
+    if (managerCaseDue) managerCaseDue.value = toDatetimeLocalValue(addCalendarDays(new Date(), 21));
+  } else {
+    return;
   }
+  try {
+    renderManagerWorkflowSuggest(getManagerPanelCaseSnapshot());
+  } catch (_) {
+    /* ignore */
+  }
+  if (managerQuickActionFeedback) {
+    managerQuickActionFeedback.textContent = t('manager.quickActionDone');
+    managerQuickActionFeedback.classList.remove('hidden');
+    window.clearTimeout(managerQuickActionFeedback._irisT);
+    managerQuickActionFeedback._irisT = window.setTimeout(() => {
+      managerQuickActionFeedback.classList.add('hidden');
+    }, 5000);
+  }
+  managerCaseStatus.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
 function updateManagerReminderBanner(summary) {
@@ -2210,9 +2576,19 @@ function renderDashboard(summary) {
   updateManagerReminderBanner(lastDashboardSummary);
 }
 
+const UUID_LIKE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+function refUidShortDisplay(uid) {
+  const s = String(uid || '').trim();
+  if (!s) return t('common.emDash');
+  if (UUID_LIKE.test(s)) return `${s.slice(0, 8)}…`;
+  return s.length > 14 ? `${s.slice(0, 12)}…` : s;
+}
+
 function renderManagerCases(items) {
   if (!items || !items.length) {
-    casesTableBody.innerHTML = `<tr><td colspan="11" class="empty-row">${escapeHtml(t('manager.empty'))}</td></tr>`;
+    casesTableBody.innerHTML = `<tr><td colspan="10" class="empty-row">${escapeHtml(t('manager.empty'))}</td></tr>`;
     return;
   }
 
@@ -2224,18 +2600,18 @@ function renderManagerCases(items) {
       else if (isCaseDueSoon(item)) rowCls = 'row-due-soon';
       const ruid = String(item.record_uid || '').trim();
       const ruidAttr = ruid ? escapeAttr(ruid) : '';
+      const refShown = escapeHtml(refUidShortDisplay(ruid));
       return `
     <tr class="${rowCls}">
       <td>${escapeHtml(item.case_id)}</td>
-      <td class="cell-record-uid"><code translate="no" title="${ruidAttr}">${escapeHtml(ruid || t('common.emDash'))}</code></td>
+      <td class="cell-record-uid"><code translate="no" title="${ruidAttr}">${ruid ? refShown : escapeHtml(t('common.emDash'))}</code></td>
       <td>${dueDateCellHtml(item)}</td>
       <td>${escapeHtml(formatDate(item.created_at))}</td>
       <td>${escapeHtml(item.title)}</td>
       <td>${escapeHtml(item.partner_name)}</td>
-      <td>${escapeHtml(item.applicant_name)}</td>
       <td>${escapeHtml(caseStatusLabel(item.status))}</td>
       <td>${escapeHtml(item.priority)}</td>
-      <td>${escapeHtml(item.risk_level)}</td>
+      ${riskLevelCellHtml(item)}
       <td><button type="button" class="btn-secondary btn-compact" data-manage-case="${escapeHtml(item.case_id)}" data-record-uid="${escapeAttr(ruid)}">${manageLabel}</button></td>
     </tr>`;
     })
@@ -2355,14 +2731,15 @@ async function loadApplicantPersonRequests() {
 async function loadManagerPersonAnalysisList() {
   if (!managerParTableBody) return;
   const session = getSession();
-  if (!session || session.role !== 'manager' || !session.managerKey || isManagerTesterSession(session)) {
+  const mk = resolveManagerKeyForRequest(session);
+  if (!session || session.role !== 'manager' || !mk || isManagerTesterSession(session)) {
     return;
   }
   managerParTableBody.innerHTML = `<tr><td colspan="7" class="empty-row">${escapeHtml(t('manager.loadingCases'))}</td></tr>`;
   try {
     const params = new URLSearchParams({
       action: 'person_analysis_list',
-      manager_key: session.managerKey,
+      manager_key: mk,
     });
     const response = await fetch(`${API_URL}?${params.toString()}`);
     const data = await response.json();
@@ -2408,8 +2785,9 @@ function setManagerParListMessage(text, isError = false) {
 async function loadDashboard() {
   const session = getSession();
   const q = new URLSearchParams({ action: 'dashboard' });
-  if (session && session.role === 'manager' && session.managerKey) {
-    q.set('manager_key', session.managerKey);
+  const mk = resolveManagerKeyForRequest(session);
+  if (session && session.role === 'manager' && mk) {
+    q.set('manager_key', mk);
   }
   const response = await fetch(`${API_URL}?${q.toString()}`);
   const data = await response.json();
@@ -2436,8 +2814,9 @@ function buildCasesParams() {
     if (em) params.set('applicant_email', em);
   }
 
-  if (session && session.role === 'manager' && session.managerKey) {
-    params.set('manager_key', session.managerKey);
+  const mkCases = resolveManagerKeyForRequest(session);
+  if (session && session.role === 'manager' && mkCases) {
+    params.set('manager_key', mkCases);
   }
 
   const userLike = session && (session.role === 'user' || isManagerTesterSession(session));
@@ -2456,7 +2835,7 @@ function buildCasesParams() {
 }
 
 async function loadManagerCases() {
-  casesTableBody.innerHTML = `<tr><td colspan="11" class="empty-row">${escapeHtml(t('manager.loadingCases'))}</td></tr>`;
+  casesTableBody.innerHTML = `<tr><td colspan="10" class="empty-row">${escapeHtml(t('manager.loadingCases'))}</td></tr>`;
 
   const response = await fetch(`${API_URL}?${buildCasesParams().toString()}`);
   const data = await response.json();
@@ -2539,7 +2918,7 @@ async function submitForm(event) {
     setStatus(t('err.userOnlySubmit'), 'error');
     return;
   }
-  if (asTester && !session.managerKey) {
+  if (asTester && !resolveManagerKeyForRequest(session)) {
     setStatus(t('err.testIntakeNoKey'), 'error');
     return;
   }
@@ -2547,7 +2926,7 @@ async function submitForm(event) {
   const payload = collectFormData();
   if (asTester) {
     payload.test_intake = true;
-    payload.manager_key = session.managerKey;
+    payload.manager_key = resolveManagerKeyForRequest(session);
   }
 
   try {
@@ -2710,7 +3089,8 @@ if (managerParTableBody) {
     const btn = ev.target.closest('[data-delete-par-id]');
     if (!btn) return;
     const session = getSession();
-    if (!isSessionCanDeleteSubmissions(session) || !session.managerKey) return;
+    const mkPar = resolveManagerKeyForRequest(session);
+    if (!isSessionCanDeleteSubmissions(session) || !mkPar) return;
     const id = btn.getAttribute('data-delete-par-id');
     if (!id || !window.confirm(t('admin.parDeleteConfirm'))) return;
     btn.disabled = true;
@@ -2721,7 +3101,7 @@ if (managerParTableBody) {
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify({
           action: 'delete_person_analysis',
-          manager_key: session.managerKey,
+          manager_key: mkPar,
           admin_email: session.email,
           person_analysis_id: id,
         }),
@@ -2813,14 +3193,15 @@ if (personAnalysisForm && personAnalysisSubmit) {
     e.preventDefault();
     setPersonAnalysisFormMessage('', false);
     const session = getSession();
-    if (!session || session.role !== 'manager' || !session.managerKey || isManagerTesterSession(session)) {
+    const mkPa = resolveManagerKeyForRequest(session);
+    if (!session || session.role !== 'manager' || !mkPa || isManagerTesterSession(session)) {
       setPersonAnalysisFormMessage(t('manager.paFail'), true);
       return;
     }
     const fd = new FormData(personAnalysisForm);
     const payload = {
       action: 'submit_person_analysis',
-      manager_key: session.managerKey,
+      manager_key: mkPa,
       manager_email: session.email,
     };
     fd.forEach((value, key) => {
@@ -2956,12 +3337,21 @@ function buildCasePromptContext() {
     lines.push(`Popis záměru: ${pick('intent_description') || '—'}`);
     lines.push(`Stav případu: ${pick('status') || '—'}`);
     lines.push(`Úroveň rizika (evidence): ${pick('risk_level') || '—'}`);
+    lines.push(`Skóre (checklist): ${pick('preliminary_risk_score') || '—'}`);
+    lines.push(`Předběžný výsledek: ${pick('preliminary_result') || '—'}`);
+    lines.push(`Závěr po prověrce (final_outcome): ${pick('final_outcome') || '—'}`);
     lines.push(`Priorita: ${pick('priority') || '—'}`);
   } else {
     lines.push('(Řádek případu v tabulce nebyl nalezen – doplňte identifikaci ručně.)');
   }
   lines.push('');
   lines.push('--- Vyplnění v panelu správce (může obsahovat neuložené úpravy) ---');
+  if (managerCaseRiskLevel) lines.push(`Úroveň rizika (panel): ${managerCaseRiskLevel.value || '—'}`);
+  if (managerCaseRiskScore) lines.push(`Skóre (panel): ${managerCaseRiskScore.value.trim() || '—'}`);
+  if (managerCasePreliminaryResult) {
+    lines.push(`Předběžný výsledek (panel): ${managerCasePreliminaryResult.value.trim() || '—'}`);
+  }
+  if (managerCaseFinalOutcome) lines.push(`Závěr po prověrce (panel): ${managerCaseFinalOutcome.value.trim() || '—'}`);
   if (managerCaseStatement) lines.push(`Vyjádření IRIS: ${managerCaseStatement.value.trim() || '—'}`);
   if (managerCaseNextStep) lines.push(`Další postup pro žadatele: ${managerCaseNextStep.value.trim() || '—'}`);
   if (managerAnalysisSubject) lines.push(`Analytika – předmět: ${managerAnalysisSubject.value.trim() || '—'}`);
@@ -3118,30 +3508,81 @@ function openManagerCasePanel(caseId, recordUid) {
   managerEditCaseId.value = String(item.case_id);
   managerCasePanelTitle.textContent = `${t('case.editPrefix')} ${item.case_id}`;
   const refLine = String(item.record_uid || '').trim()
-    ? `${t('tbl.refUid')}: ${item.record_uid}`
+    ? `${t('tbl.refUidShort')}: ${refUidShortDisplay(item.record_uid)} (${item.record_uid})`
     : '';
   managerCasePanelSubtitle.textContent = [refLine, item.title, item.applicant_name].filter(Boolean).join(' · ');
 
   const st = String(item.status || 'new');
   managerCaseStatus.value = [...managerCaseStatus.options].some((o) => o.value === st) ? st : 'new';
 
-  managerCaseDue.value = toDatetimeLocalValue(item.due_date);
-  managerCaseNextStep.value = String(item.next_step_note || '');
+  const allowedRisk = ['nízké', 'střední', 'vysoké'];
+  const rlRaw = String(item.risk_level || '').trim();
+  if (managerCaseRiskLevel) {
+    managerCaseRiskLevel.value = allowedRisk.includes(rlRaw) ? rlRaw : 'střední';
+  }
+  if (managerCaseRiskScore) {
+    const sc = item.preliminary_risk_score;
+    managerCaseRiskScore.value =
+      sc !== undefined && sc !== null && String(sc).trim() !== '' && !Number.isNaN(Number(sc)) ? String(sc) : '';
+  }
+  if (managerCasePreliminaryResult) {
+    managerCasePreliminaryResult.value = buildPreliminaryFromIntake(item);
+  }
+  if (managerCaseFinalOutcome) {
+    managerCaseFinalOutcome.value = String(item.final_outcome || '');
+  }
+
+  setManagerRiskDimensionSelect(managerRiskReputational, item.risk_reputational);
+  setManagerRiskDimensionSelect(managerRiskLegal, item.risk_legal);
+  setManagerRiskDimensionSelect(managerRiskFinancial, item.risk_financial);
+  setManagerRiskDimensionSelect(managerRiskSecurity, item.risk_security);
+  setManagerRiskDimensionSelect(managerRiskEthical, item.risk_ethical);
+  setManagerRiskDimensionSelect(managerRiskOther, item.risk_other);
+
+  const hasStoredDue = item.due_date != null && String(item.due_date).trim() !== '';
+  if (managerCaseDue) {
+    if (hasStoredDue) {
+      managerCaseDue.value = toDatetimeLocalValue(item.due_date);
+    } else {
+      const mile = computeMilestoneSuggestions(item);
+      managerCaseDue.value = toDatetimeLocalValue(mile.nearest.date.toISOString());
+    }
+  }
+  renderManagerMilestones(item);
+
+  if (managerCaseNextStep) managerCaseNextStep.value = String(item.next_step_note || '');
   managerCaseStatement.value = String(item.iris_statement || '');
   managerCaseAnalysisUrl.value = analysisUrlForItem(item) || '';
   managerCaseFile.value = '';
   managerCaseFormMessage.classList.add('hidden');
 
   renderManagerWorkflowSuggest(item);
-  if (managerAnalysisSubject) managerAnalysisSubject.value = String(item.analysis_subject || '');
-  if (managerAnalysisScope) managerAnalysisScope.value = String(item.analysis_scope_methodology || '');
-  if (managerAnalysisConclusion) managerAnalysisConclusion.value = String(item.analysis_conclusion || '');
-  if (managerAnalysisRecs) managerAnalysisRecs.value = String(item.analysis_recommendations || '');
-  if (managerAnalysisRecurrence) managerAnalysisRecurrence.value = String(item.analysis_recurrence_note || '');
+  const analysisDraft = composeAnalysisDraftFromCase(item);
+  if (managerAnalysisSubject) {
+    managerAnalysisSubject.value = String(item.analysis_subject || '').trim() || analysisDraft.subject;
+  }
+  if (managerAnalysisScope) {
+    managerAnalysisScope.value = String(item.analysis_scope_methodology || '').trim() || analysisDraft.scope;
+  }
+  if (managerAnalysisConclusion) {
+    managerAnalysisConclusion.value = String(item.analysis_conclusion || '').trim() || analysisDraft.conclusion;
+  }
+  if (managerAnalysisRecs) {
+    managerAnalysisRecs.value = String(item.analysis_recommendations || '').trim() || analysisDraft.recs;
+  }
+  if (managerAnalysisRecurrence) {
+    managerAnalysisRecurrence.value =
+      String(item.analysis_recurrence_note || '').trim() || analysisDraft.recurrence;
+  }
   if (managerNextAnalysisDue) managerNextAnalysisDue.value = dateInputFromCellValue(item.next_analysis_due);
 
   if (managerCaseDelete) {
     managerCaseDelete.classList.toggle('hidden', !isSessionCanDeleteSubmissions(getSession()));
+  }
+
+  if (managerQuickActionFeedback) {
+    managerQuickActionFeedback.classList.add('hidden');
+    managerQuickActionFeedback.textContent = '';
   }
 
   managerCasePanel.classList.remove('hidden');
@@ -3172,6 +3613,15 @@ managerCaseCancel.addEventListener('click', () => closeManagerCasePanel());
 
 if (managerCasePanel) {
   managerCasePanel.addEventListener('click', (ev) => {
+    const quickBtn = ev.target.closest('[data-manager-quick]');
+    if (quickBtn && managerCasePanel.contains(quickBtn)) {
+      const qk = quickBtn.getAttribute('data-manager-quick');
+      if (qk) {
+        ev.preventDefault();
+        applyManagerQuickAction(qk);
+        return;
+      }
+    }
     const btn = ev.target.closest('button');
     if (!btn || !managerCasePanel.contains(btn)) return;
     if (btn.id === 'managerPromptGptBtn') {
@@ -3190,7 +3640,8 @@ if (managerCasePanel) {
 if (managerCaseDelete) {
   managerCaseDelete.addEventListener('click', async () => {
     const session = getSession();
-    if (!session || !isSessionCanDeleteSubmissions(session) || !session.managerKey) return;
+    const mkDel = resolveManagerKeyForRequest(session);
+    if (!session || !isSessionCanDeleteSubmissions(session) || !mkDel) return;
     const caseId = managerEditCaseId.value.trim();
     if (!caseId) return;
     if (!window.confirm(t('admin.deleteConfirm'))) return;
@@ -3201,7 +3652,7 @@ if (managerCaseDelete) {
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify({
           action: 'delete_submission',
-          manager_key: session.managerKey,
+          manager_key: mkDel,
           admin_email: session.email,
           case_id: caseId,
         }),
@@ -3220,16 +3671,6 @@ if (managerCaseDelete) {
       managerCaseDelete.disabled = false;
     }
   });
-}
-
-if (managerQuickClose) {
-  managerQuickClose.addEventListener('click', () => applyManagerQuickAction('close'));
-}
-if (managerQuickAnalysis) {
-  managerQuickAnalysis.addEventListener('click', () => applyManagerQuickAction('analysis'));
-}
-if (managerQuickDeep) {
-  managerQuickDeep.addEventListener('click', () => applyManagerQuickAction('deep'));
 }
 
 if (copyRequestRefBtn && requestRefCode) {
@@ -3280,11 +3721,34 @@ managerCaseSave.addEventListener('click', async () => {
     next_step_note: managerCaseNextStep.value,
   };
 
-  if (session.managerKey) {
-    payload.manager_key = session.managerKey;
+  const mkSave = resolveManagerKeyForRequest(session);
+  if (mkSave) {
+    payload.manager_key = mkSave;
   }
 
-  const dueVal = managerCaseDue.value;
+  if (managerCaseRiskLevel) {
+    payload.risk_level = managerCaseRiskLevel.value;
+  }
+  if (managerCaseRiskScore) {
+    payload.preliminary_risk_score = managerCaseRiskScore.value.trim();
+  }
+  if (managerCasePreliminaryResult) {
+    payload.preliminary_result = managerCasePreliminaryResult.value;
+  }
+  if (managerCaseFinalOutcome) {
+    payload.final_outcome = managerCaseFinalOutcome.value;
+  }
+
+  if (managerRiskReputational) {
+    payload.risk_reputational = managerRiskReputational.value;
+    payload.risk_legal = managerRiskLegal.value;
+    payload.risk_financial = managerRiskFinancial.value;
+    payload.risk_security = managerRiskSecurity.value;
+    payload.risk_ethical = managerRiskEthical.value;
+    payload.risk_other = managerRiskOther.value;
+  }
+
+  const dueVal = managerCaseDue ? managerCaseDue.value : '';
   if (dueVal) {
     payload.due_date = new Date(dueVal).toISOString();
   }
