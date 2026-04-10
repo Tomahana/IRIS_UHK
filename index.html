@@ -7,7 +7,7 @@
   <link rel="icon" href="https://www.uhk.cz/img/favicon.ico" />
   <link rel="preconnect" href="https://www.uhk.cz" crossorigin />
   <!-- Styl je v souboru style.css ve stejné složce — při ručním vkládání do jiného systému zkopírujte obsah obou souborů. ?v= měňte po úpravách CSS (prohlížeč jinak drží starou verzi). -->
-  <link rel="stylesheet" href="style.css?v=19" />
+  <link rel="stylesheet" href="style.css?v=20" />
 </head>
 <body>
   <!-- Loga: uhk-logo.jpg a uhk-logo-small.jpg ve stejné složce jako index (viz GitHub IRIS_UHK). -->
@@ -578,12 +578,11 @@
             <thead>
               <tr>
                 <th data-i18n="tbl.caseId">Case ID</th>
-                <th data-i18n="tbl.refUid">Referenční ID</th>
+                <th data-i18n="tbl.refUidShort">Ref. ID</th>
                 <th data-i18n="tbl.dueShort">Termín</th>
                 <th data-i18n="tbl.created">Vytvořeno</th>
                 <th data-i18n="tbl.name">Název</th>
                 <th data-i18n="tbl.partner">Partner</th>
-                <th data-i18n="tbl.applicant">Žadatel</th>
                 <th data-i18n="tbl.status">Stav</th>
                 <th data-i18n="tbl.priority">Priorita</th>
                 <th data-i18n="tbl.risk">Riziko</th>
@@ -1012,6 +1011,35 @@
             <button type="button" class="btn-secondary btn-compact" id="managerQuickDeep" data-i18n="manager.quickDeep">Posunout k hluboké analýze (DD)</button>
           </div>
 
+          <fieldset class="fieldset full-width manager-risk-fieldset">
+            <legend data-i18n="manager.riskFieldsetLegend">Riziko a výsledek prověrky</legend>
+            <p class="field-hint" data-i18n="manager.riskFieldsetHint">
+              Údaje z checklistu můžete po interní prověrce upravit. Úroveň rizika se zobrazuje v přehledu případů.
+            </p>
+            <div class="manager-case-grid">
+              <div class="form-group">
+                <label for="managerCaseRiskLevel" data-i18n="manager.lblRiskLevel">Úroveň rizika (evidence)</label>
+                <select id="managerCaseRiskLevel">
+                  <option value="nízké" data-i18n-opt="manager.riskLow">nízké</option>
+                  <option value="střední" data-i18n-opt="manager.riskMed">střední</option>
+                  <option value="vysoké" data-i18n-opt="manager.riskHigh">vysoké</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="managerCaseRiskScore" data-i18n="manager.lblPreliminaryScore">Skóre z checklistu (0–99)</label>
+                <input type="number" id="managerCaseRiskScore" min="0" max="99" step="1" data-i18n-placeholder="manager.phRiskScore" placeholder="např. 6" />
+              </div>
+              <div class="form-group full-width">
+                <label for="managerCasePreliminaryResult" data-i18n="manager.lblPreliminaryResult">Předběžný výsledek (text z automatického vyhodnocení)</label>
+                <textarea id="managerCasePreliminaryResult" rows="2" data-i18n-placeholder="manager.phPreliminaryResult" placeholder="Lze upravit po prověrce."></textarea>
+              </div>
+              <div class="form-group full-width">
+                <label for="managerCaseFinalOutcome" data-i18n="manager.lblFinalOutcome">Závěr / výsledek po prověrce IRIS</label>
+                <textarea id="managerCaseFinalOutcome" rows="3" data-i18n-placeholder="manager.phFinalOutcome" placeholder="Stručný závěr po prověrce (sloupec final_outcome v Cases)."></textarea>
+              </div>
+            </div>
+          </fieldset>
+
           <div class="manager-case-grid">
             <div class="form-group full-width">
               <label for="managerCaseStatus" data-i18n="manager.lblStatus">Stav případu</label>
@@ -1126,6 +1154,6 @@
   </dialog>
 
   <script src="iris-prompts.js?v=1"></script>
-  <script src="app.js?v=19"></script>
+  <script src="app.js?v=20"></script>
 </body>
 </html>
