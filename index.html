@@ -1012,30 +1012,30 @@
           </div>
 
           <fieldset class="fieldset full-width manager-risk-fieldset">
-            <legend data-i18n="manager.riskFieldsetLegend">Vyhodnocení rizika po prověrce</legend>
-            <p class="field-hint" data-i18n="manager.riskFieldsetHint">
+            <legend id="irisMgrRiskLegend">Vyhodnocení rizika po prověrce</legend>
+            <p class="field-hint" id="irisMgrRiskHint">
               Po interní prověrce můžete upravit údaje z checklistu. Hodnota v sloupci „Riziko“ v přehledu odpovídá zvolené úrovni níže.
             </p>
             <div class="manager-case-grid">
               <div class="form-group">
-                <label for="managerCaseRiskLevel" data-i18n="manager.lblRiskLevel">Úroveň rizika</label>
+                <label for="managerCaseRiskLevel" id="irisMgrRiskLblLevel">Úroveň rizika</label>
                 <select id="managerCaseRiskLevel">
-                  <option value="nízké" data-i18n-opt="manager.riskLow">nízké</option>
-                  <option value="střední" data-i18n-opt="manager.riskMed">střední</option>
-                  <option value="vysoké" data-i18n-opt="manager.riskHigh">vysoké</option>
+                  <option value="nízké" id="irisMgrRiskOptLow">nízké</option>
+                  <option value="střední" id="irisMgrRiskOptMed">střední</option>
+                  <option value="vysoké" id="irisMgrRiskOptHigh">vysoké</option>
                 </select>
               </div>
               <div class="form-group">
-                <label for="managerCaseRiskScore" data-i18n="manager.lblPreliminaryScore">Skóre z checklistu (0–99)</label>
-                <input type="number" id="managerCaseRiskScore" min="0" max="99" step="1" data-i18n-placeholder="manager.phRiskScore" placeholder="např. 6" />
+                <label for="managerCaseRiskScore" id="irisMgrRiskLblScore">Skóre z checklistu (0–99)</label>
+                <input type="number" id="managerCaseRiskScore" min="0" max="99" step="1" placeholder="např. 6" />
               </div>
               <div class="form-group full-width">
-                <label for="managerCasePreliminaryResult" data-i18n="manager.lblPreliminaryResult">Předběžné vyhodnocení (automatický text z podání)</label>
-                <textarea id="managerCasePreliminaryResult" rows="2" data-i18n-placeholder="manager.phPreliminaryResult" placeholder="Text z podání; po prověrce ho můžete upravit."></textarea>
+                <label for="managerCasePreliminaryResult" id="irisMgrRiskLblPrelim">Předběžné vyhodnocení (automatický text z podání)</label>
+                <textarea id="managerCasePreliminaryResult" rows="2" placeholder="Text z podání; po prověrce ho můžete upravit."></textarea>
               </div>
               <div class="form-group full-width">
-                <label for="managerCaseFinalOutcome" data-i18n="manager.lblFinalOutcome">Závěr IRIS po prověrce</label>
-                <textarea id="managerCaseFinalOutcome" rows="3" data-i18n-placeholder="manager.phFinalOutcome" placeholder="Stručný závěr pro evidenci (sloupec final_outcome v listu Cases)."></textarea>
+                <label for="managerCaseFinalOutcome" id="irisMgrRiskLblFinal">Závěr IRIS po prověrce</label>
+                <textarea id="managerCaseFinalOutcome" rows="3" placeholder="Stručný závěr pro evidenci (sloupec final_outcome v listu Cases)."></textarea>
               </div>
             </div>
           </fieldset>
@@ -1154,6 +1154,6 @@
   </dialog>
 
   <script src="iris-prompts.js?v=1"></script>
-  <script src="app.js?v=21"></script>
+  <script src="app.js?v=22"></script>
 </body>
 </html>
