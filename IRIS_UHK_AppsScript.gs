@@ -27,9 +27,10 @@
  *   record_uid = UUID jednoznačného záznamu (generuje skript u nového podání; slouží k vyhledání v aplikaci).
  *   Aliasy názvů pro API (např. „Referenční ID“ → record_uid) viz mergeCanonicalCaseFields_.
  *   Dále doporučené sloupce: risk_level (nízké | střední | vysoké), iris_statement, next_step_note, analysis_document_url,
- *   preliminary_risk_score, preliminary_result, final_outcome, analysis_subject, analysis_scope_methodology,
- *   analysis_conclusion, analysis_recommendations, analysis_recurrence_note, next_analysis_due, …
- *   POST update_case může měnit mimo jiné risk_level, preliminary_risk_score, preliminary_result, final_outcome.
+ *   preliminary_risk_score, preliminary_result, final_outcome, risk_reputational … risk_other (nízké|střední|vysoké|nehodnoceno),
+ *   analysis_subject, analysis_scope_methodology, analysis_conclusion, analysis_recommendations, analysis_recurrence_note,
+ *   next_analysis_due, …
+ *   POST update_case může měnit uvedená pole; chybějící sloupce pro uložení se při prvním zápisu doplní na konec hlavičky.
  *
  * List Intake_Checklist – začátek hlavičky typicky:
  *   intake_id | case_id | record_uid | submitted_at | applicant_name | applicant_email | …
@@ -368,6 +369,25 @@ function handleUpdateCase_(data) {
     updates.final_outcome = String(data.final_outcome || '');
   }
 
+  var riskDims = [
+    'risk_reputational',
+    'risk_legal',
+    'risk_financial',
+    'risk_security',
+    'risk_ethical',
+    'risk_other',
+  ];
+  for (var ri = 0; ri < riskDims.length; ri++) {
+    var rf = riskDims[ri];
+    if (data[rf] !== undefined) {
+      var rv = String(data[rf] || '').trim();
+      if (rv && !isAllowedRiskDimensionValue_(rv)) {
+        return jsonResponse_(400, { ok: false, message: 'Neplatná hodnota rizikové oblasti: ' + rf });
+      }
+      updates[rf] = rv;
+    }
+  }
+
   if (data.next_analysis_due !== undefined && String(data.next_analysis_due || '').trim()) {
     var nd = new Date(data.next_analysis_due);
     if (!isNaN(nd.getTime())) {
@@ -382,6 +402,7 @@ function handleUpdateCase_(data) {
   updates.last_update = new Date();
   updates.last_updated_by = String(data.manager_email || 'iris_manager');
 
+  ensureCaseColumnsForUpdates_(casesSheet, updates);
   updateRowFieldsByCaseId_(casesSheet, caseId, updates);
 
   const now = new Date();
@@ -432,6 +453,15 @@ function isAllowedCaseStatus_(st) {
 function isAllowedCaseRiskLevel_(rl) {
   const allowed = ['nízké', 'střední', 'vysoké'];
   return allowed.indexOf(String(rl || '').trim()) !== -1;
+}
+
+/** Dimenzionální rizika ve správcovském panelu (česky + nehodnoceno). */
+function isAllowedRiskDimensionValue_(v) {
+  var s = String(v || '').trim();
+  if (!s) {
+    return true;
+  }
+  return ['nízké', 'střední', 'vysoké', 'nehodnoceno'].indexOf(s) !== -1;
 }
 
 function findCaseRowIndex_(sheet, caseId) {
@@ -685,7 +715,166 @@ function getCasesColumnAliases_() {
       'Výsledek prověrky',
       'Vysledek proverky',
     ],
+    risk_reputational: [
+      'risk_reputational',
+      'Reputační riziko',
+      'Reputacni riziko',
+      'reputational_risk',
+    ],
+    risk_legal: ['risk_legal', 'Právní riziko', 'Pravni riziko', 'legal_risk'],
+    risk_financial: ['risk_financial', 'Finanční riziko', 'Financni riziko', 'financial_risk'],
+    risk_security: ['risk_security', 'Bezpečnostní riziko', 'Bezpecnostni riziko', 'security_risk'],
+    risk_ethical: ['risk_ethical', 'Etické riziko', 'Eticke riziko', 'ethical_risk'],
+    risk_other: [
+      'risk_other',
+      'Jiné riziko',
+      'Jine riziko',
+      'IP / compliance / GDPR',
+      'other_risk',
+    ],
   };
+}
+
+/** Z listu Cases zkopíruje hodnoty z alternativních hlaviček do kanonických klíčů (pro API klienta). */
+function applyReadableCaseAliases_(row) {
+  var aliases = getCasesColumnAliases_();
+  Object.keys(aliases).forEach(function (canonical) {
+    var cur = row[canonical];
+    if (cur !== undefined && cur !== null && String(cur).trim() !== '') {
+      return;
+    }
+    var list = aliases[canonical];
+    if (!list) {
+      return;
+    }
+    for (var i = 0; i < list.length; i++) {
+      var alt = list[i];
+      if (!row.hasOwnProperty(alt)) {
+        continue;
+      }
+      var v = row[alt];
+      if (v !== undefined && v !== null && String(v).trim() !== '') {
+        row[canonical] = v;
+        return;
+      }
+    }
+  });
+}
+
+function getPreferredNewHeaderForField_(field) {
+  var aliases = getCasesColumnAliases_()[field];
+  if (aliases && aliases.length) {
+    return aliases[0];
+  }
+  return field;
+}
+
+/**
+ * Chybějící sloupce pro ukládání doplní na konec 1. řádku (aby update_row nebyl tichý neúspěch).
+ */
+function ensureCaseColumnsForUpdates_(sheet, updates) {
+  var lastCol = sheet.getLastColumn();
+  if (lastCol < 1) {
+    return;
+  }
+  var headers = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
+  var headerByTrim = {};
+  for (var c = 0; c < headers.length; c++) {
+    var h = String(headers[c] || '').trim();
+    if (h && !headerByTrim.hasOwnProperty(h)) {
+      headerByTrim[h] = c;
+    }
+  }
+  var toAdd = [];
+  Object.keys(updates).forEach(function (field) {
+    if (findCasesColumnIndex_(headerByTrim, field) >= 0) {
+      return;
+    }
+    toAdd.push(getPreferredNewHeaderForField_(field));
+  });
+  if (!toAdd.length) {
+    return;
+  }
+  var col = lastCol;
+  for (var i = 0; i < toAdd.length; i++) {
+    col++;
+    sheet.getRange(1, col).setValue(toAdd[i]);
+    headerByTrim[String(toAdd[i]).trim()] = col - 1;
+  }
+}
+
+function getIntakeLatestByCaseMap_(ss) {
+  var sh = getIntakeSheet_(ss);
+  if (!sh) {
+    return {};
+  }
+  var rows = getSheetObjects_(sh);
+  var by = {};
+  rows.forEach(function (r) {
+    var cid = String(r.case_id || '').trim();
+    if (!cid) {
+      return;
+    }
+    var prev = by[cid];
+    var t = new Date(r.submitted_at || 0).getTime();
+    if (!prev || t >= new Date(prev.submitted_at || 0).getTime()) {
+      by[cid] = r;
+    }
+  });
+  return by;
+}
+
+function overlayIntakeOntoCaseForClient_(copy, intake) {
+  if (!intake) {
+    return;
+  }
+  function fillIfEmpty(canonical, intakeKey) {
+    var ik = intakeKey || canonical;
+    var v = copy[canonical];
+    var empty = v === undefined || v === null || String(v).trim() === '';
+    if (!empty) {
+      return;
+    }
+    var iv = intake[ik];
+    if (iv !== undefined && iv !== null && String(iv).trim() !== '') {
+      copy[canonical] = iv;
+    }
+  }
+  fillIfEmpty('preliminary_risk_score');
+  fillIfEmpty('preliminary_result');
+  var intakeKeys = [
+    'cooperation_type',
+    'cooperation_stage',
+    'partner_website',
+    'external_funding',
+    'access_to_uhk_systems',
+    'sharing_data_knowhow',
+    'sensitive_outputs',
+    'transfer_outside_eu',
+    'training_or_technical_assistance',
+    'involves_doctoral_students_or_infrastructure',
+    'intent_description',
+    'auto_flags',
+    'country_risk_category',
+    'country_matches',
+  ];
+  intakeKeys.forEach(function (k) {
+    if (intake[k] !== undefined && intake[k] !== null && String(intake[k]).trim() !== '') {
+      copy['intake_' + k] = intake[k];
+    }
+  });
+}
+
+function prepareCaseRowForClient_(caseRow, intakeByCase) {
+  var copy = {};
+  Object.keys(caseRow).forEach(function (k) {
+    copy[k] = caseRow[k];
+  });
+  applyReadableCaseAliases_(copy);
+  mergeCanonicalCaseFields_(copy);
+  var cid = String(copy.case_id || '').trim();
+  overlayIntakeOntoCaseForClient_(copy, intakeByCase[cid]);
+  return copy;
 }
 
 function findCasesColumnIndex_(headerByTrim, canonicalField) {
@@ -914,6 +1103,12 @@ function processIntakeSubmission_(data) {
     analysis_recommendations: '',
     analysis_recurrence_note: '',
     next_analysis_due: '',
+    risk_reputational: '',
+    risk_legal: '',
+    risk_financial: '',
+    risk_security: '',
+    risk_ethical: '',
+    risk_other: '',
   });
 
   appendByHeaders_(eventsSheet, {
@@ -1147,8 +1342,10 @@ function getCasesResponse_(e) {
     return bDate - aDate;
   });
 
+  const intakeByCase = getIntakeLatestByCaseMap_(ss);
   const items = cases.slice(0, 200).map(function (row) {
-    return enrichCaseWithDueMeta_(row);
+    var prepared = prepareCaseRowForClient_(row, intakeByCase);
+    return enrichCaseWithDueMeta_(prepared);
   });
 
   return jsonResponse_(200, {
