@@ -657,6 +657,55 @@ function handleDeleteSubmission_(data) {
   }
 }
 
+/**
+ * Mapuje logický název pole (API) → možné hlavičky ve sloupci Cases (přesná shoda po trim).
+ * Doplňte vlastní názvy sloupců z vašeho sešitu, pokud se liší.
+ */
+function getCasesColumnAliases_() {
+  return {
+    risk_level: ['risk_level', 'Risk level', 'Riziko', 'Úroveň rizika', 'Uroven rizika'],
+    preliminary_risk_score: [
+      'preliminary_risk_score',
+      'Preliminary risk score',
+      'Skóre rizika',
+      'Skore rizika',
+      'preliminary risk score',
+    ],
+    preliminary_result: [
+      'preliminary_result',
+      'Preliminary result',
+      'Předběžný výsledek',
+      'Predbezny vysledek',
+    ],
+    final_outcome: [
+      'final_outcome',
+      'Final outcome',
+      'Závěr IRIS',
+      'Zaver IRIS',
+      'Výsledek prověrky',
+      'Vysledek proverky',
+    ],
+  };
+}
+
+function findCasesColumnIndex_(headerByTrim, canonicalField) {
+  if (headerByTrim.hasOwnProperty(canonicalField)) {
+    return headerByTrim[canonicalField];
+  }
+  var aliases = getCasesColumnAliases_();
+  var list = aliases[canonicalField];
+  if (!list) {
+    return -1;
+  }
+  for (var i = 0; i < list.length; i++) {
+    var a = list[i];
+    if (headerByTrim.hasOwnProperty(String(a || '').trim())) {
+      return headerByTrim[String(a).trim()];
+    }
+  }
+  return -1;
+}
+
 function updateRowFieldsByCaseId_(sheet, caseId, updates) {
   const lastCol = sheet.getLastColumn();
   if (lastCol < 1) {
@@ -668,10 +717,20 @@ function updateRowFieldsByCaseId_(sheet, caseId, updates) {
     throw new Error('Případ nenalezen.');
   }
 
-  headers.forEach((header, index) => {
-    if (Object.prototype.hasOwnProperty.call(updates, header)) {
-      sheet.getRange(rowNum, index + 1).setValue(updates[header]);
+  var headerByTrim = {};
+  for (var c = 0; c < headers.length; c++) {
+    var h = String(headers[c] || '').trim();
+    if (h && !headerByTrim.hasOwnProperty(h)) {
+      headerByTrim[h] = c;
     }
+  }
+
+  Object.keys(updates).forEach(function (field) {
+    var colIdx = findCasesColumnIndex_(headerByTrim, field);
+    if (colIdx < 0) {
+      return;
+    }
+    sheet.getRange(rowNum, colIdx + 1).setValue(updates[field]);
   });
 }
 
