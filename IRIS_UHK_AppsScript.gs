@@ -23,10 +23,13 @@
  *
  * List Cases – začátek hlavičky (1. řádek) typicky:
  *   case_id | record_uid | created_at | created_by | source_intake_id | current_phase | …
+ *   Sloupec case_id musí mít přesně tuto hlavičku (bez mezer) – skript podle ní generuje unikátní CASE-RRRR-NNN.
  *   record_uid = UUID jednoznačného záznamu (generuje skript u nového podání; slouží k vyhledání v aplikaci).
- *   Dále doporučené sloupce (metodika / UI): iris_statement, next_step_note, analysis_document_url,
- *   preliminary_risk_score, preliminary_result, analysis_subject, analysis_scope_methodology,
+ *   Aliasy názvů pro API (např. „Referenční ID“ → record_uid) viz mergeCanonicalCaseFields_.
+ *   Dále doporučené sloupce: risk_level (nízké | střední | vysoké), iris_statement, next_step_note, analysis_document_url,
+ *   preliminary_risk_score, preliminary_result, final_outcome, analysis_subject, analysis_scope_methodology,
  *   analysis_conclusion, analysis_recommendations, analysis_recurrence_note, next_analysis_due, …
+ *   POST update_case může měnit mimo jiné risk_level, preliminary_risk_score, preliminary_result, final_outcome.
  *
  * List Intake_Checklist – začátek hlavičky typicky:
  *   intake_id | case_id | record_uid | submitted_at | applicant_name | applicant_email | …
@@ -138,6 +141,10 @@ function doPost(e) {
 
     if (action === 'submit_applicant_person_vetting') {
       return handleApplicantPersonVetting_(data);
+    }
+
+    if (action === 'delete_person_analysis') {
+      return handleDeletePersonAnalysis_(data);
     }
 
     return processIntakeSubmission_(data);
@@ -264,7 +271,8 @@ function handleRegister_(data) {
 
 /**
  * Úprava případu správcem (stav, vyjádření, termín, odkaz / soubor analýzy).
- * POST: { action, manager_key, case_id, manager_email?, status?, iris_statement?, next_step_note?, due_date?, analysis_document_url?, analysis_file_base64?, analysis_file_name?, analysis_file_mime? }
+ * POST: { action, manager_key, case_id, manager_email?, status?, iris_statement?, next_step_note?, due_date?, analysis_document_url?, …,
+ *   risk_level?, preliminary_risk_score?, preliminary_result?, final_outcome? }
  */
 function handleUpdateCase_(data) {
   assertManagerKeyFromPayload_(data);
@@ -333,6 +341,33 @@ function handleUpdateCase_(data) {
       updates[field] = String(data[field] || '');
     }
   });
+
+  if (data.risk_level !== undefined && String(data.risk_level || '').trim()) {
+    const rl = String(data.risk_level).trim();
+    if (!isAllowedCaseRiskLevel_(rl)) {
+      return jsonResponse_(400, { ok: false, message: 'Neplatná úroveň rizika: ' + rl });
+    }
+    updates.risk_level = rl;
+  }
+  if (data.preliminary_risk_score !== undefined) {
+    const raw = String(data.preliminary_risk_score).trim();
+    if (raw === '') {
+      updates.preliminary_risk_score = '';
+    } else {
+      const n = Number(raw);
+      if (isNaN(n) || n < 0 || n > 99) {
+        return jsonResponse_(400, { ok: false, message: 'Neplatné skóre rizika (0–99).' });
+      }
+      updates.preliminary_risk_score = n;
+    }
+  }
+  if (data.preliminary_result !== undefined) {
+    updates.preliminary_result = String(data.preliminary_result || '');
+  }
+  if (data.final_outcome !== undefined) {
+    updates.final_outcome = String(data.final_outcome || '');
+  }
+
   if (data.next_analysis_due !== undefined && String(data.next_analysis_due || '').trim()) {
     var nd = new Date(data.next_analysis_due);
     if (!isNaN(nd.getTime())) {
@@ -391,6 +426,12 @@ function isAllowedCaseStatus_(st) {
     'ready_for_decision',
   ];
   return allowed.indexOf(st) !== -1;
+}
+
+/** Hodnoty risk_level z calculateRisk_ / sloupce Cases (česky). */
+function isAllowedCaseRiskLevel_(rl) {
+  const allowed = ['nízké', 'střední', 'vysoké'];
+  return allowed.indexOf(String(rl || '').trim()) !== -1;
 }
 
 function findCaseRowIndex_(sheet, caseId) {
@@ -725,7 +766,15 @@ function processIntakeSubmission_(data) {
   const now = new Date();
   const recordUid = Utilities.getUuid();
   const intakeId = generateSequentialId_(intakeSheet, 'INT');
-  const caseId = generateSequentialId_(casesSheet, 'CASE');
+  let caseId = generateSequentialId_(casesSheet, 'CASE');
+  var guardCase = 0;
+  while (findCaseRowIndex_(casesSheet, caseId) >= 0 && guardCase < 20) {
+    caseId = generateSequentialId_(casesSheet, 'CASE');
+    guardCase++;
+  }
+  if (findCaseRowIndex_(casesSheet, caseId) >= 0) {
+    throw new Error('Nelze přidělit unikátní Case ID – zkontrolujte sloupec case_id v listu Cases.');
+  }
 
   const risk = calculateRisk_(data);
 
@@ -927,6 +976,14 @@ function doGet(e) {
       return getDashboardResponse_(e);
     }
 
+    if (action === 'applicant_person_requests') {
+      return getApplicantPersonRequestsResponse_(e);
+    }
+
+    if (action === 'person_analysis_list') {
+      return getPersonAnalysisListResponse_(e);
+    }
+
     return jsonResponse_(200, {
       ok: true,
       message: 'IRIS API běží.',
@@ -1041,6 +1098,110 @@ function getCasesResponse_(e) {
   });
 }
 
+/** Žadatel: požadavky na prověrku osob (Person_Analysis_Requests, applicant nebo prázdný channel). */
+function getApplicantPersonRequestsResponse_(e) {
+  const applicantEmail = getParam_(e, 'applicant_email');
+  if (!applicantEmail) {
+    return jsonResponse_(400, { ok: false, message: 'Chybí applicant_email.' });
+  }
+  const want = normalizeEmail_(applicantEmail);
+  const ss = SpreadsheetApp.openById(IRIS_CONFIG.spreadsheetId);
+  const sh = ss.getSheetByName(IRIS_CONFIG.sheets.personAnalysis);
+  if (!sh) {
+    return jsonResponse_(200, { ok: true, items: [] });
+  }
+  const rows = getSheetObjects_(sh);
+  const filtered = rows.filter(function (row) {
+    if (normalizeEmail_(row.submitter_email) !== want) {
+      return false;
+    }
+    const ch = String(row.submission_channel || '')
+      .trim()
+      .toLowerCase();
+    return ch === 'applicant' || ch === '';
+  });
+  filtered.sort(function (a, b) {
+    const ad = new Date(a.submitted_at || 0).getTime();
+    const bd = new Date(b.submitted_at || 0).getTime();
+    return bd - ad;
+  });
+  const items = filtered.slice(0, 200).map(function (row) {
+    return {
+      person_analysis_id: String(row.person_analysis_id || '').trim(),
+      submitted_at: row.submitted_at,
+      subject_legal_name: String(row.subject_legal_name || '').trim(),
+      status: String(row.status || 'new').trim(),
+      urgency: String(row.urgency || '').trim(),
+    };
+  });
+  return jsonResponse_(200, { ok: true, items: items });
+}
+
+/** Správce: seznam záznamů Person_Analysis_Requests (správa / mazání). */
+function getPersonAnalysisListResponse_(e) {
+  assertManagerKey_(e);
+  const ss = SpreadsheetApp.openById(IRIS_CONFIG.spreadsheetId);
+  const sh = ss.getSheetByName(IRIS_CONFIG.sheets.personAnalysis);
+  if (!sh) {
+    return jsonResponse_(200, { ok: true, items: [] });
+  }
+  const rows = getSheetObjects_(sh).filter(function (r) {
+    return String(r.person_analysis_id || '').trim();
+  });
+  rows.sort(function (a, b) {
+    const ad = new Date(a.submitted_at || 0).getTime();
+    const bd = new Date(b.submitted_at || 0).getTime();
+    return bd - ad;
+  });
+  const items = rows.slice(0, 300).map(function (row) {
+    return {
+      person_analysis_id: String(row.person_analysis_id || '').trim(),
+      submission_channel: String(row.submission_channel || '').trim(),
+      submitter_email: String(row.submitter_email || '').trim(),
+      submitter_name: String(row.submitter_name || '').trim(),
+      subject_legal_name: String(row.subject_legal_name || '').trim(),
+      status: String(row.status || '').trim(),
+      submitted_at: row.submitted_at,
+    };
+  });
+  return jsonResponse_(200, { ok: true, items: items });
+}
+
+/**
+ * Admin / iris_manager: smaže řádek Person_Analysis_Requests.
+ * POST: { action, manager_key, admin_email, person_analysis_id }
+ */
+function handleDeletePersonAnalysis_(data) {
+  assertManagerKeyFromPayload_(data);
+  validateRequiredFields_(data, ['admin_email', 'person_analysis_id']);
+  verifyCanDeleteSubmissionByEmail_(data.admin_email);
+  const pid = String(data.person_analysis_id || '').trim();
+  if (!pid) {
+    return jsonResponse_(400, { ok: false, message: 'Chybí person_analysis_id.' });
+  }
+  const lock = LockService.getScriptLock();
+  lock.waitLock(30000);
+  try {
+    const ss = SpreadsheetApp.openById(IRIS_CONFIG.spreadsheetId);
+    const sh = ss.getSheetByName(IRIS_CONFIG.sheets.personAnalysis);
+    if (!sh) {
+      return jsonResponse_(404, { ok: false, message: 'List Person_Analysis_Requests chybí.' });
+    }
+    const rns = findRowNumbersMatchingColumn_(sh, 'person_analysis_id', pid);
+    if (!rns.length) {
+      return jsonResponse_(404, { ok: false, message: 'Záznam nenalezen.' });
+    }
+    sh.deleteRow(rns[0]);
+    return jsonResponse_(200, {
+      ok: true,
+      message: 'Záznam prověrky / analýzy osoby byl smazán.',
+      person_analysis_id: pid,
+    });
+  } finally {
+    lock.releaseLock();
+  }
+}
+
 function getDashboardResponse_(e) {
   assertManagerKey_(e);
 
@@ -1146,11 +1307,48 @@ function calendarDaysUntilDue_(dueValue) {
   return Math.round((due.getTime() - today.getTime()) / 86400000);
 }
 
+/**
+ * Doplní canonical klíče (record_uid, risk_level), pokud v listu používáte jiné názvy sloupců.
+ */
+function mergeCanonicalCaseFields_(copy) {
+  var uid = String(copy.record_uid || '').trim();
+  if (!uid) {
+    var uidCandidates = [
+      'Referenční ID',
+      'Referencni ID',
+      'REF_UID',
+      'ref_uid',
+      'UUID',
+      'Record UID',
+      'record UID',
+    ];
+    for (var i = 0; i < uidCandidates.length; i++) {
+      var ck = uidCandidates[i];
+      if (copy[ck] !== undefined && String(copy[ck]).trim()) {
+        copy.record_uid = String(copy[ck]).trim();
+        break;
+      }
+    }
+  }
+  var rl = String(copy.risk_level || '').trim();
+  if (!rl) {
+    var riskAlts = ['Risk', 'risk', 'Riziko', 'úroveň rizika', 'Úroveň rizika'];
+    for (var j = 0; j < riskAlts.length; j++) {
+      var rk = riskAlts[j];
+      if (copy[rk] !== undefined && String(copy[rk]).trim()) {
+        copy.risk_level = String(copy[rk]).trim();
+        break;
+      }
+    }
+  }
+}
+
 function enrichCaseWithDueMeta_(row) {
   const copy = {};
   Object.keys(row).forEach(function (k) {
     copy[k] = row[k];
   });
+  mergeCanonicalCaseFields_(copy);
   const days = calendarDaysUntilDue_(row.due_date);
   copy.days_until_due = days;
   const open = getOpenCaseStatuses_().indexOf(String(row.status || '')) !== -1;
@@ -2096,16 +2294,24 @@ function generateSequentialId_(sheet, prefix) {
     }
 
     const headers = values[0].map(h => String(h || '').trim());
-    let colIdx = 0;
+    let colIdx = -1;
     if (prefix === 'CASE') {
-      const idx = headers.indexOf('case_id');
-      if (idx !== -1) colIdx = idx;
+      colIdx = headers.indexOf('case_id');
+      if (colIdx === -1) {
+        throw new Error('V listu chybí sloupec s přesnou hlavičkou case_id (nutné pro unikátní Case ID).');
+      }
     } else if (prefix === 'INT') {
-      const idx = headers.indexOf('intake_id');
-      if (idx !== -1) colIdx = idx;
+      colIdx = headers.indexOf('intake_id');
+      if (colIdx === -1) {
+        throw new Error('V listu chybí sloupec intake_id.');
+      }
     } else if (prefix === 'PAR') {
-      const idx = headers.indexOf('person_analysis_id');
-      if (idx !== -1) colIdx = idx;
+      colIdx = headers.indexOf('person_analysis_id');
+      if (colIdx === -1) {
+        throw new Error('V listu chybí sloupec person_analysis_id.');
+      }
+    } else {
+      colIdx = 0;
     }
 
     const re = new RegExp('^' + safePrefix + '-' + year + '-(\\d+)$');
@@ -2192,7 +2398,11 @@ function getSheetObjects_(sheet) {
   return values.slice(1).map(row => {
     const obj = {};
     headers.forEach((header, index) => {
-      obj[header] = row[index];
+      const key = String(header || '').trim();
+      if (!key) {
+        return;
+      }
+      obj[key] = row[index];
     });
     return obj;
   });
