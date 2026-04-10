@@ -1012,13 +1012,13 @@
           </div>
 
           <fieldset class="fieldset full-width manager-risk-fieldset">
-            <legend data-i18n="manager.riskFieldsetLegend">Riziko a výsledek prověrky</legend>
+            <legend data-i18n="manager.riskFieldsetLegend">Vyhodnocení rizika po prověrce</legend>
             <p class="field-hint" data-i18n="manager.riskFieldsetHint">
-              Údaje z checklistu můžete po interní prověrce upravit. Úroveň rizika se zobrazuje v přehledu případů.
+              Po interní prověrce můžete upravit údaje z checklistu. Hodnota v sloupci „Riziko“ v přehledu odpovídá zvolené úrovni níže.
             </p>
             <div class="manager-case-grid">
               <div class="form-group">
-                <label for="managerCaseRiskLevel" data-i18n="manager.lblRiskLevel">Úroveň rizika (evidence)</label>
+                <label for="managerCaseRiskLevel" data-i18n="manager.lblRiskLevel">Úroveň rizika</label>
                 <select id="managerCaseRiskLevel">
                   <option value="nízké" data-i18n-opt="manager.riskLow">nízké</option>
                   <option value="střední" data-i18n-opt="manager.riskMed">střední</option>
@@ -1030,12 +1030,12 @@
                 <input type="number" id="managerCaseRiskScore" min="0" max="99" step="1" data-i18n-placeholder="manager.phRiskScore" placeholder="např. 6" />
               </div>
               <div class="form-group full-width">
-                <label for="managerCasePreliminaryResult" data-i18n="manager.lblPreliminaryResult">Předběžný výsledek (text z automatického vyhodnocení)</label>
-                <textarea id="managerCasePreliminaryResult" rows="2" data-i18n-placeholder="manager.phPreliminaryResult" placeholder="Lze upravit po prověrce."></textarea>
+                <label for="managerCasePreliminaryResult" data-i18n="manager.lblPreliminaryResult">Předběžné vyhodnocení (automatický text z podání)</label>
+                <textarea id="managerCasePreliminaryResult" rows="2" data-i18n-placeholder="manager.phPreliminaryResult" placeholder="Text z podání; po prověrce ho můžete upravit."></textarea>
               </div>
               <div class="form-group full-width">
-                <label for="managerCaseFinalOutcome" data-i18n="manager.lblFinalOutcome">Závěr / výsledek po prověrce IRIS</label>
-                <textarea id="managerCaseFinalOutcome" rows="3" data-i18n-placeholder="manager.phFinalOutcome" placeholder="Stručný závěr po prověrce (sloupec final_outcome v Cases)."></textarea>
+                <label for="managerCaseFinalOutcome" data-i18n="manager.lblFinalOutcome">Závěr IRIS po prověrce</label>
+                <textarea id="managerCaseFinalOutcome" rows="3" data-i18n-placeholder="manager.phFinalOutcome" placeholder="Stručný závěr pro evidenci (sloupec final_outcome v listu Cases)."></textarea>
               </div>
             </div>
           </fieldset>
@@ -1154,6 +1154,6 @@
   </dialog>
 
   <script src="iris-prompts.js?v=1"></script>
-  <script src="app.js?v=20"></script>
+  <script src="app.js?v=21"></script>
 </body>
 </html>
