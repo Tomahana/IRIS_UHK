@@ -264,6 +264,73 @@ body {
   color: var(--primary);
 }
 
+.manager-quick-action-feedback {
+  margin-top: 0.35rem;
+  font-size: 0.9rem;
+  color: #166534;
+}
+
+.manager-quick-action-feedback.hidden {
+  display: none;
+}
+
+.manager-milestones-fieldset {
+  margin: 0;
+}
+
+.manager-milestones-list {
+  margin: 0.25rem 0 0;
+  padding-left: 1.25rem;
+}
+
+.manager-milestones-list li {
+  margin-bottom: 0.35rem;
+}
+
+.manager-milestone-hint {
+  color: #64748b;
+  font-size: 0.88rem;
+  font-weight: normal;
+}
+
+.manager-risk-domains-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.75rem 1rem;
+  width: 100%;
+}
+
+.cases-table td.cell-risk {
+  font-weight: 600;
+}
+
+.cell-risk-inner {
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.cell-risk--low .cell-risk-inner {
+  background: #dcfce7;
+  color: #14532d;
+}
+
+.cell-risk--med .cell-risk-inner {
+  background: #fef9c3;
+  color: #713f12;
+}
+
+.cell-risk--high .cell-risk-inner {
+  background: #fee2e2;
+  color: #7f1d1d;
+}
+
+.cell-risk--none .cell-risk-inner {
+  background: transparent;
+  font-weight: normal;
+  color: inherit;
+}
+
 .manager-case-panel {
   margin: 24px 24px 28px;
   padding: 22px 24px 24px;
@@ -274,6 +341,10 @@ body {
 
 .manager-case-panel.hidden {
   display: none;
+}
+
+.manager-risk-fieldset {
+  margin: 18px 0;
 }
 
 .manager-case-panel-title {
