@@ -321,6 +321,26 @@ const STRINGS = {
     'manager.sectionOutputTitle': 'Analytická zpráva a závěry',
     'manager.sectionOutputLead': 'Strukturovaná zpráva dle metodiky IRIS, závěr do evidence a plán obnovy analýzy.',
     'manager.intakeScoreHint': 'hodnota z podání',
+    'manager.intakeSummaryTitle': 'Shrnutí podaného podnětu',
+    'manager.intakePrelimFieldHint': 'Úprava pro evidenci (pole preliminary_result v listu Cases).',
+    'manager.intakeSummaryEmpty': 'K tomuto případu nejsou v aplikaci k dispozici další údaje z check-listu (zkontrolujte list Intake v tabulce).',
+    'manager.sumCaseId': 'Case ID',
+    'manager.sumSourceIntake': 'Intake ID',
+    'manager.sumCaseTitle': 'Předmět / název případu',
+    'manager.sumApplicant': 'Žadatel',
+    'manager.sumUnit': 'Jednotka / ústav',
+    'manager.sumPartner': 'Partner',
+    'manager.sumCountry': 'Země partnera',
+    'manager.sumPartnerWeb': 'Web partnera',
+    'manager.sumCoopType': 'Typ spolupráce',
+    'manager.sumCoopStage': 'Fáze spolupráce',
+    'manager.sumIntent': 'Záměr spolupráce',
+    'manager.sumIndicators': 'Indikátory z check-listu',
+    'manager.sumCountryRisk': 'Kategorie rizika země',
+    'manager.sumCountryMatch': 'Shody země',
+    'manager.sumAutoFlags': 'Automatické příznaky',
+    'manager.sumPreliminaryAuto': 'Předběžný výsledek (z podání)',
+    'manager.sumScoreAuto': 'Skóre z podání (0–99)',
     'methodology.applicantInstSummary':
       'Chcete zobrazit metodické pokyny pro žadatele? (check-list institucí a organizací)',
     'methodology.applicantPersonSummary':
@@ -783,6 +803,26 @@ const STRINGS = {
     'manager.sectionOutputTitle': 'Analytical report and conclusions',
     'manager.sectionOutputLead': 'Structured report per IRIS methodology, formal conclusion, and renewal planning.',
     'manager.intakeScoreHint': 'from submission',
+    'manager.intakeSummaryTitle': 'Submission summary',
+    'manager.intakePrelimFieldHint': 'Edit for the register (preliminary_result column in Cases).',
+    'manager.intakeSummaryEmpty': 'No extra checklist fields are available for this case in the app (check the Intake sheet).',
+    'manager.sumCaseId': 'Case ID',
+    'manager.sumSourceIntake': 'Intake ID',
+    'manager.sumCaseTitle': 'Subject / case title',
+    'manager.sumApplicant': 'Applicant',
+    'manager.sumUnit': 'Unit / institute',
+    'manager.sumPartner': 'Partner',
+    'manager.sumCountry': 'Partner country',
+    'manager.sumPartnerWeb': 'Partner website',
+    'manager.sumCoopType': 'Cooperation type',
+    'manager.sumCoopStage': 'Cooperation stage',
+    'manager.sumIntent': 'Intended cooperation',
+    'manager.sumIndicators': 'Checklist indicators',
+    'manager.sumCountryRisk': 'Country risk category',
+    'manager.sumCountryMatch': 'Country matches',
+    'manager.sumAutoFlags': 'Automatic flags',
+    'manager.sumPreliminaryAuto': 'Preliminary outcome (from submission)',
+    'manager.sumScoreAuto': 'Submission score (0–99)',
     'methodology.applicantInstSummary':
       'Show applicant methodology? (institutions and organisations checklist)',
     'methodology.applicantPersonSummary': 'Show applicant methodology? (natural persons checklist)',
@@ -1099,14 +1139,15 @@ function t(key, vars) {
 const IRIS_MGR_RISK_LABELS = {
   cs: {
     intakeLegend: 'Údaje z podání (check-list)',
-    intakeHint: 'Nejdříve text a skóre z podání žadatele; slouží jako výchozí bod pro prověrku.',
+    intakeHint:
+      'Shrnutí podaného podnětu je v rámečku níže (jen ke čtení). Pod ním upravíte předběžné vyhodnocení a skóre pro evidenci případu.',
     adminLegend: 'Riziko po prověrce (správce)',
     adminHint:
       'Úroveň a oblasti rizika po interní prověrce. Po uložení se celková úroveň promítne do sloupce Riziko v přehledu případů.',
     lblLevel: 'Úroveň rizika',
     lblScore: 'Skóre z checklistu (0–99)',
     phScore: 'např. 6',
-    lblPrelim: 'Předběžné vyhodnocení (text z podání)',
+    lblPrelim: 'Předběžné vyhodnocení (úprava pro evidenci)',
     phPrelim: 'Text z podání; po prověrce ho můžete upravit.',
     lblFinal: 'Závěr IRIS po prověrce',
     phFinal: 'Stručný závěr pro evidenci (sloupec final_outcome v listu Cases).',
@@ -1116,14 +1157,15 @@ const IRIS_MGR_RISK_LABELS = {
   },
   en: {
     intakeLegend: 'Submission data (checklist)',
-    intakeHint: 'Preliminary text and score from the applicant; baseline for vetting.',
+    intakeHint:
+      'A read-only summary of the submission is in the box below. Under it, edit the preliminary outcome and score for the case file.',
     adminLegend: 'Risk after vetting (manager)',
     adminHint:
       'Overall level and per-domain risk after internal review. The overall level updates the Risk column in the case list after save.',
     lblLevel: 'Risk level',
     lblScore: 'Checklist score (0–99)',
     phScore: 'e.g. 6',
-    lblPrelim: 'Preliminary outcome (submission text)',
+    lblPrelim: 'Preliminary outcome (edit for register)',
     phPrelim: 'From the submission; you can edit after review.',
     lblFinal: 'IRIS conclusion after vetting',
     phFinal: 'Short conclusion for the register (final_outcome column in Cases).',
@@ -2315,6 +2357,84 @@ function buildPreliminaryFromIntake(item) {
   return String(item.intake_intent_description || item.description || '').trim();
 }
 
+/** Popisy indikátorů z řádku Intake (shodně pro shrnutí v panelu i návrh analýzy). */
+function intakeChecklistIndicatorMeta() {
+  const L = currentLang === 'en';
+  return [
+    ['intake_external_funding', L ? 'External funding' : 'Externí financování'],
+    ['intake_access_to_uhk_systems', L ? 'Access to UHK systems' : 'Přístup k systémům UHK'],
+    ['intake_sharing_data_knowhow', L ? 'Data / know-how sharing' : 'Sdílení dat / know-how'],
+    ['intake_sensitive_outputs', L ? 'Sensitive outputs' : 'Citlivé výstupy'],
+    ['intake_transfer_outside_eu', L ? 'Transfer outside EU' : 'Přenos mimo EU'],
+    ['intake_training_or_technical_assistance', L ? 'Training / technical assistance' : 'Školení / technická asistence'],
+    [
+      'intake_involves_doctoral_students_or_infrastructure',
+      L ? 'Doctoral students / infrastructure' : 'Doktorandi / infrastruktura',
+    ],
+  ];
+}
+
+function formatIntakeIndicatorsLines(item) {
+  const lines = [];
+  intakeChecklistIndicatorMeta().forEach(([k, lab]) => {
+    const v = item[k];
+    if (v !== undefined && v !== null && String(v).trim() !== '') {
+      lines.push(`${lab}: ${String(v).trim()}`);
+    }
+  });
+  return lines;
+}
+
+function pushIntakeSummaryRow(rows, labelKey, value) {
+  const v = String(value ?? '').trim();
+  if (!v) return;
+  rows.push({ label: t(labelKey), value: v });
+}
+
+function buildManagerIntakeSummaryRows(item) {
+  const rows = [];
+  pushIntakeSummaryRow(rows, 'manager.sumCaseId', item.case_id);
+  pushIntakeSummaryRow(rows, 'manager.sumSourceIntake', item.source_intake_id);
+  pushIntakeSummaryRow(rows, 'manager.sumCaseTitle', item.title);
+  pushIntakeSummaryRow(rows, 'manager.sumApplicant', item.applicant_name);
+  pushIntakeSummaryRow(rows, 'manager.sumUnit', item.applicant_unit);
+  pushIntakeSummaryRow(rows, 'manager.sumPartner', item.partner_name);
+  pushIntakeSummaryRow(rows, 'manager.sumCountry', item.partner_country);
+  pushIntakeSummaryRow(rows, 'manager.sumPartnerWeb', item.intake_partner_website);
+  pushIntakeSummaryRow(rows, 'manager.sumCoopType', item.intake_cooperation_type || item.case_type);
+  pushIntakeSummaryRow(rows, 'manager.sumCoopStage', item.intake_cooperation_stage);
+  pushIntakeSummaryRow(rows, 'manager.sumIntent', item.intake_intent_description || item.description);
+  const indLines = formatIntakeIndicatorsLines(item);
+  if (indLines.length) {
+    rows.push({ label: t('manager.sumIndicators'), value: indLines.join('\n') });
+  }
+  pushIntakeSummaryRow(rows, 'manager.sumCountryRisk', item.intake_country_risk_category);
+  pushIntakeSummaryRow(rows, 'manager.sumCountryMatch', item.intake_country_matches);
+  pushIntakeSummaryRow(rows, 'manager.sumAutoFlags', item.intake_auto_flags);
+  pushIntakeSummaryRow(rows, 'manager.sumPreliminaryAuto', item.preliminary_result);
+  const sc = item.preliminary_risk_score;
+  if (sc !== undefined && sc !== null && String(sc).trim() !== '' && !Number.isNaN(Number(sc))) {
+    rows.push({ label: t('manager.sumScoreAuto'), value: String(sc) });
+  }
+  return rows;
+}
+
+function renderManagerIntakeSummary(item) {
+  const mount = document.getElementById('managerIntakeSummaryBody');
+  if (!mount) return;
+  const rows = buildManagerIntakeSummaryRows(item);
+  if (!rows.length) {
+    mount.innerHTML = `<p class="manager-intake-summary__empty">${escapeHtml(t('manager.intakeSummaryEmpty'))}</p>`;
+    return;
+  }
+  mount.innerHTML = `<dl class="manager-intake-summary__dl">${rows
+    .map(
+      (r) =>
+        `<div class="manager-intake-summary__row"><dt>${escapeHtml(r.label)}</dt><dd class="manager-intake-summary__dd">${escapeHtml(r.value)}</dd></div>`,
+    )
+    .join('')}</dl>`;
+}
+
 function composeAnalysisDraftFromCase(item) {
   const L = currentLang === 'en';
   const partner = String(item.partner_name || '').trim();
@@ -2336,25 +2456,7 @@ function composeAnalysisDraftFromCase(item) {
   if (intent) {
     scopeParts.push(`${L ? 'Intended cooperation (intake)' : 'Záměr spolupráce (check-list)'}:\n${intent}`);
   }
-  const flagRows = [
-    ['intake_external_funding', L ? 'External funding' : 'Externí financování'],
-    ['intake_access_to_uhk_systems', L ? 'Access to UHK systems' : 'Přístup k systémům UHK'],
-    ['intake_sharing_data_knowhow', L ? 'Data / know-how sharing' : 'Sdílení dat / know-how'],
-    ['intake_sensitive_outputs', L ? 'Sensitive outputs' : 'Citlivé výstupy'],
-    ['intake_transfer_outside_eu', L ? 'Transfer outside EU' : 'Přenos mimo EU'],
-    ['intake_training_or_technical_assistance', L ? 'Training / technical assistance' : 'Školení / technická asistence'],
-    [
-      'intake_involves_doctoral_students_or_infrastructure',
-      L ? 'Doctoral students / infrastructure' : 'Doktorandi / infrastruktura',
-    ],
-  ];
-  const flags = [];
-  flagRows.forEach(([k, lab]) => {
-    const v = item[k];
-    if (v !== undefined && v !== null && String(v).trim() !== '') {
-      flags.push(`${lab}: ${String(v).trim()}`);
-    }
-  });
+  const flags = formatIntakeIndicatorsLines(item);
   if (flags.length) {
     scopeParts.push(`${L ? 'Checklist indicators' : 'Indikátory check-listu'}:\n${flags.join('\n')}`);
   }
@@ -3326,6 +3428,8 @@ function closeManagerCasePanel() {
   managerCasePanel.setAttribute('aria-hidden', 'true');
   managerEditCaseId.value = '';
   if (managerWorkflowSuggest) managerWorkflowSuggest.innerHTML = '';
+  const intakeSummaryBody = document.getElementById('managerIntakeSummaryBody');
+  if (intakeSummaryBody) intakeSummaryBody.innerHTML = '';
   if (managerCaseFile) managerCaseFile.value = '';
   if (managerCaseFormMessage) {
     managerCaseFormMessage.classList.add('hidden');
@@ -3556,6 +3660,7 @@ function openManagerCasePanel(caseId, recordUid) {
   if (managerCasePreliminaryResult) {
     managerCasePreliminaryResult.value = buildPreliminaryFromIntake(item);
   }
+  renderManagerIntakeSummary(item);
   if (managerCaseFinalOutcome) {
     managerCaseFinalOutcome.value = String(item.final_outcome || '');
   }
