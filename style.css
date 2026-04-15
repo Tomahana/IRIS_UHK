@@ -343,8 +343,130 @@ body {
   display: none;
 }
 
-.manager-risk-fieldset {
-  margin: 18px 0;
+.manager-case-section {
+  margin-top: 20px;
+  padding: 16px 18px 18px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04);
+}
+
+.manager-case-section:first-of-type {
+  margin-top: 14px;
+}
+
+.manager-case-section--intake {
+  border-left: 4px solid #2563eb;
+  background: linear-gradient(165deg, #eff6ff 0%, var(--surface) 42%);
+}
+
+.manager-case-section--prompts {
+  border-left: 4px solid #7c3aed;
+  background: linear-gradient(165deg, #f5f3ff 0%, var(--surface) 40%);
+}
+
+.manager-case-section--admin {
+  border-left: 4px solid #c2410c;
+  background: linear-gradient(165deg, #fff7ed 0%, var(--surface) 38%);
+}
+
+.manager-case-section--outputs {
+  border-left: 4px solid #047857;
+  background: linear-gradient(165deg, #ecfdf5 0%, var(--surface) 38%);
+}
+
+.manager-case-section__head {
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.manager-case-section__badge {
+  display: inline-block;
+  margin-bottom: 6px;
+  padding: 2px 8px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text);
+  background: var(--neutral-bg);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+}
+
+.manager-case-section--intake .manager-case-section__badge {
+  background: #dbeafe;
+  border-color: #93c5fd;
+}
+
+.manager-case-section--prompts .manager-case-section__badge {
+  background: #ede9fe;
+  border-color: #c4b5fd;
+}
+
+.manager-case-section--admin .manager-case-section__badge {
+  background: #ffedd5;
+  border-color: #fdba74;
+}
+
+.manager-case-section--outputs .manager-case-section__badge {
+  background: #d1fae5;
+  border-color: #6ee7b7;
+}
+
+.manager-case-section__title {
+  margin: 0 0 6px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.manager-case-section__lead {
+  margin: 0;
+  max-width: 58rem;
+}
+
+.manager-case-grid--section {
+  margin-top: 0;
+  gap: 14px;
+}
+
+.manager-input--intake,
+.manager-input--output {
+  background: var(--surface-soft);
+  border-color: var(--border-strong);
+}
+
+.manager-case-section--intake .manager-input--intake {
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.manager-case-section--outputs .manager-input--output {
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.manager-admin-risk-fieldset {
+  margin: 14px 0 18px;
+  padding: 12px 14px 14px;
+  border-radius: var(--radius);
+  border: 1px dashed var(--border-strong);
+  background: rgba(255, 255, 255, 0.65);
+}
+
+.manager-final-outcome-block {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+
+.manager-prompt-block--in-section {
+  margin-top: 0;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
 }
 
 .manager-case-panel-title {
