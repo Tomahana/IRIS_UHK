@@ -320,6 +320,7 @@ const STRINGS = {
       'Rychlé posuny stavu, termíny, vyjádření a doplnění rizika po interní prověrce (odděleně od vstupu z check-listu).',
     'manager.sectionOutputTitle': 'Analytická zpráva a závěry',
     'manager.sectionOutputLead': 'Strukturovaná zpráva dle metodiky IRIS, závěr do evidence a plán obnovy analýzy.',
+    'manager.intakeScoreHint': 'hodnota z podání',
     'methodology.applicantInstSummary':
       'Chcete zobrazit metodické pokyny pro žadatele? (check-list institucí a organizací)',
     'methodology.applicantPersonSummary':
@@ -781,6 +782,7 @@ const STRINGS = {
       'Quick status moves, deadlines, statements, and post-vetting risk (separate from checklist intake).',
     'manager.sectionOutputTitle': 'Analytical report and conclusions',
     'manager.sectionOutputLead': 'Structured report per IRIS methodology, formal conclusion, and renewal planning.',
+    'manager.intakeScoreHint': 'from submission',
     'methodology.applicantInstSummary':
       'Show applicant methodology? (institutions and organisations checklist)',
     'methodology.applicantPersonSummary': 'Show applicant methodology? (natural persons checklist)',
