@@ -1013,14 +1013,24 @@
                   <span class="manager-case-section__badge" data-i18n="manager.sectionBadgeIntake">Check-list</span>
                   <h4 class="manager-case-section__title" id="irisMgrIntakeLegend">Údaje z podání (check-list)</h4>
                   <p class="field-hint manager-case-section__lead" id="irisMgrIntakeHint">
-                    Skóre a předběžný text z podání žadatele; slouží jako výchozí bod pro prověrku.
+                    Shrnutí podaného podnětu je v rámečku níže (jen ke čtení). Pod ním upravíte předběžné vyhodnocení a skóre
+                    pro evidenci případu.
                   </p>
                 </header>
+                <div class="manager-intake-summary" aria-labelledby="managerIntakeSummaryTitle">
+                  <h5 class="manager-intake-summary__title" id="managerIntakeSummaryTitle" data-i18n="manager.intakeSummaryTitle">
+                    Shrnutí podaného podnětu
+                  </h5>
+                  <div id="managerIntakeSummaryBody" class="manager-intake-summary__body"></div>
+                </div>
                 <div class="manager-intake-columns">
                   <div class="manager-intake-columns__text">
                     <label for="managerCasePreliminaryResult" id="irisMgrIntakeLblPrelim" class="manager-intake-label">
-                      Předběžné vyhodnocení (text z podání)
+                      Předběžné vyhodnocení (úprava pro evidenci)
                     </label>
+                    <p class="field-hint manager-intake-prelim-hint" data-i18n="manager.intakePrelimFieldHint">
+                      Úprava pro evidenci (pole preliminary_result v listu Cases).
+                    </p>
                     <textarea
                       id="managerCasePreliminaryResult"
                       class="manager-input--intake manager-input--intake-body"
@@ -1306,6 +1316,6 @@
   </dialog>
 
   <script src="iris-prompts.js?v=1"></script>
-  <script src="app.js?v=25"></script>
+  <script src="app.js?v=26"></script>
 </body>
 </html>
