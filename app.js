@@ -311,6 +311,15 @@ const STRINGS = {
     'manager.lblRiskEthical': 'Etické riziko',
     'manager.lblRiskOther': 'Jiné riziko (IP / compliance / GDPR)',
     'manager.riskColHint': 'Barva odpovídá uložené úrovni rizika v panelu Úprava případu (po uložení a obnovení seznamu).',
+    'manager.sectionBadgeIntake': 'Check-list',
+    'manager.sectionBadgePrompts': 'Prompty / AI',
+    'manager.sectionBadgeAdmin': 'Správce IRIS',
+    'manager.sectionBadgeOutput': 'Analýza / DD',
+    'manager.sectionAdminTitle': 'Úpravy správce a komunikace s žadatelem',
+    'manager.sectionAdminLead':
+      'Rychlé posuny stavu, termíny, vyjádření a doplnění rizika po interní prověrce (odděleně od vstupu z check-listu).',
+    'manager.sectionOutputTitle': 'Analytická zpráva a závěry',
+    'manager.sectionOutputLead': 'Strukturovaná zpráva dle metodiky IRIS, závěr do evidence a plán obnovy analýzy.',
     'methodology.applicantInstSummary':
       'Chcete zobrazit metodické pokyny pro žadatele? (check-list institucí a organizací)',
     'methodology.applicantPersonSummary':
@@ -763,6 +772,15 @@ const STRINGS = {
     'manager.lblRiskEthical': 'Ethical risk',
     'manager.lblRiskOther': 'Other risk (IP / compliance / GDPR)',
     'manager.riskColHint': 'Colour reflects the saved risk level in Edit case (after save and refresh).',
+    'manager.sectionBadgeIntake': 'Checklist',
+    'manager.sectionBadgePrompts': 'AI prompts',
+    'manager.sectionBadgeAdmin': 'IRIS manager',
+    'manager.sectionBadgeOutput': 'Analysis / DD',
+    'manager.sectionAdminTitle': 'Manager edits and applicant communication',
+    'manager.sectionAdminLead':
+      'Quick status moves, deadlines, statements, and post-vetting risk (separate from checklist intake).',
+    'manager.sectionOutputTitle': 'Analytical report and conclusions',
+    'manager.sectionOutputLead': 'Structured report per IRIS methodology, formal conclusion, and renewal planning.',
     'methodology.applicantInstSummary':
       'Show applicant methodology? (institutions and organisations checklist)',
     'methodology.applicantPersonSummary': 'Show applicant methodology? (natural persons checklist)',
@@ -1078,13 +1096,15 @@ function t(key, vars) {
  */
 const IRIS_MGR_RISK_LABELS = {
   cs: {
-    legend: 'Vyhodnocení rizika po prověrce',
-    hint:
-      'Po interní prověrce můžete upravit údaje z checklistu. Sloupec Riziko v přehledu se po uložení barevně zvýrazní podle zvolené úrovně.',
+    intakeLegend: 'Údaje z podání (check-list)',
+    intakeHint: 'Nejdříve text a skóre z podání žadatele; slouží jako výchozí bod pro prověrku.',
+    adminLegend: 'Riziko po prověrce (správce)',
+    adminHint:
+      'Úroveň a oblasti rizika po interní prověrce. Po uložení se celková úroveň promítne do sloupce Riziko v přehledu případů.',
     lblLevel: 'Úroveň rizika',
     lblScore: 'Skóre z checklistu (0–99)',
     phScore: 'např. 6',
-    lblPrelim: 'Předběžné vyhodnocení (automatický text z podání)',
+    lblPrelim: 'Předběžné vyhodnocení (text z podání)',
     phPrelim: 'Text z podání; po prověrce ho můžete upravit.',
     lblFinal: 'Závěr IRIS po prověrce',
     phFinal: 'Stručný závěr pro evidenci (sloupec final_outcome v listu Cases).',
@@ -1093,13 +1113,15 @@ const IRIS_MGR_RISK_LABELS = {
     riskHigh: 'vysoké',
   },
   en: {
-    legend: 'Risk assessment after vetting',
-    hint:
-      'After internal vetting you can adjust checklist values. The Risk column is colour-highlighted after save to match the level below.',
+    intakeLegend: 'Submission data (checklist)',
+    intakeHint: 'Preliminary text and score from the applicant; baseline for vetting.',
+    adminLegend: 'Risk after vetting (manager)',
+    adminHint:
+      'Overall level and per-domain risk after internal review. The overall level updates the Risk column in the case list after save.',
     lblLevel: 'Risk level',
     lblScore: 'Checklist score (0–99)',
     phScore: 'e.g. 6',
-    lblPrelim: 'Preliminary outcome (auto-generated from submission)',
+    lblPrelim: 'Preliminary outcome (submission text)',
     phPrelim: 'From the submission; you can edit after review.',
     lblFinal: 'IRIS conclusion after vetting',
     phFinal: 'Short conclusion for the register (final_outcome column in Cases).',
@@ -1119,14 +1141,18 @@ function applyManagerRiskFieldsetLabels() {
     const n = document.getElementById(id);
     if (n && 'placeholder' in n && text != null) n.placeholder = text;
   };
-  setText('irisMgrRiskLegend', L.legend);
-  setText('irisMgrRiskHint', L.hint);
-  setText('irisMgrRiskLblLevel', L.lblLevel);
-  setText('irisMgrRiskLblScore', L.lblScore);
-  setText('irisMgrRiskLblPrelim', L.lblPrelim);
-  setText('irisMgrRiskLblFinal', L.lblFinal);
+  setText('irisMgrIntakeLegend', L.intakeLegend);
+  setText('irisMgrIntakeHint', L.intakeHint);
+  setText('irisMgrIntakeLblScore', L.lblScore);
+  setText('irisMgrIntakeLblPrelim', L.lblPrelim);
   setPh('managerCaseRiskScore', L.phScore);
   setPh('managerCasePreliminaryResult', L.phPrelim);
+
+  setText('irisMgrAdminRiskLegend', L.adminLegend);
+  setText('irisMgrAdminRiskHint', L.adminHint);
+  setText('irisMgrRiskLblLevel', L.lblLevel);
+
+  setText('irisMgrRiskLblFinal', L.lblFinal);
   setPh('managerCaseFinalOutcome', L.phFinal);
   setText('irisMgrRiskOptLow', L.riskLow);
   setText('irisMgrRiskOptMed', L.riskMed);
