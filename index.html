@@ -1005,181 +1005,52 @@
 
           <div class="manager-workflow-suggest" id="managerWorkflowSuggest" aria-live="polite"></div>
 
-          <div class="manager-quick-actions" role="group">
-            <button type="button" class="btn-secondary btn-compact" id="managerQuickClose" data-manager-quick="close" data-i18n="manager.quickClose">Uzavřít případ</button>
-            <button type="button" class="btn-secondary btn-compact" id="managerQuickAnalysis" data-manager-quick="analysis" data-i18n="manager.quickAnalysis">Posunout k analýze</button>
-            <button type="button" class="btn-secondary btn-compact" id="managerQuickDeep" data-manager-quick="deep" data-i18n="manager.quickDeep">Posunout k hluboké analýze (DD)</button>
-          </div>
-          <p id="managerQuickActionFeedback" class="manager-quick-action-feedback hidden" role="status" aria-live="polite"></p>
-
-          <fieldset class="fieldset full-width manager-risk-fieldset">
-            <legend id="irisMgrRiskLegend">Vyhodnocení rizika po prověrce</legend>
-            <p class="field-hint" id="irisMgrRiskHint">
-              Po interní prověrce můžete upravit údaje z checklistu. Sloupec Riziko v přehledu se po uložení barevně zvýrazní podle zvolené úrovně.
-            </p>
-            <div class="manager-case-grid">
-              <div class="form-group">
-                <label for="managerCaseRiskLevel" id="irisMgrRiskLblLevel">Úroveň rizika</label>
-                <select id="managerCaseRiskLevel">
-                  <option value="nízké" id="irisMgrRiskOptLow">nízké</option>
-                  <option value="střední" id="irisMgrRiskOptMed">střední</option>
-                  <option value="vysoké" id="irisMgrRiskOptHigh">vysoké</option>
-                </select>
+          <!-- 1) Vstup z check-listu (žadatel) -->
+          <section class="manager-case-section manager-case-section--intake" aria-labelledby="irisMgrIntakeLegend">
+            <header class="manager-case-section__head">
+              <span class="manager-case-section__badge" data-i18n="manager.sectionBadgeIntake">Check-list</span>
+              <h4 class="manager-case-section__title" id="irisMgrIntakeLegend">Údaje z podání (check-list)</h4>
+              <p class="field-hint manager-case-section__lead" id="irisMgrIntakeHint">
+                Skóre a předběžný text z podání žadatele; slouží jako výchozí bod pro prověrku.
+              </p>
+            </header>
+            <div class="manager-case-grid manager-case-grid--section">
+              <div class="form-group full-width">
+                <label for="managerCasePreliminaryResult" id="irisMgrIntakeLblPrelim">Předběžné vyhodnocení (text z podání)</label>
+                <textarea
+                  id="managerCasePreliminaryResult"
+                  class="manager-input--intake"
+                  rows="3"
+                  placeholder="Text z podání; po prověrce ho můžete upravit."
+                ></textarea>
               </div>
               <div class="form-group">
-                <label for="managerCaseRiskScore" id="irisMgrRiskLblScore">Skóre z checklistu (0–99)</label>
-                <input type="number" id="managerCaseRiskScore" min="0" max="99" step="1" placeholder="např. 6" />
-              </div>
-              <div class="form-group full-width">
-                <label for="managerCasePreliminaryResult" id="irisMgrRiskLblPrelim">Předběžné vyhodnocení (automatický text z podání)</label>
-                <textarea id="managerCasePreliminaryResult" rows="2" placeholder="Text z podání; po prověrce ho můžete upravit."></textarea>
-              </div>
-              <div class="form-group full-width">
-                <label for="managerCaseFinalOutcome" id="irisMgrRiskLblFinal">Závěr IRIS po prověrce</label>
-                <textarea id="managerCaseFinalOutcome" rows="3" placeholder="Stručný závěr pro evidenci (sloupec final_outcome v listu Cases)."></textarea>
-              </div>
-              <div class="form-group full-width">
-                <p class="field-hint" data-i18n="manager.riskDomainsHint">
-                  Riziko podle oblastí (správce) – uloží se do sloupců v listu Cases.
-                </p>
-              </div>
-              <div class="manager-risk-domains-grid">
-                <div class="form-group">
-                  <label for="managerRiskReputational" data-i18n="manager.lblRiskReputational">Reputační riziko</label>
-                  <select id="managerRiskReputational">
-                    <option value="nehodnoceno" data-i18n-opt="manager.riskNA">nehodnoceno</option>
-                    <option value="nízké" data-i18n-opt="manager.riskLow">nízké</option>
-                    <option value="střední" data-i18n-opt="manager.riskMed">střední</option>
-                    <option value="vysoké" data-i18n-opt="manager.riskHigh">vysoké</option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label for="managerRiskLegal" data-i18n="manager.lblRiskLegal">Právní riziko</label>
-                  <select id="managerRiskLegal">
-                    <option value="nehodnoceno" data-i18n-opt="manager.riskNA">nehodnoceno</option>
-                    <option value="nízké" data-i18n-opt="manager.riskLow">nízké</option>
-                    <option value="střední" data-i18n-opt="manager.riskMed">střední</option>
-                    <option value="vysoké" data-i18n-opt="manager.riskHigh">vysoké</option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label for="managerRiskFinancial" data-i18n="manager.lblRiskFinancial">Finanční riziko</label>
-                  <select id="managerRiskFinancial">
-                    <option value="nehodnoceno" data-i18n-opt="manager.riskNA">nehodnoceno</option>
-                    <option value="nízké" data-i18n-opt="manager.riskLow">nízké</option>
-                    <option value="střední" data-i18n-opt="manager.riskMed">střední</option>
-                    <option value="vysoké" data-i18n-opt="manager.riskHigh">vysoké</option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label for="managerRiskSecurity" data-i18n="manager.lblRiskSecurity">Bezpečnostní riziko</label>
-                  <select id="managerRiskSecurity">
-                    <option value="nehodnoceno" data-i18n-opt="manager.riskNA">nehodnoceno</option>
-                    <option value="nízké" data-i18n-opt="manager.riskLow">nízké</option>
-                    <option value="střední" data-i18n-opt="manager.riskMed">střední</option>
-                    <option value="vysoké" data-i18n-opt="manager.riskHigh">vysoké</option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label for="managerRiskEthical" data-i18n="manager.lblRiskEthical">Etické riziko</label>
-                  <select id="managerRiskEthical">
-                    <option value="nehodnoceno" data-i18n-opt="manager.riskNA">nehodnoceno</option>
-                    <option value="nízké" data-i18n-opt="manager.riskLow">nízké</option>
-                    <option value="střední" data-i18n-opt="manager.riskMed">střední</option>
-                    <option value="vysoké" data-i18n-opt="manager.riskHigh">vysoké</option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label for="managerRiskOther" data-i18n="manager.lblRiskOther">Jiné riziko (IP / compliance / GDPR)</label>
-                  <select id="managerRiskOther">
-                    <option value="nehodnoceno" data-i18n-opt="manager.riskNA">nehodnoceno</option>
-                    <option value="nízké" data-i18n-opt="manager.riskLow">nízké</option>
-                    <option value="střední" data-i18n-opt="manager.riskMed">střední</option>
-                    <option value="vysoké" data-i18n-opt="manager.riskHigh">vysoké</option>
-                  </select>
-                </div>
+                <label for="managerCaseRiskScore" id="irisMgrIntakeLblScore">Skóre z checklistu (0–99)</label>
+                <input
+                  type="number"
+                  id="managerCaseRiskScore"
+                  class="manager-input--intake"
+                  min="0"
+                  max="99"
+                  step="1"
+                  placeholder="např. 6"
+                />
               </div>
             </div>
-          </fieldset>
+          </section>
 
-          <div class="manager-case-grid">
-            <div class="form-group full-width">
-              <label for="managerCaseStatus" data-i18n="manager.lblStatus">Stav případu</label>
-              <select id="managerCaseStatus">
-                <option value="new" data-i18n-opt="status.new">Nový</option>
-                <option value="under_review" data-i18n-opt="status.under_review">V posouzení</option>
-                <option value="dd_in_progress" data-i18n-opt="status.dd_in_progress">Probíhá DD</option>
-                <option value="case_handling" data-i18n-opt="status.case_handling">Řeší se</option>
-                <option value="analysis_in_progress" data-i18n-opt="status.analysis_in_progress">Probíhá analýza</option>
-                <option value="waiting_internal_opinion" data-i18n-opt="status.waiting_internal_opinion">Čeká na interní stanovisko</option>
-                <option value="ready_for_decision" data-i18n-opt="status.ready_for_decision">Připraveno k rozhodnutí</option>
-                <option value="closed" data-i18n-opt="status.closed">Uzavřeno</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label for="managerCaseDue" data-i18n="manager.lblDue">Termín / lhůta (další milník)</label>
-              <input type="datetime-local" id="managerCaseDue" />
-            </div>
-            <div class="form-group full-width">
-              <fieldset class="fieldset full-width manager-milestones-fieldset">
-                <legend data-i18n="manager.milestonesLegend">Procesní milníky (návrh dle metodiky)</legend>
-                <p class="field-hint" data-i18n="manager.milestonesHint">
-                  Orientační termíny – upravte podle případu. Pole výše předvyplní nejbližší milník, pokud v evidenci chybí termín.
-                </p>
-                <ul id="managerMilestonesList" class="manager-milestones-list"></ul>
-              </fieldset>
-            </div>
-            <div class="form-group full-width">
-              <label for="managerCaseNextStep" data-i18n="manager.lblNext">Další postup pro žadatele (co a kdy očekávat)</label>
-              <textarea id="managerCaseNextStep" rows="3" data-i18n-placeholder="manager.phNext" placeholder="Dle metodiky IRIS – stručně lhůty a krok."></textarea>
-            </div>
-            <div class="form-group full-width">
-              <label for="managerCaseStatement" data-i18n="manager.lblStatement">Vyjádření IRIS k případu</label>
-              <textarea id="managerCaseStatement" rows="4" data-i18n-placeholder="manager.phStatement" placeholder="Shrnutí pro žadatele, odkaz na metodiku."></textarea>
-            </div>
-            <div class="form-group full-width">
-              <label for="managerCaseAnalysisUrl" data-i18n="manager.lblAnalysisUrl">Odkaz na zprávu / analýzu (Drive, SharePoint…)</label>
-              <input type="url" id="managerCaseAnalysisUrl" data-i18n-placeholder="user.phUrl" placeholder="https://…" />
-            </div>
-            <div class="form-group full-width">
-              <label for="managerCaseFile" data-i18n="manager.lblFile">Nebo nahrát soubor (PDF; vyžaduje složku Drive ve skriptu)</label>
-              <input type="file" id="managerCaseFile" accept=".pdf,application/pdf,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" />
-            </div>
-
-            <fieldset class="fieldset full-width manager-analysis-fieldset">
-              <legend data-i18n="manager.analysisFieldsetLegend">Analytická zpráva (struktura dle metodiky IRIS)</legend>
-              <p class="field-hint" data-i18n="manager.analysisFieldsetHint">Vyplňte v návaznosti na typové zprávy IRIS UHK (prověrky / analytické zprávy). Sloupce v tabulce Cases lze doplnit podle potřeby.</p>
-              <div class="form-group full-width">
-                <label for="managerAnalysisSubject" data-i18n="manager.lblAnalysisSubject">Předmět prověrky / věc</label>
-                <input type="text" id="managerAnalysisSubject" data-i18n-placeholder="manager.phAnalysisSubject" placeholder="Stručně: partner, předmět spolupráce…" />
-              </div>
-              <div class="form-group full-width">
-                <label for="managerAnalysisScope" data-i18n="manager.lblAnalysisScope">Rozsah posouzení a metodika</label>
-                <textarea id="managerAnalysisScope" rows="2" data-i18n-placeholder="manager.phAnalysisScope" placeholder="Metodika IRIS, rozsah…"></textarea>
-              </div>
-              <div class="form-group full-width">
-                <label for="managerAnalysisConclusion" data-i18n="manager.lblAnalysisConclusion">Závěr k rizikovosti</label>
-                <textarea id="managerAnalysisConclusion" rows="2" data-i18n-placeholder="manager.phAnalysisConclusion" placeholder="Závěr…"></textarea>
-              </div>
-              <div class="form-group full-width">
-                <label for="managerAnalysisRecs" data-i18n="manager.lblAnalysisRecs">Doporučení a podmínky</label>
-                <textarea id="managerAnalysisRecs" rows="2" data-i18n-placeholder="manager.phAnalysisRecs" placeholder="Doporučení…"></textarea>
-              </div>
-              <div class="form-group full-width">
-                <label for="managerAnalysisRecurrence" data-i18n="manager.lblAnalysisRecurrence">Obnova analýzy / follow-up</label>
-                <textarea id="managerAnalysisRecurrence" rows="2" data-i18n-placeholder="manager.phAnalysisRecurrence" placeholder="Kdy znovu provést analýzu…"></textarea>
-              </div>
-              <div class="form-group">
-                <label for="managerNextAnalysisDue" data-i18n="manager.lblNextAnalysisDue">Plánovaný termín další analýzy</label>
-                <input type="date" id="managerNextAnalysisDue" />
-              </div>
-            </fieldset>
-
-            <div class="manager-prompt-block" role="region" aria-labelledby="managerPromptBlockTitle">
-              <h4 class="manager-prompt-block__title" id="managerPromptBlockTitle">Prompt pro AI (ChatGPT / Claude)</h4>
-              <p class="field-hint manager-prompt-block__lead" id="managerPromptBlockLead">
+          <!-- 2) Prompty AI (nástroje nad analýzou) -->
+          <section class="manager-case-section manager-case-section--prompts" aria-labelledby="managerPromptBlockTitle">
+            <header class="manager-case-section__head">
+              <span class="manager-case-section__badge" data-i18n="manager.sectionBadgePrompts">Prompty / AI</span>
+              <h4 class="manager-case-section__title" id="managerPromptBlockTitle" data-i18n="manager.promptUiTitle">
+                Prompt pro AI (ChatGPT / Claude)
+              </h4>
+              <p class="field-hint manager-case-section__lead" id="managerPromptBlockLead" data-i18n="manager.promptUiLead">
                 Otevře okno s celým textem promptu. Do textu se doplní údaje případu z tabulky i z polí tohoto panelu (i před uložením).
               </p>
+            </header>
+            <div class="manager-prompt-block manager-prompt-block--in-section">
               <div class="manager-prompt-actions" role="group">
                 <button type="button" class="btn-secondary btn-compact" id="managerPromptGptBtn">
                   ChatGPT – předběžná prověrka partnera
@@ -1192,7 +1063,207 @@
                 </button>
               </div>
             </div>
-          </div>
+          </section>
+
+          <!-- 3) Správce: stavy, komunikace, riziko po prověrce -->
+          <section class="manager-case-section manager-case-section--admin" aria-labelledby="managerSectionAdminTitle">
+            <header class="manager-case-section__head">
+              <span class="manager-case-section__badge" data-i18n="manager.sectionBadgeAdmin">Správce IRIS</span>
+              <h4 class="manager-case-section__title" id="managerSectionAdminTitle" data-i18n="manager.sectionAdminTitle">
+                Úpravy správce a komunikace s žadatelem
+              </h4>
+              <p class="field-hint manager-case-section__lead" data-i18n="manager.sectionAdminLead">
+                Rychlé posuny stavu, termíny, vyjádření a doplnění rizika po interní prověrce.
+              </p>
+            </header>
+
+            <div class="manager-quick-actions" role="group">
+              <button type="button" class="btn-secondary btn-compact" id="managerQuickClose" data-manager-quick="close" data-i18n="manager.quickClose">Uzavřít případ</button>
+              <button type="button" class="btn-secondary btn-compact" id="managerQuickAnalysis" data-manager-quick="analysis" data-i18n="manager.quickAnalysis">Posunout k analýze</button>
+              <button type="button" class="btn-secondary btn-compact" id="managerQuickDeep" data-manager-quick="deep" data-i18n="manager.quickDeep">Posunout k hluboké analýze (DD)</button>
+            </div>
+            <p id="managerQuickActionFeedback" class="manager-quick-action-feedback hidden" role="status" aria-live="polite"></p>
+
+            <fieldset class="fieldset full-width manager-admin-risk-fieldset">
+              <legend id="irisMgrAdminRiskLegend">Riziko po prověrce (správce)</legend>
+              <p class="field-hint" id="irisMgrAdminRiskHint">
+                Úroveň a oblasti rizika se po uložení promítnou do přehledu (sloupec Riziko = celková úroveň).
+              </p>
+              <div class="manager-case-grid manager-case-grid--section">
+                <div class="form-group">
+                  <label for="managerCaseRiskLevel" id="irisMgrRiskLblLevel">Úroveň rizika</label>
+                  <select id="managerCaseRiskLevel">
+                    <option value="nízké" id="irisMgrRiskOptLow">nízké</option>
+                    <option value="střední" id="irisMgrRiskOptMed">střední</option>
+                    <option value="vysoké" id="irisMgrRiskOptHigh">vysoké</option>
+                  </select>
+                </div>
+                <div class="form-group full-width">
+                  <p class="field-hint" data-i18n="manager.riskDomainsHint">
+                    Riziko podle oblastí (správce) – uloží se do sloupců v listu Cases.
+                  </p>
+                </div>
+                <div class="manager-risk-domains-grid full-width">
+                  <div class="form-group">
+                    <label for="managerRiskReputational" data-i18n="manager.lblRiskReputational">Reputační riziko</label>
+                    <select id="managerRiskReputational">
+                      <option value="nehodnoceno" data-i18n-opt="manager.riskNA">nehodnoceno</option>
+                      <option value="nízké" data-i18n-opt="manager.riskLow">nízké</option>
+                      <option value="střední" data-i18n-opt="manager.riskMed">střední</option>
+                      <option value="vysoké" data-i18n-opt="manager.riskHigh">vysoké</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="managerRiskLegal" data-i18n="manager.lblRiskLegal">Právní riziko</label>
+                    <select id="managerRiskLegal">
+                      <option value="nehodnoceno" data-i18n-opt="manager.riskNA">nehodnoceno</option>
+                      <option value="nízké" data-i18n-opt="manager.riskLow">nízké</option>
+                      <option value="střední" data-i18n-opt="manager.riskMed">střední</option>
+                      <option value="vysoké" data-i18n-opt="manager.riskHigh">vysoké</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="managerRiskFinancial" data-i18n="manager.lblRiskFinancial">Finanční riziko</label>
+                    <select id="managerRiskFinancial">
+                      <option value="nehodnoceno" data-i18n-opt="manager.riskNA">nehodnoceno</option>
+                      <option value="nízké" data-i18n-opt="manager.riskLow">nízké</option>
+                      <option value="střední" data-i18n-opt="manager.riskMed">střední</option>
+                      <option value="vysoké" data-i18n-opt="manager.riskHigh">vysoké</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="managerRiskSecurity" data-i18n="manager.lblRiskSecurity">Bezpečnostní riziko</label>
+                    <select id="managerRiskSecurity">
+                      <option value="nehodnoceno" data-i18n-opt="manager.riskNA">nehodnoceno</option>
+                      <option value="nízké" data-i18n-opt="manager.riskLow">nízké</option>
+                      <option value="střední" data-i18n-opt="manager.riskMed">střední</option>
+                      <option value="vysoké" data-i18n-opt="manager.riskHigh">vysoké</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="managerRiskEthical" data-i18n="manager.lblRiskEthical">Etické riziko</label>
+                    <select id="managerRiskEthical">
+                      <option value="nehodnoceno" data-i18n-opt="manager.riskNA">nehodnoceno</option>
+                      <option value="nízké" data-i18n-opt="manager.riskLow">nízké</option>
+                      <option value="střední" data-i18n-opt="manager.riskMed">střední</option>
+                      <option value="vysoké" data-i18n-opt="manager.riskHigh">vysoké</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="managerRiskOther" data-i18n="manager.lblRiskOther">Jiné riziko (IP / compliance / GDPR)</label>
+                    <select id="managerRiskOther">
+                      <option value="nehodnoceno" data-i18n-opt="manager.riskNA">nehodnoceno</option>
+                      <option value="nízké" data-i18n-opt="manager.riskLow">nízké</option>
+                      <option value="střední" data-i18n-opt="manager.riskMed">střední</option>
+                      <option value="vysoké" data-i18n-opt="manager.riskHigh">vysoké</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </fieldset>
+
+            <div class="manager-case-grid manager-case-grid--section">
+              <div class="form-group full-width">
+                <label for="managerCaseStatus" data-i18n="manager.lblStatus">Stav případu</label>
+                <select id="managerCaseStatus">
+                  <option value="new" data-i18n-opt="status.new">Nový</option>
+                  <option value="under_review" data-i18n-opt="status.under_review">V posouzení</option>
+                  <option value="dd_in_progress" data-i18n-opt="status.dd_in_progress">Probíhá DD</option>
+                  <option value="case_handling" data-i18n-opt="status.case_handling">Řeší se</option>
+                  <option value="analysis_in_progress" data-i18n-opt="status.analysis_in_progress">Probíhá analýza</option>
+                  <option value="waiting_internal_opinion" data-i18n-opt="status.waiting_internal_opinion">Čeká na interní stanovisko</option>
+                  <option value="ready_for_decision" data-i18n-opt="status.ready_for_decision">Připraveno k rozhodnutí</option>
+                  <option value="closed" data-i18n-opt="status.closed">Uzavřeno</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="managerCaseDue" data-i18n="manager.lblDue">Termín / lhůta (další milník)</label>
+                <input type="datetime-local" id="managerCaseDue" />
+              </div>
+              <div class="form-group full-width">
+                <fieldset class="fieldset full-width manager-milestones-fieldset">
+                  <legend data-i18n="manager.milestonesLegend">Procesní milníky (návrh dle metodiky)</legend>
+                  <p class="field-hint" data-i18n="manager.milestonesHint">
+                    Orientační termíny – upravte podle případu. Pole výše předvyplní nejbližší milník, pokud v evidenci chybí termín.
+                  </p>
+                  <ul id="managerMilestonesList" class="manager-milestones-list"></ul>
+                </fieldset>
+              </div>
+              <div class="form-group full-width">
+                <label for="managerCaseNextStep" data-i18n="manager.lblNext">Další postup pro žadatele (co a kdy očekávat)</label>
+                <textarea id="managerCaseNextStep" rows="3" data-i18n-placeholder="manager.phNext" placeholder="Dle metodiky IRIS – stručně lhůty a krok."></textarea>
+              </div>
+              <div class="form-group full-width">
+                <label for="managerCaseStatement" data-i18n="manager.lblStatement">Vyjádření IRIS k případu</label>
+                <textarea id="managerCaseStatement" rows="4" data-i18n-placeholder="manager.phStatement" placeholder="Shrnutí pro žadatele, odkaz na metodiku."></textarea>
+              </div>
+              <div class="form-group full-width">
+                <label for="managerCaseAnalysisUrl" data-i18n="manager.lblAnalysisUrl">Odkaz na zprávu / analýzu (Drive, SharePoint…)</label>
+                <input type="url" id="managerCaseAnalysisUrl" data-i18n-placeholder="user.phUrl" placeholder="https://…" />
+              </div>
+              <div class="form-group full-width">
+                <label for="managerCaseFile" data-i18n="manager.lblFile">Nebo nahrát soubor (PDF; vyžaduje složku Drive ve skriptu)</label>
+                <input type="file" id="managerCaseFile" accept=".pdf,application/pdf,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" />
+              </div>
+            </div>
+          </section>
+
+          <!-- 4) Analýza / DD – výstupy -->
+          <section class="manager-case-section manager-case-section--outputs" aria-labelledby="managerSectionOutputTitle">
+            <header class="manager-case-section__head">
+              <span class="manager-case-section__badge" data-i18n="manager.sectionBadgeOutput">Analýza / DD</span>
+              <h4 class="manager-case-section__title" id="managerSectionOutputTitle" data-i18n="manager.sectionOutputTitle">
+                Analytická zpráva a závěry
+              </h4>
+              <p class="field-hint manager-case-section__lead" data-i18n="manager.sectionOutputLead">
+                Strukturovaná zpráva dle metodiky IRIS a zápis závěru do evidence.
+              </p>
+            </header>
+
+            <fieldset class="fieldset full-width manager-analysis-fieldset">
+              <legend data-i18n="manager.analysisFieldsetLegend">Analytická zpráva (struktura dle metodiky IRIS)</legend>
+              <p class="field-hint" data-i18n="manager.analysisFieldsetHint">
+                Vyplňte v návaznosti na typové zprávy IRIS UHK (prověrky / analytické zprávy). Sloupce v tabulce Cases lze doplnit podle potřeby.
+              </p>
+              <div class="manager-case-grid manager-case-grid--section">
+                <div class="form-group full-width">
+                  <label for="managerAnalysisSubject" data-i18n="manager.lblAnalysisSubject">Předmět prověrky / věc</label>
+                  <input type="text" id="managerAnalysisSubject" data-i18n-placeholder="manager.phAnalysisSubject" placeholder="Stručně: partner, předmět spolupráce…" />
+                </div>
+                <div class="form-group full-width">
+                  <label for="managerAnalysisScope" data-i18n="manager.lblAnalysisScope">Rozsah posouzení a metodika</label>
+                  <textarea id="managerAnalysisScope" rows="2" data-i18n-placeholder="manager.phAnalysisScope" placeholder="Metodika IRIS, rozsah…"></textarea>
+                </div>
+                <div class="form-group full-width">
+                  <label for="managerAnalysisConclusion" data-i18n="manager.lblAnalysisConclusion">Závěr k rizikovosti</label>
+                  <textarea id="managerAnalysisConclusion" rows="2" data-i18n-placeholder="manager.phAnalysisConclusion" placeholder="Závěr…"></textarea>
+                </div>
+                <div class="form-group full-width">
+                  <label for="managerAnalysisRecs" data-i18n="manager.lblAnalysisRecs">Doporučení a podmínky</label>
+                  <textarea id="managerAnalysisRecs" rows="2" data-i18n-placeholder="manager.phAnalysisRecs" placeholder="Doporučení…"></textarea>
+                </div>
+                <div class="form-group full-width">
+                  <label for="managerAnalysisRecurrence" data-i18n="manager.lblAnalysisRecurrence">Obnova analýzy / follow-up</label>
+                  <textarea id="managerAnalysisRecurrence" rows="2" data-i18n-placeholder="manager.phAnalysisRecurrence" placeholder="Kdy znovu provést analýzu…"></textarea>
+                </div>
+                <div class="form-group">
+                  <label for="managerNextAnalysisDue" data-i18n="manager.lblNextAnalysisDue">Plánovaný termín další analýzy</label>
+                  <input type="date" id="managerNextAnalysisDue" />
+                </div>
+              </div>
+            </fieldset>
+
+            <div class="form-group full-width manager-final-outcome-block">
+              <label for="managerCaseFinalOutcome" id="irisMgrRiskLblFinal">Závěr IRIS po prověrce</label>
+              <textarea
+                id="managerCaseFinalOutcome"
+                class="manager-input--output"
+                rows="3"
+                placeholder="Stručný závěr pro evidenci (sloupec final_outcome v listu Cases)."
+              ></textarea>
+            </div>
+          </section>
+
           <div class="manager-case-actions">
             <button type="button" class="btn-primary" id="managerCaseSave" data-i18n="manager.save">Uložit změny</button>
             <button type="button" class="btn-danger hidden" id="managerCaseDelete" data-i18n="admin.deleteSubmission">Smazat podání a případ</button>
@@ -1225,6 +1296,6 @@
   </dialog>
 
   <script src="iris-prompts.js?v=1"></script>
-  <script src="app.js?v=23"></script>
+  <script src="app.js?v=24"></script>
 </body>
 </html>
