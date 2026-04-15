@@ -1005,68 +1005,48 @@
 
           <div class="manager-workflow-suggest" id="managerWorkflowSuggest" aria-live="polite"></div>
 
-          <!-- 1) Vstup z check-listu (žadatel) -->
-          <section class="manager-case-section manager-case-section--intake" aria-labelledby="irisMgrIntakeLegend">
-            <header class="manager-case-section__head">
-              <span class="manager-case-section__badge" data-i18n="manager.sectionBadgeIntake">Check-list</span>
-              <h4 class="manager-case-section__title" id="irisMgrIntakeLegend">Údaje z podání (check-list)</h4>
-              <p class="field-hint manager-case-section__lead" id="irisMgrIntakeHint">
-                Skóre a předběžný text z podání žadatele; slouží jako výchozí bod pro prověrku.
-              </p>
-            </header>
-            <div class="manager-case-grid manager-case-grid--section">
-              <div class="form-group full-width">
-                <label for="managerCasePreliminaryResult" id="irisMgrIntakeLblPrelim">Předběžné vyhodnocení (text z podání)</label>
-                <textarea
-                  id="managerCasePreliminaryResult"
-                  class="manager-input--intake"
-                  rows="3"
-                  placeholder="Text z podání; po prověrce ho můžete upravit."
-                ></textarea>
-              </div>
-              <div class="form-group">
-                <label for="managerCaseRiskScore" id="irisMgrIntakeLblScore">Skóre z checklistu (0–99)</label>
-                <input
-                  type="number"
-                  id="managerCaseRiskScore"
-                  class="manager-input--intake"
-                  min="0"
-                  max="99"
-                  step="1"
-                  placeholder="např. 6"
-                />
-              </div>
-            </div>
-          </section>
+          <div class="manager-case-panel__layout">
+            <div class="manager-case-panel__primary">
+              <!-- 1) Vstup z check-listu — hlavní pozornost, tučné, ve sloupcích -->
+              <section class="manager-case-section manager-case-section--intake" aria-labelledby="irisMgrIntakeLegend">
+                <header class="manager-case-section__head manager-case-section__head--intake">
+                  <span class="manager-case-section__badge" data-i18n="manager.sectionBadgeIntake">Check-list</span>
+                  <h4 class="manager-case-section__title" id="irisMgrIntakeLegend">Údaje z podání (check-list)</h4>
+                  <p class="field-hint manager-case-section__lead" id="irisMgrIntakeHint">
+                    Skóre a předběžný text z podání žadatele; slouží jako výchozí bod pro prověrku.
+                  </p>
+                </header>
+                <div class="manager-intake-columns">
+                  <div class="manager-intake-columns__text">
+                    <label for="managerCasePreliminaryResult" id="irisMgrIntakeLblPrelim" class="manager-intake-label">
+                      Předběžné vyhodnocení (text z podání)
+                    </label>
+                    <textarea
+                      id="managerCasePreliminaryResult"
+                      class="manager-input--intake manager-input--intake-body"
+                      rows="5"
+                      placeholder="Text z podání; po prověrce ho můžete upravit."
+                    ></textarea>
+                  </div>
+                  <aside class="manager-intake-columns__score" aria-labelledby="irisMgrIntakeLblScore">
+                    <label for="managerCaseRiskScore" id="irisMgrIntakeLblScore" class="manager-intake-label">Skóre (0–99)</label>
+                    <input
+                      type="number"
+                      id="managerCaseRiskScore"
+                      class="manager-input--intake manager-score-box"
+                      min="0"
+                      max="99"
+                      step="1"
+                      placeholder="–"
+                    />
+                    <p class="field-hint manager-intake-score-hint" data-i18n="manager.intakeScoreHint">Z check-listu</p>
+                  </aside>
+                </div>
+              </section>
 
-          <!-- 2) Prompty AI (nástroje nad analýzou) -->
-          <section class="manager-case-section manager-case-section--prompts" aria-labelledby="managerPromptBlockTitle">
-            <header class="manager-case-section__head">
-              <span class="manager-case-section__badge" data-i18n="manager.sectionBadgePrompts">Prompty / AI</span>
-              <h4 class="manager-case-section__title" id="managerPromptBlockTitle" data-i18n="manager.promptUiTitle">
-                Prompt pro AI (ChatGPT / Claude)
-              </h4>
-              <p class="field-hint manager-case-section__lead" id="managerPromptBlockLead" data-i18n="manager.promptUiLead">
-                Otevře okno s celým textem promptu. Do textu se doplní údaje případu z tabulky i z polí tohoto panelu (i před uložením).
-              </p>
-            </header>
-            <div class="manager-prompt-block manager-prompt-block--in-section">
-              <div class="manager-prompt-actions" role="group">
-                <button type="button" class="btn-secondary btn-compact" id="managerPromptGptBtn">
-                  ChatGPT – předběžná prověrka partnera
-                </button>
-                <button type="button" class="btn-secondary btn-compact" id="managerPromptClaudeBtn">
-                  Claude – finální analytická zpráva
-                </button>
-                <button type="button" class="btn-secondary btn-compact" id="managerPromptClaudeSanctionsBtn">
-                  Claude – sankční screening
-                </button>
-              </div>
-            </div>
-          </section>
-
-          <!-- 3) Správce: stavy, komunikace, riziko po prověrce -->
-          <section class="manager-case-section manager-case-section--admin" aria-labelledby="managerSectionAdminTitle">
+              <!-- 3 + 4) Správa případu, analýza / DD — hlavní sloupec -->
+              <div class="manager-case-panel__main-stack">
+                <section class="manager-case-section manager-case-section--admin" aria-labelledby="managerSectionAdminTitle">
             <header class="manager-case-section__head">
               <span class="manager-case-section__badge" data-i18n="manager.sectionBadgeAdmin">Správce IRIS</span>
               <h4 class="manager-case-section__title" id="managerSectionAdminTitle" data-i18n="manager.sectionAdminTitle">
@@ -1263,6 +1243,36 @@
               ></textarea>
             </div>
           </section>
+              </div>
+            </div>
+
+            <aside class="manager-case-panel__aside" role="complementary">
+              <section class="manager-case-section manager-case-section--prompts manager-case-section--aside-prompts" aria-labelledby="managerPromptBlockTitle">
+                <header class="manager-case-section__head manager-case-section__head--compact">
+                  <span class="manager-case-section__badge" data-i18n="manager.sectionBadgePrompts">Prompty / AI</span>
+                  <h4 class="manager-case-section__title manager-case-section__title--compact" id="managerPromptBlockTitle" data-i18n="manager.promptUiTitle">
+                    Prompt pro AI (ChatGPT / Claude)
+                  </h4>
+                  <p class="field-hint manager-case-section__lead manager-case-section__lead--compact" id="managerPromptBlockLead" data-i18n="manager.promptUiLead">
+                    Otevře okno s celým textem promptu. Do textu se doplní údaje případu z tabulky i z polí tohoto panelu (i před uložením).
+                  </p>
+                </header>
+                <div class="manager-prompt-block manager-prompt-block--aside">
+                  <div class="manager-prompt-actions manager-prompt-actions--stack" role="group">
+                    <button type="button" class="btn-secondary btn-compact" id="managerPromptGptBtn">
+                      ChatGPT – předběžná prověrka partnera
+                    </button>
+                    <button type="button" class="btn-secondary btn-compact" id="managerPromptClaudeBtn">
+                      Claude – finální analytická zpráva
+                    </button>
+                    <button type="button" class="btn-secondary btn-compact" id="managerPromptClaudeSanctionsBtn">
+                      Claude – sankční screening
+                    </button>
+                  </div>
+                </div>
+              </section>
+            </aside>
+          </div>
 
           <div class="manager-case-actions">
             <button type="button" class="btn-primary" id="managerCaseSave" data-i18n="manager.save">Uložit změny</button>
@@ -1296,6 +1306,6 @@
   </dialog>
 
   <script src="iris-prompts.js?v=1"></script>
-  <script src="app.js?v=24"></script>
+  <script src="app.js?v=25"></script>
 </body>
 </html>
