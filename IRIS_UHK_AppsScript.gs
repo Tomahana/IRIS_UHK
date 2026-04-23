@@ -5,7 +5,9 @@
  * List Users – sloupce (1. řádek = hlavička), povinné:
  *   email | password | role | active
  *   Doporučené navíc: name (jméno žadatele), registered_at (datum registrace – vyplní skript)
- *   role: user | manager | iris_manager | admin
+ *   role: user | host_zadatel | host_admin | host (legacy → host_zadatel) | manager | iris_manager | admin
+ *   host_zadatel / host: přihlášení žadatele – nácvik UI; skutečné POST intake / prověrka FO na serveru jsou zamítnuté (klient může simulovat odeslání).
+ *   host_admin: přihlášení žadatele – API vrací roli host_admin; klient zobrazí náhled správce na smyšlených datech (neukládá se do tabulky).
  *   Účet s role admin v listu Users: při přihlášení API vrací is_admin: true a can_delete_submissions: true.
  *   Role iris_manager: can_delete_submissions: true (smazání případu v aplikaci), is_admin: false.
  *   active: TRUE / FALSE (žádost o přístup ukládá user + active TRUE)
@@ -157,6 +159,38 @@ function doPost(e) {
   }
 }
 
+/**
+ * List Users: host_zadatel | host_admin | host (starší alias žadatele) | host_žadatel (diakritika v buňce).
+ * Vrací '' pokud jde o běžného žadatele (user) nebo neznámou roli.
+ */
+function mapSheetRoleToApplicantHostRole_(sheetRole) {
+  var r = String(sheetRole || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[\s-]+/g, '_')
+    .replace(/_+/g, '_');
+  r = normalizeText_(r);
+  if (r === 'host_admin') return 'host_admin';
+  if (r === 'host_zadatel' || r === 'host') return 'host_zadatel';
+  return '';
+}
+
+/**
+ * Při více řádcích v Users se stejným e-mailem: který řádek použít (vyšší číslo = přednost).
+ * Řeší např. dva řádky host.iris@… / stejné heslo s rolemi host_zadatel a host_admin — jinak by vyhrál vždy první řádek v listu.
+ */
+function usersRowSelectionRank_(sheetRole) {
+  var r = String(sheetRole || '').trim().toLowerCase();
+  if (r === 'admin') return 100;
+  if (r === 'iris_manager') return 90;
+  if (r === 'manager') return 80;
+  var host = mapSheetRoleToApplicantHostRole_(r);
+  if (host === 'host_admin') return 70;
+  if (host === 'host_zadatel') return 60;
+  if (r === 'user' || r === '') return 50;
+  return 40;
+}
+
 function handleLogin_(data) {
   validateRequiredFields_(data, ['email', 'password']);
   const email = normalizeEmail_(data.email);
@@ -190,10 +224,18 @@ function handleLogin_(data) {
     }
   }
 
+  var applicantAppRole = 'user';
+  if (requestedRole !== 'manager') {
+    var hostKind = mapSheetRoleToApplicantHostRole_(sheetRole);
+    if (hostKind === 'host_zadatel' || hostKind === 'host_admin') {
+      applicantAppRole = hostKind;
+    }
+  }
+
   const payload = {
     ok: true,
     email: user.email,
-    role: requestedRole === 'manager' ? 'manager' : 'user',
+    role: requestedRole === 'manager' ? 'manager' : applicantAppRole,
   };
 
   if (requestedRole === 'manager') {
@@ -1825,6 +1867,45 @@ function runDeadlineReminderJob() {
 
 /* ---------- Users / auth ---------- */
 
+/**
+ * Sjednocení názvu sloupce (Users): „E-mail“, „role“, „Role “ → porovnání bez diakritiky a oddělovačů.
+ */
+function usersHeaderKeyNorm_(header) {
+  return String(header || '')
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '');
+}
+
+/**
+ * Hodnota ze řádku Users podle kanonického názvu pole (email, password, role, active, name).
+ */
+function pickUsersField_(row, canonicalField) {
+  if (!row) return undefined;
+  var want = usersHeaderKeyNorm_(canonicalField);
+  var keys = Object.keys(row);
+  for (var i = 0; i < keys.length; i++) {
+    if (usersHeaderKeyNorm_(keys[i]) === want) {
+      return row[keys[i]];
+    }
+  }
+  return undefined;
+}
+
+/** Objekt řádku Users se sjednocenými klíči (řeší různé hlavičky v tabulce). */
+function normalizeUsersRow_(row) {
+  if (!row) return null;
+  return {
+    email: pickUsersField_(row, 'email'),
+    password: pickUsersField_(row, 'password'),
+    role: pickUsersField_(row, 'role'),
+    active: pickUsersField_(row, 'active'),
+    name: pickUsersField_(row, 'name'),
+  };
+}
+
 function getUsersSheet_() {
   const ss = SpreadsheetApp.openById(IRIS_CONFIG.spreadsheetId);
   const sheet = ss.getSheetByName(IRIS_CONFIG.sheets.users);
@@ -1840,30 +1921,46 @@ function findUserByCredentials_(email, password) {
   const want = normalizeEmail_(email);
   const pass = String(password || '');
 
+  var best = null;
+  var bestRank = -1;
+
   for (let i = 0; i < rows.length; i++) {
-    const row = rows[i];
+    const row = normalizeUsersRow_(rows[i]);
+    if (!row) continue;
     const rowEmail = normalizeEmail_(row.email);
     if (rowEmail !== want) continue;
     if (!isActive_(row.active)) continue;
     if (String(row.password || '') !== pass) continue;
-    return {
-      email: String(row.email || '').trim(),
-      role: row.role,
-      active: row.active,
-    };
+    const rank = usersRowSelectionRank_(row.role);
+    if (rank > bestRank) {
+      bestRank = rank;
+      best = {
+        email: String(row.email || '').trim(),
+        role: row.role,
+        active: row.active,
+      };
+    }
   }
-  return null;
+  return best;
 }
 
 function findUserByEmail_(email) {
   const sheet = getUsersSheet_();
   const rows = getSheetObjects_(sheet);
   const want = normalizeEmail_(email);
+  var best = null;
+  var bestRank = -1;
   for (let i = 0; i < rows.length; i++) {
-    const row = rows[i];
-    if (normalizeEmail_(row.email) === want) return row;
+    const row = normalizeUsersRow_(rows[i]);
+    if (!row) continue;
+    if (normalizeEmail_(row.email) !== want) continue;
+    const rank = usersRowSelectionRank_(row.role);
+    if (rank > bestRank) {
+      bestRank = rank;
+      best = row;
+    }
   }
-  return null;
+  return best;
 }
 
 function verifyApplicantForIntake_(email) {
@@ -1873,11 +1970,16 @@ function verifyApplicantForIntake_(email) {
       'E-mail není registrovaný aktivní žadatel. Nejprve odešlete žádost o přístup nebo kontaktujte správce IRIS.'
     );
   }
-  const sheetRole = String(row.role || 'user')
+  const sheetRole = String(row.role != null ? row.role : 'user')
     .trim()
     .toLowerCase();
   if (['manager', 'iris_manager', 'admin'].includes(sheetRole)) {
     throw new Error('Podání checklistu patří k účtu žadatele, ne správce.');
+  }
+  if (mapSheetRoleToApplicantHostRole_(sheetRole)) {
+    throw new Error(
+      'Účet typu Host (žadatel / admin náhled) nesmí zapisovat skutečná podání do IRIS. Použijte nácvikové odeslání v aplikaci nebo účet User.'
+    );
   }
 }
 
