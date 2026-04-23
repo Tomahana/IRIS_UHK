@@ -4,7 +4,8 @@
  * Očekávané rozšíření Google Apps Script (stejný deploy URL jako dosud):
  *
  * 1) POST JSON: { "action": "login", "email": "...", "password": "...", "role": "user" | "manager" }
- *    → { "ok": true, "role": "user"|"manager", "email": "...", "manager_key"?, "is_admin"?, "can_delete_submissions"? }
+ *    → { "ok": true, "role": "user"|"host_zadatel"|"host_admin"|"manager", … }
+ *    (host_zadatel / host_admin z listu Users – viz applyHostApplicantUi a mock v aplikaci.)
  *    (is_admin při role admin; can_delete_submissions při role admin nebo iris_manager – tlačítko smazání případu.)
  *
  * 2) GET  ?action=cases&applicant_email=…  = jen případy žadatele (bez manager_key).
@@ -13,7 +14,7 @@
  *
  * 3) POST { action: 'register', name, email, password } – založí řádek v Users (žadatel).
  *
- * 4) POST intake: server ověří, že applicant_email patří aktivnímu řádku Users (role user).
+ * 4) POST intake: server ověří applicant_email (role user); role host_zadatel / host_admin / host jsou u zápisu zamítnuté.
  *    Výjimka: test_intake: true + platný manager_key → testovací podání správce (bez Users).
  *
  * 5) POST { action: 'update_case', manager_key, case_id, manager_email, status?, … } – úprava případu (správce).
@@ -28,6 +29,8 @@ const API_URL =
   'https://script.google.com/macros/s/AKfycbyN8uGoqSqqH26K7eBzTx-QmE08e-27fWJRws5QcM6Dm6dl2NEGAygFak9T7X0rzYpZ6Q/exec';
 
 const SESSION_KEY = 'iris_uhk_session';
+/** Fiktivní manager_key pro náhled IRIS Manager u účtu Host – nikdy se neposílá na produkční API. */
+const HOST_DEMO_MANAGER_KEY = '__IRIS_HOST_ADMIN_DEMO__';
 const INTAKE_DRAFT_PREFIX = 'iris_intake_draft_v2_';
 const PERSON_VETTING_DRAFT_PREFIX = 'iris_person_vetting_draft_v1_';
 
@@ -209,6 +212,32 @@ const STRINGS = {
     'due.inDays': 'za {n} d.',
     'session.manager': 'IRIS Manager',
     'session.applicant': 'Žadatel',
+    'session.host': 'Host (náhled)',
+    'session.hostZadatel': 'Host – žadatel (ukázka)',
+    'session.hostAdmin': 'Host – správce (ukázka)',
+    'session.hostZadatelBanner':
+      'Účet Host žadatel: odeslání checklistu a osob je jen simulované v tomto prohlížeči a nezapisuje se do produkční evidence IRIS.',
+    'session.hostBanner':
+      'Účet Host: prohlížení formulářů a metodik jako u žadatele; odeslání podání ani přehled podaných incidentů není k dispozici.',
+    'session.hostAdminDemoSuffix': 'Admin náhled (demo)',
+    'host.enterAdminDemo': 'Admin náhled (smyslená data)',
+    'host.exitAdminDemo': 'Zpět k náhledu žadatele',
+    'host.adminDemoBanner':
+      'Školicí režim: dashboard a případy jsou vymyšlené; úpravy a mazání platí jen v tomto prohlížeči, ne v tabulce IRIS.',
+    'host.demoCaseSaved': 'Údaje uloženy jen v náhledu (ne do produkční evidence IRIS).',
+    'host.demoDeleteOk': 'Záznam odebrán z náhledu (produkční data beze změny).',
+    'host.demoParSaved': 'Podnět byl přidán jen do náhledu (ne do listu PAR v tabulce).',
+    'host.demoFileSkipped': 'V náhledu se soubor neodesílá; ostatní pole jsou uložena jen v lokálních demo datech.',
+    'host.mockPrelimResult': 'Ukázkové předběžné vyhodnocení (není z produkčního IRIS).',
+    'host.mockInstEmpty':
+      'Zatím žádné ukázkové podání checklistu institucí. Odešlete formulář – záznam se objeví jen zde (ne v tabulce IRIS).',
+    'host.mockPersonEmpty':
+      'Zatím žádné ukázkové podání checklistu osob. Odešlete formulář – záznam se objeví jen zde (ne v tabulce IRIS).',
+    'host.mockRowNote': 'Pouze lokální ukázka v prohlížeči',
+    'host.mockSubmitSuccessInst':
+      'Checklist byl zpracován v ukázkovém režimu Host žadatel (nezapisuje se do IRIS).',
+    'host.mockSubmitSuccessPerson':
+      'Podání prověrky osoby bylo zaznamenáno jen lokálně v ukázkovém režimu (nezapisuje se do IRIS).',
     'session.testerSuffix': 'test žadatele',
     'manager.enterTesterMode': 'Režim žadatele (test)',
     'manager.exitTesterMode': 'Zpět na správce',
@@ -230,6 +259,9 @@ const STRINGS = {
     'login.mgrKeyMissing':
       'Server nevrátil manager_key (zastaralá verze Apps Scriptu nebo chyba odpovědi). Aktualizujte nasazený skript a přihlaste se znovu jako správce.',
     'err.userOnlySubmit': 'Checklist mohou odesílat pouze přihlášení žadatelé.',
+    'err.hostNoSubmit': 'Účet typu Host nemůže odesílat podání (slouží k náhledu rozhraní).',
+    'err.hostAdminNoSubmit':
+      'Účet Host správce slouží k náhledu rozhraní správce na smyšlených datech; odeslání žadatelských formulářů zde není k dispozici.',
     'validate.applicant_name': 'Jméno žadatele',
     'validate.applicant_email': 'E-mail žadatele',
     'validate.applicant_unit': 'Součást / fakulta / útvar',
@@ -465,6 +497,10 @@ const STRINGS = {
     'user.hubTitle': 'Rozcestník',
     'user.hubLeadApplicant':
       'Kachlíky níže otevřou přímo formulář check-listu. Metodické pokyny si můžete rozkliknout u formuláře; v liště je také přehled vašich požadavků.',
+    'user.hubLeadHost':
+      'Stejné rozhraní jako pro žadatele (formuláře a metodiky). Účet Host neodešle podání a nezobrazuje přehled podaných incidentů.',
+    'user.hubLeadHostZadatel':
+      'Stejné rozhraní jako pro žadatele. Odeslání je ukázkové (jen v tomto prohlížeči); v „Moje požadavky“ se zobrazí jen tato cvičná podání.',
     'user.subNavAria': 'Navigace žadatele',
     'user.navInstMethod': 'Metodika – instituce',
     'user.navPersonMethod': 'Metodika – osoby',
@@ -690,6 +726,32 @@ const STRINGS = {
     'due.inDays': 'in {n} d',
     'session.manager': 'IRIS Manager',
     'session.applicant': 'Applicant',
+    'session.host': 'Host (preview)',
+    'session.hostZadatel': 'Host – applicant (demo)',
+    'session.hostAdmin': 'Host – manager (demo)',
+    'session.hostZadatelBanner':
+      'Host applicant account: checklist and person vetting submissions are simulated in this browser only and are not written to the production IRIS register.',
+    'session.hostBanner':
+      'Host account: you can explore forms and methodology like an applicant; submissions and your case list are not available.',
+    'session.hostAdminDemoSuffix': 'Admin preview (demo)',
+    'host.enterAdminDemo': 'Admin preview (mock data)',
+    'host.exitAdminDemo': 'Back to applicant preview',
+    'host.adminDemoBanner':
+      'Training mode: dashboard and cases are fictional; edits and deletes apply only in this browser, not in the IRIS spreadsheet.',
+    'host.demoCaseSaved': 'Saved in the preview only (not in the production IRIS sheet).',
+    'host.demoDeleteOk': 'Removed from the preview (production data unchanged).',
+    'host.demoParSaved': 'Request added to the preview only (not to the PAR sheet).',
+    'host.demoFileSkipped': 'Files are not uploaded in preview mode; other fields are saved in local mock data only.',
+    'host.mockPrelimResult': 'Demo preliminary outcome (not from production IRIS).',
+    'host.mockInstEmpty':
+      'No demo institution checklist submissions yet. Submit the form to see a row here only (not in the IRIS sheet).',
+    'host.mockPersonEmpty':
+      'No demo person checklist submissions yet. Submit the form to see a row here only (not in the IRIS sheet).',
+    'host.mockRowNote': 'Local browser demo only',
+    'host.mockSubmitSuccessInst':
+      'Checklist was processed in Host applicant demo mode (not saved to IRIS).',
+    'host.mockSubmitSuccessPerson':
+      'Person vetting request was recorded locally in demo mode only (not saved to IRIS).',
     'session.testerSuffix': 'applicant test mode',
     'manager.enterTesterMode': 'Applicant mode (test)',
     'manager.exitTesterMode': 'Back to manager dashboard',
@@ -711,6 +773,9 @@ const STRINGS = {
     'login.mgrKeyMissing':
       'Server did not return manager_key (outdated Apps Script or bad response). Deploy the updated script and sign in again as manager.',
     'err.userOnlySubmit': 'Only signed-in applicants can submit the checklist.',
+    'err.hostNoSubmit': 'Host accounts cannot submit forms (preview access only).',
+    'err.hostAdminNoSubmit':
+      'Host manager accounts explore the manager UI on fictional data; applicant form submission is not available here.',
     'validate.applicant_name': 'Applicant name',
     'validate.applicant_email': 'Applicant e-mail',
     'validate.applicant_unit': 'Faculty / department / unit',
@@ -944,6 +1009,10 @@ const STRINGS = {
     'user.hubTitle': 'Directory',
     'user.hubLeadApplicant':
       'Tiles below open the checklist form directly. You can expand methodology on the form page; the bar also lists your requests.',
+    'user.hubLeadHost':
+      'Same applicant-facing checklists and methodology. Host accounts cannot submit or view submitted incidents.',
+    'user.hubLeadHostZadatel':
+      'Same interface as for applicants. Submissions are a local demo only; “My requests” lists just these practice rows.',
     'user.subNavAria': 'Applicant navigation',
     'user.navInstMethod': 'Methodology – institutions',
     'user.navPersonMethod': 'Methodology – individuals',
@@ -1253,6 +1322,7 @@ const MANAGER_PIN_AS_ADMIN = false;
 
 function resolveManagerKeyForRequest(session) {
   if (!session) return '';
+  if (isHostAdminSession(session)) return HOST_DEMO_MANAGER_KEY;
   const mk = String(session.managerKey || '').trim();
   if (mk) return mk;
   return String(MANAGER_STATIC_KEY || '').trim();
@@ -1387,12 +1457,20 @@ const managerRiskOther = document.getElementById('managerRiskOther');
 const btnEnterTesterMode = document.getElementById('btnEnterTesterMode');
 const btnExitTesterMode = document.getElementById('btnExitTesterMode');
 const testerModeBanner = document.getElementById('testerModeBanner');
+const hostModeBanner = document.getElementById('hostModeBanner');
+
+/** Lokální „podání“ Host žadatel (jen v prohlížeči). */
+const HOST_ZADATEL_MOCK_LOG_KEY = 'iris_host_zadatel_mock_log_v1';
 
 /** @type {Record<string, unknown>} */
 let lastDashboardSummary = {};
 
 /** @type {Array<Record<string, unknown>>} */
 let managerCasesCache = [];
+
+/** Lokální případy a PAR pro Host → Admin náhled (nesouvisí s tabulkou IRIS). */
+let hostDemoCases = [];
+let hostDemoParItems = [];
 
 const OPEN_CASE_STATUSES = [
   'new',
@@ -1408,12 +1486,41 @@ function isManagerTesterSession(session) {
   return Boolean(session && session.role === 'manager' && session.viewAs === 'tester');
 }
 
+function isHostZadatelRole(role) {
+  return role === 'host_zadatel' || role === 'host';
+}
+
+function isHostZadatelSession(session) {
+  return Boolean(session && isHostZadatelRole(session.role));
+}
+
+function isHostAdminSession(session) {
+  return Boolean(session && session.role === 'host_admin');
+}
+
+/** Rozhraní žadatele (formuláře, metodiky): user, Host žadatel nebo správce v režimu test žadatele. */
+function isApplicantLayoutSession(session) {
+  if (!session) return false;
+  if (isHostAdminSession(session)) return false;
+  return session.role === 'user' || isHostZadatelRole(session.role) || isManagerTesterSession(session);
+}
+
+/** Odeslání checklistu nebo prověrky FO: user, Host žadatel (mock) nebo správce v test módu. */
+function canSubmitApplicantForms(session) {
+  if (!session) return false;
+  if (isHostZadatelSession(session)) return true;
+  if (session.role === 'user') return true;
+  return isManagerTesterSession(session);
+}
+
 function isSessionAdmin(session) {
+  if (isHostAdminSession(session)) return true;
   return Boolean(session && session.role === 'manager' && session.isAdmin === true);
 }
 
 /** Smazání případu v UI: API vrací can_delete_submissions pro role admin a iris_manager. */
 function isSessionCanDeleteSubmissions(session) {
+  if (isHostAdminSession(session)) return true;
   return Boolean(session && session.role === 'manager' && session.canDeleteSubmissions === true);
 }
 
@@ -1456,7 +1563,10 @@ function showManagerView(which) {
 }
 
 function updateManagerSubNav(session) {
-  const show = Boolean(session && session.role === 'manager' && !isManagerTesterSession(session));
+  const show = Boolean(
+    (session && session.role === 'manager' && !isManagerTesterSession(session)) ||
+      isHostAdminSession(session)
+  );
   if (managerSubNav) {
     managerSubNav.classList.toggle('hidden', !show);
   }
@@ -1477,6 +1587,12 @@ function formatSessionBadge(session) {
     const adm = session.isAdmin ? ` · ${t('session.adminSuffix')}` : '';
     return `${t('session.manager')} · ${session.email}${adm}`;
   }
+  if (isHostZadatelSession(session)) {
+    return `${t('session.hostZadatel')} · ${session.email}`;
+  }
+  if (isHostAdminSession(session)) {
+    return `${t('session.hostAdmin')} · ${session.email}`;
+  }
   return `${t('session.applicant')} · ${session.email}`;
 }
 
@@ -1486,6 +1602,133 @@ function updateTesterModeButtons(session) {
   const isTester = isManagerTesterSession(session);
   btnEnterTesterMode.classList.toggle('hidden', !isMgr || isTester);
   btnExitTesterMode.classList.toggle('hidden', !isTester);
+}
+
+function applyHostApplicantUi(session) {
+  const hz = isHostZadatelSession(session);
+  if (hostModeBanner) {
+    hostModeBanner.classList.toggle('hidden', !hz);
+    if (hz) hostModeBanner.textContent = t('session.hostZadatelBanner');
+  }
+  if (testerModeBanner && hz) {
+    testerModeBanner.classList.add('hidden');
+  }
+  const lead = document.getElementById('userHubLeadApplicant');
+  if (lead) {
+    lead.textContent = hz ? t('user.hubLeadHostZadatel') : t('user.hubLeadApplicant');
+  }
+  if (navUserRequests) {
+    navUserRequests.classList.remove('hidden');
+  }
+  if (submitButton) {
+    submitButton.classList.remove('hidden');
+    submitButton.disabled = false;
+  }
+  if (pvSubmit) {
+    pvSubmit.classList.remove('hidden');
+    pvSubmit.disabled = false;
+  }
+}
+
+function randomMockUuid_() {
+  if (globalThis.crypto && typeof globalThis.crypto.randomUUID === 'function') {
+    return globalThis.crypto.randomUUID();
+  }
+  return `mock-${Date.now()}-${Math.random().toString(16).slice(2, 10)}`;
+}
+
+function readHostZadatelMockLog() {
+  try {
+    const raw = localStorage.getItem(HOST_ZADATEL_MOCK_LOG_KEY);
+    if (!raw) return [];
+    const j = JSON.parse(raw);
+    return Array.isArray(j) ? j : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeHostZadatelMockLog(items) {
+  try {
+    localStorage.setItem(HOST_ZADATEL_MOCK_LOG_KEY, JSON.stringify(items.slice(0, 40)));
+  } catch (_) {
+    /* ignore */
+  }
+}
+
+function pushHostZadatelMockEntry(entry) {
+  const items = readHostZadatelMockLog();
+  items.unshift({ ...entry, at: entry.at || new Date().toISOString() });
+  writeHostZadatelMockLog(items);
+}
+
+function buildMockIntakeResponseFromPayload(payload) {
+  const recordUid = randomMockUuid_();
+  const suf = Date.now().toString(36).toUpperCase().slice(-6);
+  return {
+    ok: true,
+    case_id: `CASE-MOCK-${suf}`,
+    intake_id: `INT-MOCK-${suf}`,
+    record_uid: recordUid,
+    preliminary_result: t('host.mockPrelimResult'),
+    preliminary_risk_score: 3,
+  };
+}
+
+function renderHostZadatelMockInstitutionsTable() {
+  if (!userCasesTableBody) return;
+  const inst = readHostZadatelMockLog().filter((e) => e.kind === 'inst');
+  if (!inst.length) {
+    userCasesTableBody.innerHTML = `<tr><td colspan="12" class="empty-row">${escapeHtml(t('host.mockInstEmpty'))}</td></tr>`;
+    return;
+  }
+  userCasesTableBody.innerHTML = inst
+    .map((item) => {
+      const ruid = String(item.record_uid || '').trim();
+      return `<tr>
+      <td>${escapeHtml(t('user.reqTypeInst'))}</td>
+      <td>${escapeHtml(item.case_id || t('common.emDash'))}</td>
+      <td class="cell-record-uid"><code translate="no">${escapeHtml(ruid || t('common.emDash'))}</code></td>
+      <td>${escapeHtml(formatDate(item.at))}</td>
+      <td>${cellPreview(item.title || '', 40)}</td>
+      <td colspan="7">${escapeHtml(t('host.mockRowNote'))}</td>
+    </tr>`;
+    })
+    .join('');
+}
+
+function renderHostZadatelMockPersonTable() {
+  if (!userPersonRequestsTableBody) return;
+  const pers = readHostZadatelMockLog().filter((e) => e.kind === 'person');
+  if (!pers.length) {
+    userPersonRequestsTableBody.innerHTML = `<tr><td colspan="6" class="empty-row">${escapeHtml(t('host.mockPersonEmpty'))}</td></tr>`;
+    return;
+  }
+  userPersonRequestsTableBody.innerHTML = pers
+    .map((item) => {
+      const pid = String(item.person_analysis_id || '').trim();
+      return `<tr>
+      <td>${escapeHtml(t('user.reqTypePerson'))}</td>
+      <td><code translate="no">${escapeHtml(pid || t('common.emDash'))}</code></td>
+      <td>${escapeHtml(item.subject_legal_name || t('common.emDash'))}</td>
+      <td>${escapeHtml(parStatusLabel(item.status))}</td>
+      <td>${escapeHtml(formatDate(item.at))}</td>
+      <td>${escapeHtml(t('host.mockRowNote'))}</td>
+    </tr>`;
+    })
+    .join('');
+}
+
+/** Řádky z mock logu ve tvaru očekávaném funkcí renderUserPersonRequests (včetně řádku konceptu). */
+function hostZadatelMockPersonItemsForRender() {
+  return readHostZadatelMockLog()
+    .filter((e) => e.kind === 'person')
+    .map((e) => ({
+      person_analysis_id: e.person_analysis_id,
+      subject_legal_name: e.subject_legal_name,
+      status: e.status || 'new',
+      submitted_at: e.at,
+    }));
 }
 
 function persistTesterApplicantEmail() {
@@ -1542,9 +1785,19 @@ function getSession() {
   try {
     const raw = sessionStorage.getItem(SESSION_KEY);
     if (!raw) return null;
-    const s = JSON.parse(raw);
+    let s = JSON.parse(raw);
     if (!s || !s.email || !s.role) return null;
-    if (s.role !== 'user' && s.role !== 'manager') return null;
+    if (s.role === 'host') {
+      s = { ...s, role: 'host_zadatel' };
+      try {
+        sessionStorage.setItem(SESSION_KEY, JSON.stringify(s));
+      } catch (_) {
+        /* ignore */
+      }
+    }
+    if (s.role !== 'user' && s.role !== 'host_zadatel' && s.role !== 'host_admin' && s.role !== 'manager') {
+      return null;
+    }
     if (s.role === 'manager') {
       const mk = String(s.managerKey || '').trim();
       const stat = String(MANAGER_STATIC_KEY || '').trim();
@@ -1580,7 +1833,7 @@ function showLogin() {
 
 function syncApplicantPersonVettingFromSession(session) {
   if (!session || !pvApplicantEmail) return;
-  if (session.role !== 'user' && !isManagerTesterSession(session)) return;
+  if (session.role !== 'user' && !isHostZadatelRole(session.role) && !isManagerTesterSession(session)) return;
   const tester = isManagerTesterSession(session);
   pvApplicantEmail.value = tester
     ? String(session.testerApplicantEmail || session.email || '')
@@ -1598,13 +1851,16 @@ function showApp(session) {
   updateManagerSubNav(session);
 
   if (testerModeBanner) {
-    testerModeBanner.classList.toggle('hidden', !isManagerTesterSession(session));
+    testerModeBanner.classList.toggle(
+      'hidden',
+      !isManagerTesterSession(session) || isHostZadatelSession(session) || isHostAdminSession(session),
+    );
     if (isManagerTesterSession(session)) {
       testerModeBanner.textContent = t('manager.testerBanner');
     }
   }
 
-  if (session.role === 'user' || isManagerTesterSession(session)) {
+  if (isApplicantLayoutSession(session)) {
     layoutUser.classList.remove('hidden');
     layoutManager.classList.add('hidden');
     const emailInput = form.elements.applicant_email;
@@ -1628,6 +1884,7 @@ function showApp(session) {
   }
 
   applyStaticI18n();
+  applyHostApplicantUi(session);
 }
 
 function setTab(tab) {
@@ -1726,7 +1983,17 @@ userLoginForm.addEventListener('submit', async (e) => {
   try {
     const { response, data } = await apiLogin(email, password, 'user');
     if (response.ok && data.ok) {
-      setSession({ email: data.email || email, role: 'user' });
+      const r = String(data.role || 'user').toLowerCase();
+      let role = String(data.role || 'user').toLowerCase();
+      if (role === 'host') role = 'host_zadatel';
+      if (!['user', 'host_zadatel', 'host_admin'].includes(role)) role = 'user';
+      const sess = { email: data.email || email, role };
+      if (role === 'host_admin') {
+        sess.managerKey = HOST_DEMO_MANAGER_KEY;
+        sess.isAdmin = true;
+        sess.canDeleteSubmissions = true;
+      }
+      setSession(sess);
       showApp(getSession());
       await refreshForRole();
       return;
@@ -1882,7 +2149,7 @@ function checkboxToYesNo(checkboxName) {
 function collectFormData() {
   const session = getSession();
   const applicantEmail =
-    session && session.role === 'user'
+    session && (session.role === 'user' || isHostZadatelRole(session.role))
       ? session.email
       : String(form.applicant_email.value || '').trim();
   return {
@@ -1911,7 +2178,8 @@ function intakeDraftStorageKey(email) {
 
 function saveIntakeDraftToStorage() {
   const session = getSession();
-  if (!session || (session.role !== 'user' && !isManagerTesterSession(session)) || !form) return;
+  if (!session || (session.role !== 'user' && !isHostZadatelRole(session.role) && !isManagerTesterSession(session)) || !form)
+    return;
   const payload = collectFormData();
   const raw = {
     v: 2,
@@ -1949,9 +2217,10 @@ function saveIntakeDraftToStorage() {
 
 function loadIntakeDraftFromStorage() {
   const session = getSession();
-  if (!session || (session.role !== 'user' && !isManagerTesterSession(session)) || !form) return;
+  if (!session || (session.role !== 'user' && !isHostZadatelRole(session.role) && !isManagerTesterSession(session)) || !form)
+    return;
   const email =
-    session.role === 'user'
+    session.role === 'user' || isHostZadatelRole(session.role)
       ? session.email
       : String(form.applicant_email.value || session.testerApplicantEmail || session.email || '').trim();
   let raw;
@@ -2007,7 +2276,7 @@ function clearIntakeDraftForCurrentUser() {
   const session = getSession();
   if (!session || !form) return;
   const email =
-    session.role === 'user'
+    session.role === 'user' || isHostZadatelRole(session.role)
       ? session.email
       : String(form.applicant_email.value || session.testerApplicantEmail || session.email || '').trim();
   try {
@@ -2019,7 +2288,7 @@ function clearIntakeDraftForCurrentUser() {
 
 function getApplicantEmailForDrafts(session) {
   if (!session) return '';
-  if (session.role === 'user') return String(session.email || '').trim();
+  if (session.role === 'user' || isHostZadatelRole(session.role)) return String(session.email || '').trim();
   if (isManagerTesterSession(session)) {
     return String(
       (form && form.elements.applicant_email && form.elements.applicant_email.value) ||
@@ -2059,7 +2328,11 @@ function readPersonVettingDraftSavedAt(email) {
 
 function savePersonVettingDraftToStorage() {
   const session = getSession();
-  if (!session || (session.role !== 'user' && !isManagerTesterSession(session)) || !applicantPersonVettingForm) {
+  if (
+    !session ||
+    (session.role !== 'user' && !isHostZadatelRole(session.role) && !isManagerTesterSession(session)) ||
+    !applicantPersonVettingForm
+  ) {
     return;
   }
   const email = getApplicantEmailForDrafts(session);
@@ -2085,7 +2358,11 @@ function savePersonVettingDraftToStorage() {
 
 function loadPersonVettingDraftFromStorage() {
   const session = getSession();
-  if (!session || (session.role !== 'user' && !isManagerTesterSession(session)) || !applicantPersonVettingForm) {
+  if (
+    !session ||
+    (session.role !== 'user' && !isHostZadatelRole(session.role) && !isManagerTesterSession(session)) ||
+    !applicantPersonVettingForm
+  ) {
     return;
   }
   const email = getApplicantEmailForDrafts(session);
@@ -2268,6 +2545,285 @@ function addCalendarDays(base, days) {
   if (Number.isNaN(d.getTime())) return new Date();
   d.setDate(d.getDate() + days);
   return d;
+}
+
+function resetHostDemoDatasets() {
+  const now = new Date();
+  const iso = (d) => {
+    const x = d instanceof Date ? d : new Date(d);
+    return Number.isNaN(x.getTime()) ? now.toISOString() : x.toISOString();
+  };
+  const dDueSoon = addCalendarDays(now, 3);
+  const dDueOver = addCalendarDays(now, -4);
+  const dCreated1 = addCalendarDays(now, -40);
+  const dCreated2 = addCalendarDays(now, -12);
+  hostDemoCases = [
+    {
+      case_id: 'CASE-DEMO-2026-001',
+      record_uid: 'aaaaaaaa-bbbb-4ccc-dddd-000000000001',
+      created_at: iso(dCreated1),
+      applicant_name: 'Alex Ukázkový',
+      applicant_email: 'alex.ukazkovy@uhk.demo',
+      applicant_unit: 'FIM (fiktivní)',
+      title: 'Demo: výzkumná spolupráce a země s vyšším rizikem',
+      description: 'Smyslený záměr pro školení IRIS; neodpovídá skutečnému podání.',
+      partner_name: 'Demo Research Institute East',
+      partner_country: 'Čína',
+      case_type: 'výzkumná spolupráce',
+      status: 'under_review',
+      priority: 'vysoká',
+      risk_level: 'střední',
+      preliminary_risk_score: 5,
+      preliminary_result: 'Předběžné vyhodnocení (demo data).',
+      due_date: iso(dDueSoon),
+      days_until_due: 3,
+      due_soon: true,
+      due_overdue_flag: false,
+      iris_statement: 'Vyjádření IRIS (ukázkový text).',
+      next_step_note: 'Doplnit podklady od žadatele (demo).',
+      analysis_document_url: 'https://example.invalid/iris-demo-analyza.pdf',
+      final_outcome: '',
+      conditions_summary: '',
+      source_intake_id: 'INT-DEMO-001',
+      intake_cooperation_type: 'výzkumná spolupráce',
+      intake_cooperation_stage: 'příprava MoU',
+      intake_intent_description: 'Smyslený popis záměru spolupráce v oblasti AI (demo).',
+      intake_partner_website: 'https://example.org',
+      intake_external_funding: 'ano',
+      intake_access_to_uhk_systems: 'ne',
+      intake_sharing_data_knowhow: 'ano',
+      intake_sensitive_outputs: 'ano',
+      intake_transfer_outside_eu: 'ano',
+      intake_training_or_technical_assistance: 'ne',
+      intake_involves_doctoral_students_or_infrastructure: 'ano',
+      intake_auto_flags: 'externí financování, sdílení dat',
+      intake_country_matches: 'Čína',
+      intake_country_risk_category: 'zvýšené',
+      intake_country_risk_score: 3,
+      risk_reputational: 'střední',
+      risk_legal: 'nízké',
+      risk_financial: 'nízké',
+      risk_security: 'střední',
+      risk_ethical: 'nízké',
+      risk_other: 'nehodnoceno',
+      analysis_subject: 'Demo: předmět analýzy',
+      analysis_scope_methodology: 'Rozsah (demo) – OSINT, veřejné registry.',
+      analysis_conclusion: 'Závěr zatím neformální (demo).',
+      analysis_recommendations: 'Doporučení pro interní postup (demo).',
+      analysis_recurrence_note: '',
+      next_analysis_due: iso(addCalendarDays(now, 180)),
+      dd_required: true,
+    },
+    {
+      case_id: 'CASE-DEMO-2026-002',
+      record_uid: 'bbbbbbbb-cccc-4ddd-eeee-000000000002',
+      created_at: iso(dCreated2),
+      applicant_name: 'Blanka Fiktivní',
+      applicant_email: 'blanka.fiktivni@uhk.demo',
+      applicant_unit: 'PF (fiktivní)',
+      title: 'Demo: uzavřený příklad (nízké riziko)',
+      description: 'Druhý smyšlený případ pro přehled stavů.',
+      partner_name: 'Partner Demo EU s.r.o.',
+      partner_country: 'Německo',
+      case_type: 'memorandum / MoU',
+      status: 'closed',
+      priority: 'nízká',
+      risk_level: 'nízké',
+      preliminary_risk_score: 2,
+      preliminary_result: 'Nízké riziko (demo).',
+      due_date: iso(dDueOver),
+      days_until_due: -4,
+      due_soon: false,
+      due_overdue_flag: true,
+      iris_statement: 'Případ ukončen (demo).',
+      next_step_note: '',
+      analysis_document_url: '',
+      final_outcome: 'Schváleno s podmínkami (demo).',
+      conditions_summary: 'Běžný monitoring (demo).',
+      source_intake_id: 'INT-DEMO-002',
+      intake_cooperation_type: 'memorandum / MoU',
+      intake_cooperation_stage: 'podpis',
+      intake_intent_description: 'Memorandum o spolupráci v oblasti mobility (demo).',
+      intake_partner_website: '',
+      intake_external_funding: 'ne',
+      intake_access_to_uhk_systems: 'ne',
+      intake_sharing_data_knowhow: 'ne',
+      intake_sensitive_outputs: 'ne',
+      intake_transfer_outside_eu: 'ne',
+      intake_training_or_technical_assistance: 'ne',
+      intake_involves_doctoral_students_or_infrastructure: 'ne',
+      intake_auto_flags: '',
+      intake_country_matches: '',
+      intake_country_risk_category: '',
+      intake_country_risk_score: 0,
+      risk_reputational: 'nízké',
+      risk_legal: 'nízké',
+      risk_financial: 'nízké',
+      risk_security: 'nízké',
+      risk_ethical: 'nízké',
+      risk_other: 'nehodnoceno',
+      analysis_subject: '',
+      analysis_scope_methodology: '',
+      analysis_conclusion: '',
+      analysis_recommendations: '',
+      analysis_recurrence_note: '',
+      next_analysis_due: '',
+      dd_required: false,
+    },
+  ];
+  hostDemoParItems = [
+    {
+      person_analysis_id: 'PAR-DEMO-2026-001',
+      submission_channel: 'applicant',
+      submitter_email: 'demo.zadatel@uhk.demo',
+      subject_legal_name: 'Prof. Demo Researcher',
+      status: 'new',
+      urgency: 'medium',
+      submitted_at: iso(addCalendarDays(now, -5)),
+    },
+    {
+      person_analysis_id: 'PAR-DEMO-2026-002',
+      submission_channel: 'manager',
+      submitter_email: 'iris.manager@uhk.demo',
+      subject_legal_name: 'Dr. Smyšlená Osoba',
+      status: 'under_review',
+      urgency: 'low',
+      submitted_at: iso(addCalendarDays(now, -20)),
+    },
+  ];
+}
+
+function ensureHostDemoDatasets() {
+  if (!hostDemoCases.length) {
+    resetHostDemoDatasets();
+  }
+}
+
+function summarizeHostDemoCases(items) {
+  const list = items || [];
+  let open = 0;
+  let closed = 0;
+  for (let i = 0; i < list.length; i++) {
+    const st = String(list[i].status || '').trim();
+    if (st === 'closed') closed += 1;
+    else open += 1;
+  }
+  let overdue = 0;
+  let dueSoon = 0;
+  let nextSoon = 0;
+  let nextOver = 0;
+  for (let j = 0; j < list.length; j++) {
+    const row = list[j];
+    if (isCaseOverdue(row)) overdue += 1;
+    if (isCaseDueSoon(row)) dueSoon += 1;
+    const na = parseCaseDateValue(row.next_analysis_due);
+    if (na) {
+      const diff = Math.ceil((na.getTime() - Date.now()) / (86400000));
+      if (diff < 0) nextOver += 1;
+      else if (diff >= 0 && diff <= 30) nextSoon += 1;
+    }
+  }
+  return {
+    total: list.length,
+    open_cases: open,
+    closed_cases: closed,
+    overdue_cases: overdue,
+    due_soon_cases: dueSoon,
+    next_analysis_overdue: nextOver,
+    next_analysis_soon: nextSoon,
+  };
+}
+
+function filterHostDemoCasesInMemory(items) {
+  let rows = (items || []).slice();
+  const st = filterStatus && filterStatus.value;
+  const pr = filterPriority && filterPriority.value;
+  const rawSearch = searchCases && String(searchCases.value || '').trim();
+  if (st) {
+    rows = rows.filter((r) => String(r.status || '').trim() === st);
+  }
+  if (pr) {
+    rows = rows.filter((r) => String(r.priority || '').trim() === pr);
+  }
+  if (rawSearch) {
+    const s = rawSearch.toLowerCase();
+    const uuidLike =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    if (uuidLike.test(rawSearch)) {
+      const want = rawSearch.toLowerCase();
+      rows = rows.filter((r) => String(r.record_uid || '').trim().toLowerCase() === want);
+    } else {
+      const compact = rawSearch.replace(/-/g, '').toLowerCase();
+      rows = rows.filter((r) => {
+        const t1 = String(r.case_id || '').toLowerCase();
+        const t2 = String(r.record_uid || '').replace(/-/g, '').toLowerCase();
+        const t3 = String(r.title || '').toLowerCase();
+        const t4 = String(r.partner_name || '').toLowerCase();
+        return t1.includes(s) || t2.includes(compact) || t3.includes(s) || t4.includes(s);
+      });
+    }
+  }
+  return rows;
+}
+
+function hideHostAdminDemoBannerEl() {
+  const b = document.getElementById('hostAdminDemoBanner');
+  if (b) {
+    b.classList.add('hidden');
+    b.textContent = '';
+  }
+}
+
+function showHostAdminDemoBannerEl() {
+  const b = document.getElementById('hostAdminDemoBanner');
+  if (b) {
+    b.classList.remove('hidden');
+    b.textContent = t('host.adminDemoBanner');
+  }
+}
+
+function mergeHostDemoCaseFromPanel(caseId) {
+  const idx = hostDemoCases.findIndex((c) => String(c.case_id) === String(caseId));
+  if (idx < 0) return false;
+  const base = { ...hostDemoCases[idx] };
+  const snap = getManagerPanelCaseSnapshot();
+  const merged = { ...base, ...snap };
+  merged.iris_statement = managerCaseStatement ? managerCaseStatement.value : merged.iris_statement;
+  merged.next_step_note = managerCaseNextStep ? managerCaseNextStep.value : merged.next_step_note;
+  merged.analysis_document_url =
+    managerCaseAnalysisUrl && managerCaseAnalysisUrl.value.trim()
+      ? managerCaseAnalysisUrl.value.trim()
+      : merged.analysis_document_url;
+  if (managerCaseRiskLevel) merged.risk_level = managerCaseRiskLevel.value;
+  if (managerCaseRiskScore) {
+    const rs = managerCaseRiskScore.value.trim();
+    merged.preliminary_risk_score = rs === '' ? '' : Number(rs);
+  }
+  if (managerCasePreliminaryResult) merged.preliminary_result = managerCasePreliminaryResult.value;
+  if (managerCaseFinalOutcome) merged.final_outcome = managerCaseFinalOutcome.value;
+  if (managerRiskReputational) {
+    merged.risk_reputational = managerRiskReputational.value;
+    merged.risk_legal = managerRiskLegal.value;
+    merged.risk_financial = managerRiskFinancial.value;
+    merged.risk_security = managerRiskSecurity.value;
+    merged.risk_ethical = managerRiskEthical.value;
+    merged.risk_other = managerRiskOther.value;
+  }
+  if (managerAnalysisSubject) merged.analysis_subject = managerAnalysisSubject.value.trim();
+  if (managerAnalysisScope) merged.analysis_scope_methodology = managerAnalysisScope.value.trim();
+  if (managerAnalysisConclusion) merged.analysis_conclusion = managerAnalysisConclusion.value.trim();
+  if (managerAnalysisRecs) merged.analysis_recommendations = managerAnalysisRecs.value.trim();
+  if (managerAnalysisRecurrence) merged.analysis_recurrence_note = managerAnalysisRecurrence.value.trim();
+  if (managerNextAnalysisDue && managerNextAnalysisDue.value) {
+    merged.next_analysis_due = new Date(`${managerNextAnalysisDue.value}T12:00:00`).toISOString();
+  }
+  const dueVal = managerCaseDue ? managerCaseDue.value : '';
+  if (dueVal) {
+    const d = new Date(dueVal);
+    if (!Number.isNaN(d.getTime())) merged.due_date = d.toISOString();
+  }
+  hostDemoCases[idx] = merged;
+  return true;
 }
 
 function parseCaseDateValue(v) {
@@ -2834,6 +3390,10 @@ function renderUserPersonRequests(items) {
 async function loadApplicantPersonRequests() {
   if (!userPersonRequestsTableBody) return;
   const session = getSession();
+  if (isHostZadatelSession(session)) {
+    renderUserPersonRequests(hostZadatelMockPersonItemsForRender());
+    return;
+  }
   const userLike = session && (session.role === 'user' || isManagerTesterSession(session));
   if (!userLike) return;
   const em = getApplicantEmailForDrafts(session);
@@ -2862,9 +3422,41 @@ async function loadManagerPersonAnalysisList() {
   if (!managerParTableBody) return;
   const session = getSession();
   const mk = resolveManagerKeyForRequest(session);
-  if (!session || session.role !== 'manager' || !mk || isManagerTesterSession(session)) {
+  if (!session || !mk || isManagerTesterSession(session)) {
     return;
   }
+  if (!isHostAdminSession(session) && session.role !== 'manager') {
+    return;
+  }
+
+  if (isHostAdminSession(session)) {
+    ensureHostDemoDatasets();
+    const items = hostDemoParItems.slice();
+    if (!items.length) {
+      managerParTableBody.innerHTML = `<tr><td colspan="7" class="empty-row">${escapeHtml(t('user.personReqEmpty'))}</td></tr>`;
+      return;
+    }
+    const canDel = isSessionCanDeleteSubmissions(session);
+    managerParTableBody.innerHTML = items
+      .map((item) => {
+        const pid = escapeHtml(item.person_analysis_id);
+        const delBtn = canDel
+          ? `<button type="button" class="btn-danger btn-compact" data-delete-par-id="${escapeAttr(item.person_analysis_id)}">${escapeHtml(t('manager.parDelete'))}</button>`
+          : escapeHtml(t('common.emDash'));
+        return `<tr>
+          <td><code translate="no">${pid}</code></td>
+          <td>${escapeHtml(item.submission_channel || t('common.emDash'))}</td>
+          <td>${escapeHtml(item.submitter_email || '')}</td>
+          <td>${escapeHtml(item.subject_legal_name || t('common.emDash'))}</td>
+          <td>${escapeHtml(parStatusLabel(item.status))}</td>
+          <td>${escapeHtml(formatDate(item.submitted_at))}</td>
+          <td>${delBtn}</td>
+        </tr>`;
+      })
+      .join('');
+    return;
+  }
+
   managerParTableBody.innerHTML = `<tr><td colspan="7" class="empty-row">${escapeHtml(t('manager.loadingCases'))}</td></tr>`;
   try {
     const params = new URLSearchParams({
@@ -2914,6 +3506,14 @@ function setManagerParListMessage(text, isError = false) {
 
 async function loadDashboard() {
   const session = getSession();
+  if (isHostAdminSession(session)) {
+    ensureHostDemoDatasets();
+    renderDashboard(summarizeHostDemoCases(hostDemoCases));
+    showHostAdminDemoBannerEl();
+    return;
+  }
+  hideHostAdminDemoBannerEl();
+
   const q = new URLSearchParams({ action: 'dashboard' });
   const mk = resolveManagerKeyForRequest(session);
   if (session && session.role === 'manager' && mk) {
@@ -2965,6 +3565,15 @@ function buildCasesParams() {
 }
 
 async function loadManagerCases() {
+  const sessionLm = getSession();
+  if (isHostAdminSession(sessionLm)) {
+    ensureHostDemoDatasets();
+    casesTableBody.innerHTML = `<tr><td colspan="10" class="empty-row">${escapeHtml(t('manager.loadingCases'))}</td></tr>`;
+    managerCasesCache = filterHostDemoCasesInMemory(hostDemoCases);
+    renderManagerCases(managerCasesCache);
+    return;
+  }
+
   casesTableBody.innerHTML = `<tr><td colspan="10" class="empty-row">${escapeHtml(t('manager.loadingCases'))}</td></tr>`;
 
   const response = await fetch(`${API_URL}?${buildCasesParams().toString()}`);
@@ -2980,6 +3589,11 @@ async function loadManagerCases() {
 
 async function loadUserCases() {
   if (!userCasesTableBody) return;
+  const sessionPre = getSession();
+  if (isHostZadatelSession(sessionPre)) {
+    renderHostZadatelMockInstitutionsTable();
+    return;
+  }
   userCasesTableBody.innerHTML = `<tr><td colspan="12" class="empty-row">${escapeHtml(t('user.loadingRow'))}</td></tr>`;
 
   const params = buildCasesParams();
@@ -3017,12 +3631,24 @@ async function refreshForRole() {
         await loadManagerCases();
         await loadManagerPersonAnalysisList();
       }
+    } else if (isHostAdminSession(session)) {
+      await loadDashboard();
+      await loadManagerCases();
+      await loadManagerPersonAnalysisList();
+    } else if (isHostZadatelSession(session)) {
+      renderHostZadatelMockInstitutionsTable();
+      if (userPersonRequestsTableBody) {
+        renderUserPersonRequests(hostZadatelMockPersonItemsForRender());
+      }
     } else {
       await loadUserCases();
       await loadApplicantPersonRequests();
     }
   } catch (error) {
-    if (session.role === 'manager' && !isManagerTesterSession(session)) {
+    if (
+      (session.role === 'manager' && !isManagerTesterSession(session)) ||
+      isHostAdminSession(session)
+    ) {
       setManagerStatus(error.message || t('cases.loadFail'), true);
     } else {
       if (userCasesTableBody) {
@@ -3044,8 +3670,8 @@ async function submitForm(event) {
 
   const session = getSession();
   const asTester = isManagerTesterSession(session);
-  if (!session || (session.role !== 'user' && !asTester)) {
-    setStatus(t('err.userOnlySubmit'), 'error');
+  if (!session || !canSubmitApplicantForms(session)) {
+    setStatus(isHostAdminSession(session) ? t('err.hostAdminNoSubmit') : t('err.userOnlySubmit'), 'error');
     return;
   }
   if (asTester && !resolveManagerKeyForRequest(session)) {
@@ -3064,6 +3690,36 @@ async function submitForm(event) {
 
     submitButton.disabled = true;
     setStatus(t('submit.sending'), 'neutral');
+
+    if (isHostZadatelSession(session)) {
+      const data = buildMockIntakeResponseFromPayload(payload);
+      pushHostZadatelMockEntry({
+        kind: 'inst',
+        case_id: data.case_id,
+        record_uid: data.record_uid,
+        intake_id: data.intake_id,
+        title: payload.partner_name,
+        partner_name: payload.partner_name,
+        at: new Date().toISOString(),
+      });
+      showResult(data);
+      await refreshForRole();
+      setStatus(t('host.mockSubmitSuccessInst'), 'success');
+      clearIntakeDraftForCurrentUser();
+      form.reset();
+      const sAfter = getSession();
+      if (sAfter.role === 'user' || isHostZadatelRole(sAfter.role)) {
+        form.elements.applicant_email.value = sAfter.email;
+        form.elements.applicant_email.readOnly = true;
+        form.elements.applicant_email.classList.add('input-readonly');
+      } else if (isManagerTesterSession(sAfter)) {
+        form.elements.applicant_email.value = sAfter.testerApplicantEmail || sAfter.email;
+        form.elements.applicant_email.readOnly = false;
+        form.elements.applicant_email.classList.remove('input-readonly');
+      }
+      syncApplicantPersonVettingFromSession(sAfter);
+      return;
+    }
 
     const response = await fetch(API_URL, {
       method: 'POST',
@@ -3089,7 +3745,7 @@ async function submitForm(event) {
     clearIntakeDraftForCurrentUser();
     form.reset();
     const sAfter = getSession();
-    if (sAfter.role === 'user') {
+    if (sAfter.role === 'user' || isHostZadatelRole(sAfter.role)) {
       form.elements.applicant_email.value = sAfter.email;
       form.elements.applicant_email.readOnly = true;
       form.elements.applicant_email.classList.add('input-readonly');
@@ -3108,7 +3764,7 @@ async function submitForm(event) {
 
 function fillDemoData() {
   const session = getSession();
-  if (!session || (session.role !== 'user' && !isManagerTesterSession(session))) return;
+  if (!session || !isApplicantLayoutSession(session)) return;
 
   form.applicant_name.value = 'Jan Novák';
   form.applicant_email.value = isManagerTesterSession(session)
@@ -3226,6 +3882,12 @@ if (managerParTableBody) {
     btn.disabled = true;
     setManagerParListMessage('', false);
     try {
+      if (isHostAdminSession(session)) {
+        hostDemoParItems = hostDemoParItems.filter((r) => String(r.person_analysis_id) !== String(id));
+        setManagerParListMessage(t('host.demoDeleteOk'), false);
+        await loadManagerPersonAnalysisList();
+        return;
+      }
       const response = await fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -3262,7 +3924,6 @@ if (btnExitTesterMode) {
     exitTesterMode();
   });
 }
-
 refreshCasesButton.addEventListener('click', refreshOverview);
 filterStatus.addEventListener('change', loadManagerCases);
 filterPriority.addEventListener('change', loadManagerCases);
@@ -3324,7 +3985,11 @@ if (personAnalysisForm && personAnalysisSubmit) {
     setPersonAnalysisFormMessage('', false);
     const session = getSession();
     const mkPa = resolveManagerKeyForRequest(session);
-    if (!session || session.role !== 'manager' || !mkPa || isManagerTesterSession(session)) {
+    if (!session || !mkPa || isManagerTesterSession(session)) {
+      setPersonAnalysisFormMessage(t('manager.paFail'), true);
+      return;
+    }
+    if (session.role !== 'manager' && !isHostAdminSession(session)) {
       setPersonAnalysisFormMessage(t('manager.paFail'), true);
       return;
     }
@@ -3339,6 +4004,23 @@ if (personAnalysisForm && personAnalysisSubmit) {
     });
     personAnalysisSubmit.disabled = true;
     try {
+      if (isHostAdminSession(session)) {
+        ensureHostDemoDatasets();
+        const pid = `PAR-DEMO-${Date.now()}`;
+        hostDemoParItems.unshift({
+          person_analysis_id: pid,
+          submission_channel: 'manager',
+          submitter_email: String(session.email || '').trim() || 'host@demo',
+          subject_legal_name: String(payload.subject_legal_name || 'Demo subject').trim() || 'Demo subject',
+          status: 'new',
+          urgency: String(payload.urgency || 'medium').trim() || 'medium',
+          submitted_at: new Date().toISOString(),
+        });
+        setPersonAnalysisFormMessage(t('manager.paOk', { id: pid }), false);
+        personAnalysisForm.reset();
+        await loadManagerPersonAnalysisList();
+        return;
+      }
       const response = await fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -3373,8 +4055,8 @@ if (applicantPersonVettingForm && pvSubmit) {
     setPvFormMessage('', false);
     const session = getSession();
     const asTester = isManagerTesterSession(session);
-    if (!session || (session.role !== 'user' && !asTester)) {
-      setPvFormMessage(t('user.pvFail'), true);
+    if (!session || !canSubmitApplicantForms(session)) {
+      setPvFormMessage(isHostAdminSession(session) ? t('err.hostAdminNoSubmit') : t('user.pvFail'), true);
       return;
     }
     const fd = new FormData(applicantPersonVettingForm);
@@ -3396,6 +4078,24 @@ if (applicantPersonVettingForm && pvSubmit) {
     }
     pvSubmit.disabled = true;
     try {
+      if (isHostZadatelSession(session)) {
+        const pid = `PAR-MOCK-${Date.now().toString(36).toUpperCase().slice(-10)}`;
+        pushHostZadatelMockEntry({
+          kind: 'person',
+          person_analysis_id: pid,
+          subject_legal_name: payload.subject_legal_name,
+          status: 'new',
+          at: new Date().toISOString(),
+        });
+        setPvFormMessage(t('host.mockSubmitSuccessPerson'), false);
+        applicantPersonVettingForm.reset();
+        syncApplicantPersonVettingFromSession(getSession());
+        clearPersonVettingDraftForCurrentUser();
+        if (currentUserMainView === 'requests') {
+          loadApplicantPersonRequests().catch(() => {});
+        }
+        return;
+      }
       const response = await fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -3780,6 +4480,14 @@ if (managerCaseDelete) {
     if (!window.confirm(t('admin.deleteConfirm'))) return;
     managerCaseDelete.disabled = true;
     try {
+      if (isHostAdminSession(session)) {
+        hostDemoCases = hostDemoCases.filter((c) => String(c.case_id) !== String(caseId));
+        setManagerStatus(t('host.demoDeleteOk'), false);
+        closeManagerCasePanel();
+        await loadManagerCases();
+        await loadDashboard();
+        return;
+      }
       const response = await fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -3838,12 +4546,27 @@ if (downloadRefTxtBtn) {
 
 managerCaseSave.addEventListener('click', async () => {
   const session = getSession();
-  if (!session || session.role !== 'manager') return;
+  if (!session || (session.role !== 'manager' && !isHostAdminSession(session))) return;
 
   const caseId = managerEditCaseId.value.trim();
   if (!caseId) return;
 
   managerCaseFormMessage.classList.add('hidden');
+
+  if (isHostAdminSession(session)) {
+    const file = managerCaseFile.files && managerCaseFile.files[0];
+    if (file) {
+      managerCaseFormMessage.textContent = t('host.demoFileSkipped');
+      managerCaseFormMessage.classList.remove('hidden');
+      managerCaseFormMessage.classList.remove('manager-case-form-msg--error');
+    }
+    mergeHostDemoCaseFromPanel(caseId);
+    await loadManagerCases();
+    await loadDashboard();
+    closeManagerCasePanel();
+    setManagerStatus(t('host.demoCaseSaved'), false);
+    return;
+  }
 
   const payload = {
     action: 'update_case',
@@ -3966,6 +4689,7 @@ function setLang(lang) {
     sessionBadge.textContent = formatSessionBadge(session);
     updateTesterModeButtons(session);
     updateManagerSubNav(session);
+    applyHostApplicantUi(session);
     refreshForRole().catch(() => {});
   }
   const sessBanner = getSession();
@@ -3981,7 +4705,11 @@ function setLang(lang) {
     }
   }
   const sessAfter = getSession();
-  if (sessAfter && sessAfter.role === 'manager' && !isManagerTesterSession(sessAfter)) {
+  if (
+    sessAfter &&
+    !isManagerTesterSession(sessAfter) &&
+    (sessAfter.role === 'manager' || isHostAdminSession(sessAfter))
+  ) {
     updateManagerReminderBanner(lastDashboardSummary);
   }
 }
@@ -4015,6 +4743,9 @@ function bindLangButtons() {
 
   const session = getSession();
   if (session) {
+    if (isHostAdminSession(session)) {
+      ensureHostDemoDatasets();
+    }
     showApp(session);
     refreshForRole();
   } else {
